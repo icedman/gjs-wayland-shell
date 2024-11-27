@@ -6,7 +6,28 @@ import Panel from "./panel.js";
 import { Power } from "./modules/power.js";
 import { Network } from "./modules/network.js";
 import { Volume, Mic } from "./modules/volume.js";
+import { Trash } from "./modules/trash.js";
 import ShellService from "./shell.js";
+
+// let settingsShell = new Gio.Settings({ schema_id: 'org.gnome.shell' });
+// let apps = settingsShell.get_value('favorite-apps').deepUnpack();
+
+let apps = [
+  {
+    icon_name: "view-app-grid-symbolic",
+    title: "Fuzzel",
+    cmd: `fuzzel`,
+  },
+  "kitty.desktop",
+  "org.gnome.Nautilus.desktop",
+  "google-chrome.desktop",
+  "org.mozilla.firefox.desktop",
+  "org.gnome.Calendar.desktop",
+  "org.gnome.clocks.desktop",
+  "org.gnome.Software.desktop",
+  "org.gnome.TextEditor.desktop",
+  "trash",
+];
 
 // Initialize Gtk before you start calling anything from the import
 Gtk.init();
@@ -33,7 +54,7 @@ globalThis.Main = {
   },
 
   // ui
-  dock: new Dock(),
+  dock: new Dock({ apps }),
   panel: new Panel(),
 
   // modules
@@ -42,22 +63,21 @@ globalThis.Main = {
   network: new Network(),
   volume: new Volume(),
   mic: new Mic(),
-
-  modules: [],
+  trash: new Trash(),
 };
 
-Main.modules = [
-  ...Main.modules,
+// init the modules
+[
   Main.shell,
   Main.power,
   Main.network,
   Main.volume,
   Main.mic,
-];
-Main.modules.forEach(async (m) => {
+  Main.trash,
+  Main.dock,
+  Main.panel,
+].forEach(async (m) => {
   m.init();
 });
-Main.dock.init();
-Main.panel.init();
 
 loop.run();

@@ -39,8 +39,12 @@ export const PanelItem = GObject.registerClass(
     }
 
     set_icon(icon) {
-      this.icon.set_from_icon_name(icon);
       this.icon.set_visible(icon);
+      if (icon && icon.startsWith("/")) {
+        this.icon.set_from_file(icon);
+      } else {
+        this.icon.set_from_icon_name(icon);
+      }
     }
   },
 );
@@ -89,6 +93,13 @@ export const Panel = GObject.registerClass(
       box.append(left);
       box.append(center);
       box.append(right);
+
+      let logo = new PanelItem({
+        name: "Logo",
+      });
+      logo.set_label("Fedora");
+      // logo.set_icon('/usr/share/fedora-logos/fedora_logo_darkbackground.svg');
+      left.append(logo);
 
       let clock = new PanelItem({
         name: "Clock",

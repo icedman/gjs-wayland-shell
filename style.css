@@ -1,7 +1,7 @@
 #Dock {
     background: transparent;
     opacity: 1;
-    transition: opacity 0.5s ease-in-out;
+    transition: opacity 0.25s ease-in-out;
 }
 
 #Dock button {
@@ -9,6 +9,10 @@
     background: rgba(0,0,0,0);
     border-radius: 16px;
     -gtk-icon-shadow: rgba(0, 0, 0, 0.6) 0 6px 6px;
+}
+
+#Dock button image {
+    color: rgba(255,255,255,1);
 }
 
 #Dock button:hover {
@@ -27,18 +31,22 @@
 }
 
 #background {
-/*    border: 2px solid red;*/
     border-radius: 20px;
     background: rgba(0,0,0,0.5);
     padding: 6px;
-    filter: blur(12px);
+    filter: blur(50px);
 }
 
 #Panel {
     border-radius: 0px;
     background: transparent;
     opacity: 1;
-    transition: opacity 0.5s ease-in-out;
+    transition: opacity 0.25s ease-in-out;
+}
+
+#Logo * {
+    font-family: Helvetica;
+    font-weight: bold;
 }
 
 #Panel #background,
@@ -51,6 +59,17 @@
 }
 
 .panel-item .icon {
+    margin: 0px;
+    padding: 0px;
     padding-left: 8px;
     padding-right: 8px;
+}
+
+
+#Menu contents {
+    background: rgba(0,0,0,1);
+}
+
+#Menu * {
+    color: rgba(200,200,200,1);
 }

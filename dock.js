@@ -5,45 +5,139 @@ import Gio from "gi://Gio";
 import GObject from "gi://GObject";
 import LayerShell from "gi://Gtk4LayerShell";
 
-// let settingsShell = new Gio.Settings({ schema_id: 'org.gnome.shell' });
-// let apps = settingsShell.get_value('favorite-apps').deepUnpack();
+function appInfoMenuModel(appInfo) {
+  let desktopFilePath = GLib.build_filenamev([
+    "/usr/share/applications",
+    appInfo.get_id(),
+  ]); // Adjust path as needed
+  let content = GLib.file_get_contents(desktopFilePath)[1];
+  let lines = String.fromCharCode.apply(null, content).split("\n");
 
-let apps = [
-  "kitty.desktop",
-  "org.gnome.Nautilus.desktop",
-  "google-chrome.desktop",
-  "org.mozilla.firefox.desktop",
-  "org.gnome.Calendar.desktop",
-  "org.gnome.clocks.desktop",
-  "org.gnome.Software.desktop",
-  "org.gnome.TextEditor.desktop",
-];
+  let items = [
+    {
+      action: "open",
+      name: "Open Window",
+      exec: appInfo.get_string("Exec").replace("%U", "").trim(),
+    },
+  ];
+
+  // console.log(lines);
+  appInfo.list_actions().forEach((action) => {
+    let name = appInfo.get_action_name(action);
+    console.log(`${action}]`);
+    let nextExec = true;
+    let exec = null;
+    for (let i = 0; i < lines.length; i++) {
+      let line = lines[i].trim();
+      if (line.includes(`${action}]`)) {
+        nextExec = true;
+      }
+      if (nextExec && line.startsWith("Exec")) {
+        exec = line.replace("Exec=", "").replace("%U", "").trim();
+        break;
+      }
+    }
+
+    items.push({ action, name, exec });
+  });
+
+  // items.push()
+
+  if (items.length == 1) return [];
+
+  return items;
+}
 
 export const DockItem = GObject.registerClass(
   class DockItem extends Gtk.Box {
     _init(params) {
-      let appInfo = Gio.DesktopAppInfo.new(params.app);
-      let iconName = appInfo.get_string("Icon");
-      let title = appInfo.get_string("Name");
-      let cmd = appInfo.get_string("Exec").replace("%U", "").trim();
+      let appInfo = params.app;
+
+      if (appInfo && typeof appInfo === "string") {
+        appInfo = Gio.DesktopAppInfo.new(params.app);
+        if (appInfo) {
+          let icon_name = appInfo.get_string("Icon");
+          let title = appInfo.get_string("Name");
+          let cmd = appInfo.get_string("Exec").replace("%U", "").trim();
+          appInfo = {
+            title,
+            icon_name,
+            cmd,
+            menu: appInfoMenuModel(appInfo),
+          };
+        }
+      }
+
+      if (!appInfo && params.app == "trash") {
+        appInfo = {
+          icon_name: "user-trash",
+          title: "Trash",
+          cmd: `nautilus --select trash:///`,
+        };
+        Main.trash.subscribe(this, "trash-update", (state) => {
+          if (state.full) {
+            this.btn.child.set_from_icon_name("user-trash-full");
+          } else {
+            this.btn.child.set_from_icon_name("user-trash");
+          }
+        });
+      }
 
       super._init({
         name: "DockItem",
       });
 
       this.btn = new Gtk.Button({
-        icon_name: iconName,
-        tooltip_text: title,
+        icon_name: appInfo.icon_name,
+        // tooltip_text: appInfo.title,
       });
+
+      // right click
+      if (appInfo.menu?.length > 0) {
+        let actionGroup = new Gio.SimpleActionGroup();
+
+        let model = new Gio.Menu();
+        appInfo.menu.forEach((item) => {
+          model.append(item.name, item.action);
+
+          let act = new Gio.SimpleAction({ name: item.action });
+          act.connect("activate", (_) => {
+            console.log(item.action);
+          });
+
+          actionGroup.add_action(act);
+        });
+
+        let menu = Gtk.PopoverMenu.new_from_model(model);
+        menu.insert_action_group("menu", actionGroup);
+
+        // menu.add_chil
+        menu.name = "Menu";
+        menu.has_arrow = false;
+        menu.position = 2;
+
+        menu.connect("activate-default", (item) => {
+          console.log(item);
+        });
+
+        let evt = new Gtk.GestureClick();
+        evt.set_button(3);
+        evt.connect("pressed", (actor, count) => {
+          menu.popup();
+        });
+        this.btn.add_controller(evt);
+        this.append(menu);
+
+        menu.set_parent(this);
+      }
+
       this.btn.connect("clicked", (actor) => {
         try {
-          Main.shell.spawn(cmd);
+          Main.shell.spawn(appInfo.cmd);
         } catch (err) {
           console.log(err);
         }
       });
-
-      // this.btn.child.set_cursor(Gdk.Cursor.new_from_name('pointer', null));
       this.btn.child.set_pixel_size(48);
       this.append(this.btn);
     }
@@ -53,6 +147,9 @@ export const DockItem = GObject.registerClass(
 export const Dock = GObject.registerClass(
   class Dock extends Gtk.Window {
     _init(params) {
+      this.apps = params?.apps ?? [];
+      delete params?.apps;
+
       super._init({
         title: "Dock",
         name: "Dock",
@@ -101,8 +198,8 @@ export const Dock = GObject.registerClass(
       let bg = this.bg;
       let box = this.box;
 
-      for (let i = 0; i < apps.length; i++) {
-        let app = apps[i];
+      for (let i = 0; i < this.apps.length; i++) {
+        let app = this.apps[i];
         let btn = new DockItem({
           app,
         });

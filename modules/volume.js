@@ -53,9 +53,6 @@ const Volume = GObject.registerClass(
       this._control.connect("default-sink-changed", () => {
         this.sync();
       });
-      this._control.connect("stream-updated", () => {
-        this.sync();
-      });
       this._control.connect("active-output-update", () => {
         this.sync();
       });
@@ -131,9 +128,6 @@ const Mic = GObject.registerClass(
         this.sync();
       });
       this._control.connect("default-source-changed", () => {
-        this.sync();
-      });
-      this._control.connect("stream-updated", () => {
         this.sync();
       });
       this._control.connect("active-input-update", () => {

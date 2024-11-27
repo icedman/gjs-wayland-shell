@@ -1,6 +1,7 @@
 import { Power } from "../modules/power.js";
 import { Network } from "../modules/network.js";
 import { Volume, Mic } from "../modules/volume.js";
+import { Trash } from "../modules/trash.js";
 import Shell from "../shell.js";
 import GLib from "gi://GLib";
 
@@ -27,6 +28,12 @@ function run() {
     console.log(state);
   });
   m.init();
+
+  // let t = new Trash();
+  // t.subscribe(null, "trash-update", (state) => {
+  //   console.log(state);
+  // });
+  // t.init();
 }
 
 run();
