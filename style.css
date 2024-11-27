@@ -1,0 +1,56 @@
+#Dock {
+    background: transparent;
+    opacity: 1;
+    transition: opacity 0.5s ease-in-out;
+}
+
+#Dock button {
+    border: none;
+    background: rgba(0,0,0,0);
+    border-radius: 16px;
+    -gtk-icon-shadow: rgba(0, 0, 0, 0.6) 0 6px 6px;
+}
+
+#Dock button:hover {
+    border: none;
+    background: rgba(0,0,0,0.5);
+}
+
+#box {
+    border-radius: 20px;
+    background: rgba(0,0,0,0.5);
+    padding: 6px;
+}
+
+#left, #center, #right {
+    color: #f0f0f0;
+}
+
+#background {
+/*    border: 2px solid red;*/
+    border-radius: 20px;
+    background: rgba(0,0,0,0.5);
+    padding: 6px;
+    filter: blur(12px);
+}
+
+#Panel {
+    border-radius: 0px;
+    background: transparent;
+    opacity: 1;
+    transition: opacity 0.5s ease-in-out;
+}
+
+#Panel #background,
+#Panel #box {
+    border-radius: 0px;
+}
+
+#Dock.startup, #Panel.startup {
+    opacity: 0;
+}
+
+.panel-item .icon {
+    padding-left: 8px;
+    padding-right: 8px;
+}
