@@ -100,19 +100,21 @@ export const Panel = GObject.registerClass(
         name: "Power",
       });
       power.set_label("power");
-      right.append(power);
 
       let network = new PanelItem({
         name: "network",
       });
       network.set_label("network");
-      right.append(network);
 
       let volume = new PanelItem({
         name: "Volume",
       });
       volume.set_label("volume");
-      right.append(volume);
+
+      let mic = new PanelItem({
+        name: "mic",
+      });
+      mic.set_label("mic");
 
       this.clock = clock;
 
@@ -148,6 +150,17 @@ export const Panel = GObject.registerClass(
         volume.set_icon(state.icon);
       });
       Main.volume.sync();
+
+      Main.mic.subscribe(this, "mic-update", (state) => {
+        // mic.set_label(`${state.connectivity} ${state.enabled}`);
+        mic.set_label(``);
+        mic.set_icon(state.icon);
+      });
+      Main.mic.sync();
+
+      [volume, mic, network, power].forEach((widget) => {
+        right.append(widget);
+      });
 
       this.update();
     }

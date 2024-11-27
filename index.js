@@ -5,7 +5,7 @@ import Dock from "./dock.js";
 import Panel from "./panel.js";
 import { Power } from "./modules/power.js";
 import { Network } from "./modules/network.js";
-import { Volume } from "./modules/volume.js";
+import { Volume, Mic } from "./modules/volume.js";
 import ShellService from "./shell.js";
 
 // Initialize Gtk before you start calling anything from the import
@@ -31,21 +31,29 @@ globalThis.Main = {
       loop.quit();
     },
   },
-  
+
   // ui
   dock: new Dock(),
   panel: new Panel(),
-  
+
   // modules
   shell: new ShellService(),
   power: new Power(),
   network: new Network(),
   volume: new Volume(),
+  mic: new Mic(),
 
   modules: [],
 };
 
-Main.modules = [...Main.modules, Main.shell, Main.power, Main.network, Main.volume];
+Main.modules = [
+  ...Main.modules,
+  Main.shell,
+  Main.power,
+  Main.network,
+  Main.volume,
+  Main.mic,
+];
 Main.modules.forEach(async (m) => {
   m.init();
 });

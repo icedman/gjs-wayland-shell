@@ -53,12 +53,12 @@ const Volume = GObject.registerClass(
       this._control.connect("default-sink-changed", () => {
         this.sync();
       });
-      // this._control.connect(
-      //   'stream-updated', () => { this.sync() }
-      // );
-      // this._control.connect(
-      //   'active-output-update', () => { this.sync() }
-      // );
+      this._control.connect("stream-updated", () => {
+        this.sync();
+      });
+      this._control.connect("active-output-update", () => {
+        this.sync();
+      });
 
       this.sync();
     }
@@ -105,4 +105,84 @@ const Volume = GObject.registerClass(
   },
 );
 
-export { Volume };
+const Mic = GObject.registerClass(
+  class Mic extends GObject.Object {
+    _init(params) {
+      this.subscribers = [];
+      super._init(params);
+    }
+
+    subscribe(sub, event, func) {
+      this.subscribers.push({ subscriber: sub, event: event, callback: func });
+    }
+
+    async init() {
+      this.state = {};
+
+      this._icons = [
+        "microphone-sensitivity-muted-symbolic",
+        "microphone-sensitivity-low-symbolic",
+        "microphone-sensitivity-medium-symbolInputic",
+        "microphone-sensitivity-high-symbolic",
+      ];
+
+      this._control = getMixerControl();
+      this._control.connect("state-changed", () => {
+        this.sync();
+      });
+      this._control.connect("default-source-changed", () => {
+        this.sync();
+      });
+      this._control.connect("stream-updated", () => {
+        this.sync();
+      });
+      this._control.connect("active-input-update", () => {
+        this.sync();
+      });
+
+      this.sync();
+    }
+
+    get_icon() {
+      if (!this._stream) return null;
+
+      let volume = this._stream.volume;
+      let n;
+      if (this._stream.is_muted || volume <= 0) {
+        n = 0;
+      } else {
+        n = Math.ceil((3 * volume) / this._control.get_vol_max_norm());
+        n = Math.clamp(n, 1, this._icons.length - 1);
+      }
+      return this._icons[n];
+    }
+
+    sync() {
+      let stream = this._control?.get_default_source();
+      if (stream != this._stream) {
+        stream.connect("notify::is-muted", () => {
+          this.sync();
+        });
+        stream.connect("notify::volume", () => {
+          this.sync();
+        });
+        this._stream = stream;
+      }
+
+      this.state = {
+        ready: this._control?.get_state() === Gvc.MixerControlState.READY,
+        icon: this.get_icon(),
+      };
+
+      console.log(this.state);
+
+      this.subscribers.forEach((sub) => {
+        if (sub.event == "mic-update") {
+          sub.callback.bind(sub.subscriber)(this.state);
+        }
+      });
+    }
+  },
+);
+
+export { Volume, Mic };

@@ -1,6 +1,6 @@
 import { Power } from "../modules/power.js";
 import { Network } from "../modules/network.js";
-import { Volume } from "../modules/volume.js";
+import { Volume, Mic } from "../modules/volume.js";
 import Shell from "../shell.js";
 import GLib from "gi://GLib";
 
@@ -17,10 +17,16 @@ function run() {
   // n.init();
 
   let v = new Volume();
-  v.subscribe(null, "output-update", (state) => {
+  v.subscribe(null, "volume-update", (state) => {
     console.log(state);
   });
   v.init();
+
+  let m = new Mic();
+  m.subscribe(null, "mic-update", (state) => {
+    console.log(state);
+  });
+  m.init();
 }
 
 run();
