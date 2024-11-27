@@ -65,11 +65,24 @@
     padding-right: 8px;
 }
 
+#Menu {
+    margin-bottom: 10px;
+}
 
 #Menu contents {
-    background: rgba(0,0,0,1);
+    background: rgba(0,0,0,0.98);
 }
 
 #Menu * {
-    color: rgba(200,200,200,1);
+    color: rgba(200,200,200,1)
+}
+
+#MenuItem {
+    border-radius: 4px;
+    margin: 0px;
+    padding: 4px;
+}
+
+#MenuItem:hover {
+    background: rgba(150,150,150,0.2);
 }

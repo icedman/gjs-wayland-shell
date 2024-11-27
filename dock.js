@@ -4,6 +4,7 @@ import GLib from "gi://GLib";
 import Gio from "gi://Gio";
 import GObject from "gi://GObject";
 import LayerShell from "gi://Gtk4LayerShell";
+import { PopupMenu } from "./modules/popupMenu.js";
 
 function appInfoMenuModel(appInfo) {
   let desktopFilePath = GLib.build_filenamev([
@@ -15,9 +16,14 @@ function appInfoMenuModel(appInfo) {
 
   let items = [
     {
+      id: appInfo.get_id(),
       action: "open",
       name: "Open Window",
-      exec: appInfo.get_string("Exec").replace("%U", "").trim(),
+      exec: appInfo
+        .get_string("Exec")
+        .replace("%U", "")
+        .replace("%u", "")
+        .trim(),
     },
   ];
 
@@ -25,7 +31,7 @@ function appInfoMenuModel(appInfo) {
   appInfo.list_actions().forEach((action) => {
     let name = appInfo.get_action_name(action);
     console.log(`${action}]`);
-    let nextExec = true;
+    let nextExec = false;
     let exec = null;
     for (let i = 0; i < lines.length; i++) {
       let line = lines[i].trim();
@@ -33,17 +39,17 @@ function appInfoMenuModel(appInfo) {
         nextExec = true;
       }
       if (nextExec && line.startsWith("Exec")) {
-        exec = line.replace("Exec=", "").replace("%U", "").trim();
+        exec = line
+          .replace("Exec=", "")
+          .replace("%U", "")
+          .replace("%u", "")
+          .trim();
         break;
       }
     }
 
     items.push({ action, name, exec });
   });
-
-  // items.push()
-
-  if (items.length == 1) return [];
 
   return items;
 }
@@ -60,6 +66,7 @@ export const DockItem = GObject.registerClass(
           let title = appInfo.get_string("Name");
           let cmd = appInfo.get_string("Exec").replace("%U", "").trim();
           appInfo = {
+            id: params.app,
             title,
             icon_name,
             cmd,
@@ -70,9 +77,22 @@ export const DockItem = GObject.registerClass(
 
       if (!appInfo && params.app == "trash") {
         appInfo = {
+          id: params.app,
           icon_name: "user-trash",
           title: "Trash",
           cmd: `nautilus --select trash:///`,
+          menu: [
+            {
+              action: "open",
+              name: "Open Window",
+              exec: "nautilus --select trash:///",
+            },
+            {
+              action: "empty",
+              name: "Empty Trash",
+              exec: "sh - c rm -rf ~/.local/share/Trash/*",
+            },
+          ],
         };
         Main.trash.subscribe(this, "trash-update", (state) => {
           if (state.full) {
@@ -94,30 +114,8 @@ export const DockItem = GObject.registerClass(
 
       // right click
       if (appInfo.menu?.length > 0) {
-        let actionGroup = new Gio.SimpleActionGroup();
-
-        let model = new Gio.Menu();
-        appInfo.menu.forEach((item) => {
-          model.append(item.name, item.action);
-
-          let act = new Gio.SimpleAction({ name: item.action });
-          act.connect("activate", (_) => {
-            console.log(item.action);
-          });
-
-          actionGroup.add_action(act);
-        });
-
-        let menu = Gtk.PopoverMenu.new_from_model(model);
-        menu.insert_action_group("menu", actionGroup);
-
-        // menu.add_chil
-        menu.name = "Menu";
-        menu.has_arrow = false;
-        menu.position = 2;
-
-        menu.connect("activate-default", (item) => {
-          console.log(item);
+        let menu = new PopupMenu({
+          items: appInfo.menu,
         });
 
         let evt = new Gtk.GestureClick();
@@ -133,7 +131,7 @@ export const DockItem = GObject.registerClass(
 
       this.btn.connect("clicked", (actor) => {
         try {
-          Main.shell.spawn(appInfo.cmd);
+          Main.dock.focus_or_open(appInfo.id, appInfo.cmd);
         } catch (err) {
           console.log(err);
         }
@@ -210,6 +208,9 @@ export const Dock = GObject.registerClass(
     }
 
     async update_windows(obj) {
+      // todo
+      this.windows = [];
+
       if (this.windows.length == 0) {
         Main.shell.get_windows().then((res) => {
           try {
@@ -235,6 +236,18 @@ export const Dock = GObject.registerClass(
       this.bg.set_size_request(w, h);
 
       this.remove_css_class("startup");
+    }
+
+    focus_or_open(id, exec) {
+      // move to shell
+      let openedWindow = (this.windows ?? []).find((w) => {
+        return w.app_id + ".desktop" == id;
+      });
+      if (openedWindow) {
+        Main.shell.focusWindow(openedWindow.id);
+      } else {
+        Main.shell.spawn(exec);
+      }
     }
   },
 );

@@ -115,10 +115,6 @@ class ShellService {
 
   async listen() {
     let connection = connectToNiriSocket();
-  }
-
-  async _listen() {
-    let connection = connectToNiriSocket();
     if (connection) {
       log("Wayland connection to Niri established successfully!");
     } else {
@@ -186,6 +182,7 @@ class ShellService {
     let message = '"Windows"\n';
     let response = await sendMessage(connection, message);
     connection.close(null);
+
     return Promise.resolve(response); // todo!
   }
 
@@ -202,6 +199,22 @@ class ShellService {
 
     let message =
       JSON.stringify({ Action: { Spawn: { command: cmd.split(" ") } } }) + "\n";
+    let response = await sendMessage(connection, message);
+    connection.close(null);
+    return Promise.resolve(response); // todo!
+  }
+
+  async focusWindow(id) {
+    // Attempt to connect to the Niri Wayland socket
+    let connection = connectToNiriSocket();
+    if (connection) {
+      log("Wayland connection to Niri established successfully!");
+    } else {
+      log("Failed to establish a Wayland connection to Niri.");
+      return false;
+    }
+
+    let message = JSON.stringify({ Action: { FocusWindow: { id } } }) + "\n";
     let response = await sendMessage(connection, message);
     connection.close(null);
     return Promise.resolve(response); // todo!
