@@ -214,10 +214,7 @@ export const Dock = GObject.registerClass(
     }
 
     focus_or_open(className, exec) {
-      console.log("FOCUS OR OPEN");
       console.log(className);
-      console.log(Main.shell.windows);
-
       // move to shell
       let openedWindow = (Main.shell.windows ?? []).find((w) => {
         return w["class"] + ".desktop" == className;

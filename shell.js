@@ -232,7 +232,36 @@ class ShellInterface {
   }
   getWindows() {}
   focusWindow(id) {}
-  spawn(cmd) {}
+
+  spawn(cmd) {
+    try {
+      // Get the full environment from the current process
+      const environment = GLib.get_environ().filter((e) => {
+        // except this... LD_PRELOAD
+        return !e.includes("libgtk4-layer-shell");
+      });
+
+      console.log(environment);
+      const [_, args] = GLib.shell_parse_argv(`${cmd}`);
+
+      // Spawn a process inheriting the full environment
+      const [success, pid] = GLib.spawn_async_with_pipes(
+        null, // Working directory (null = inherit current)
+        args, // Command to execute
+        environment, // Pass inherited environment
+        GLib.SpawnFlags.SEARCH_PATH, // Use PATH to locate the executable
+        null, // Child setup function (not needed here)
+      );
+
+      if (success) {
+        print(`Spawned process with PID: ${pid}`);
+      } else {
+        print("Failed to spawn process.");
+      }
+    } catch (e) {
+      logError(e, "Error spawning process");
+    }
+  }
 }
 
 class NiriShell extends ShellInterface {
@@ -264,7 +293,9 @@ class NiriShell extends ShellInterface {
       if (obj["WindowFocusChanged"]) {
         res.push({
           event: "window-focused",
-          windows: obj["WindowFocusChanged"]["id"],
+          window: {
+            id: obj["WindowFocusChanged"]["id"],
+          },
         });
         return;
       }
@@ -280,7 +311,9 @@ class NiriShell extends ShellInterface {
       if (obj["WindowClosed"]) {
         res.push({
           event: "window-closed",
-          window: obj["WindowClosed"]["id"],
+          window: {
+            id: obj["WindowClosed"]["id"],
+          },
         });
         return;
       }
@@ -336,6 +369,9 @@ class NiriShell extends ShellInterface {
 
     let message =
       JSON.stringify({ Action: { FocusWindow: { id: window["id"] } } }) + "\n";
+
+    console.log(message);
+
     let response = await sendMessage(connection, message);
     this.disconnect(connection);
 
@@ -397,7 +433,9 @@ class HyprShell extends ShellInterface {
       if (event) {
         res.push({
           event: event,
-          window: line[1],
+          window: {
+            id: line[1],
+          },
         });
       }
     });
@@ -474,7 +512,7 @@ function ShellService(wm) {
     }
   }
 
-  return null;
+  return new ShellInterface();
 }
 
 export default ShellService;
