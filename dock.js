@@ -158,8 +158,6 @@ export const Dock = GObject.registerClass(
 
       this.add_css_class("startup");
 
-      this.windows = [];
-
       LayerShell.init_for_window(this);
       LayerShell.set_anchor(this, LayerShell.Edge.BOTTOM, true);
       LayerShell.auto_exclusive_zone_enable(this);
@@ -216,18 +214,16 @@ export const Dock = GObject.registerClass(
     }
 
     focus_or_open(className, exec) {
+      console.log("FOCUS OR OPEN");
       console.log(className);
       console.log(Main.shell.windows);
 
       // move to shell
       let openedWindow = (Main.shell.windows ?? []).find((w) => {
-        if (!w["class"] && w["app_id"]) {
-          w["class"] = w["app_id"];
-        }
         return w["class"] + ".desktop" == className;
       });
       if (openedWindow) {
-        Main.shell.focusWindow(openedWindow.id);
+        Main.shell.focusWindow(openedWindow);
       } else {
         Main.shell.spawn(exec);
       }

@@ -13,13 +13,11 @@ function run() {
 
   let s = ShellService();
   s.init();
-  s.subscribe(null, "windows-update", (state) => {
-    console.log(state);
-  });
+  // s.subscribe(null, "window*", (state) => {
+  //   console.log(state);
+  // });
   s.listen();
-  s.getWindows().then((res) => {
-    console.log(res);
-  });
+  s.getWindows();
   // s.spawn("kitty");
 
   // let n = new Network();
@@ -49,9 +47,9 @@ run();
 
 let loop = GLib.MainLoop.new(null, false);
 
-setTimeout(() => {
-  console.log("done\n\n");
-  loop.quit();
-}, 3500);
+// setTimeout(() => {
+//   console.log("done\n\n");
+//   loop.quit();
+// }, 3500);
 
 loop.run();

@@ -93,7 +93,7 @@ async function sendMessage(connection, message) {
       null,
       inputStream.read_bytes(BYTES_NUM, null).get_data(),
     );
-    log(`Message received: ${response}`);
+    // log(`Message received: ${response}`);
     return response;
   } catch (e) {
     logError(new Error(`Failed to send message: ${e.message}`));
@@ -107,6 +107,22 @@ class ShellInterface {
     this.windows = [];
     this.subscribers = [];
 
+    this.subscribe(this, "window-focused", (evts) => {
+      let newWindow = false;
+      evts.forEach((evt) => {
+        let oldWindow = !this.windows.find((w) => {
+          return w.id == evt["window"]["id"];
+        });
+        if (!oldWindow) {
+          newWindow = true;
+        }
+      });
+      if (newWindow) {
+        this.getWindows().then((res) => {
+          console.log("new windows");
+        });
+      }
+    });
     this.subscribe(this, "window-opened", (evts) => {
       evts.forEach((evt) => {
         this.windows = this.windows.filter((w) => {
@@ -126,6 +142,17 @@ class ShellInterface {
 
   subscribe(sub, event, func) {
     this.subscribers.push({ subscriber: sub, event: event, callback: func });
+  }
+
+  normalizeWindows() {
+    this.windows.forEach((w) => {
+      if (!w["id"] && w["address"]) {
+        w["id"] = w["address"];
+      }
+      if (!w["class"] && w["app_id"]) {
+        w["class"] = w["app_id"];
+      }
+    });
   }
 
   connect() {
@@ -151,7 +178,10 @@ class ShellInterface {
   }
 
   async listen(connection, msg) {
-    let response = await sendMessage(connection, msg);
+    if (msg) {
+      let response = await sendMessage(connection, msg);
+      console.log(response);
+    }
 
     let inputStream = connection.get_input_stream();
     if (!inputStream) {
@@ -289,6 +319,7 @@ class NiriShell extends ShellInterface {
     let obj = JSON.parse(response);
     if (obj["Ok"]) {
       this.windows = obj["Ok"]["Windows"];
+      this.normalizeWindows();
       obj = {
         event: "windows-update",
         windows: this.windows,
@@ -297,13 +328,14 @@ class NiriShell extends ShellInterface {
     return Promise.resolve(obj);
   }
 
-  async focusWindow(id) {
+  async focusWindow(window) {
     let connection = this.connect();
     if (!connection) {
       return;
     }
 
-    let message = JSON.stringify({ Action: { FocusWindow: { id } } }) + "\n";
+    let message =
+      JSON.stringify({ Action: { FocusWindow: { id: window["id"] } } }) + "\n";
     let response = await sendMessage(connection, message);
     this.disconnect(connection);
 
@@ -347,7 +379,7 @@ class HyprShell extends ShellInterface {
     if (!connection) {
       return;
     }
-    super.listen(connection, "\n");
+    super.listen(connection, null);
   }
 
   parseMessage(msg) {
@@ -384,6 +416,7 @@ class HyprShell extends ShellInterface {
 
     let obj = JSON.parse(response);
     this.windows = obj;
+    this.normalizeWindows();
     obj = {
       event: "windows-update",
       windows: obj,
@@ -391,23 +424,19 @@ class HyprShell extends ShellInterface {
     return Promise.resolve(obj);
   }
 
-  async focusWindow(id) {
+  async focusWindow(window) {
     let connection = this.connect();
     if (!connection) {
       return;
     }
-    let message = `[j]/dispatch focuswindow ${id}`;
+    let message = `[j]/dispatch focuswindow ${window["class"]}`;
     let response = await sendMessage(connection, message);
     this.disconnect(connection);
 
-    let obj = JSON.parse(response);
-    this.windows = obj;
-    obj = {
-      event: "windows-focused",
-      windows: obj,
+    let obj = {
+      event: response == "ok" ? "success" : "fail",
     };
-
-    return Promise.reject("unimplemented");
+    return Promise.resolve(obj);
   }
 
   async spawn(cmd) {
@@ -419,9 +448,8 @@ class HyprShell extends ShellInterface {
     let response = await sendMessage(connection, message);
     this.disconnect(connection);
 
-    let obj = JSON.parse(response);
-    obj = {
-      event: obj == "ok" ? "success" : "fail",
+    let obj = {
+      event: response == "ok" ? "success" : "fail",
     };
     return Promise.resolve(obj);
   }
