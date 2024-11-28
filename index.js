@@ -80,4 +80,7 @@ globalThis.Main = {
   m.init();
 });
 
+Main.shell.listen();
+Main.shell.getWindows();
+
 loop.run();

@@ -34,7 +34,7 @@ function connectToHyprSocket(num = "") {
   let XDG_RUNTIME_DIR = GLib.getenv("XDG_RUNTIME_DIR");
   let HYPRLAND_INSTANCE_SIGNATURE = GLib.getenv("HYPRLAND_INSTANCE_SIGNATURE");
   if (!XDG_RUNTIME_DIR || !HYPRLAND_INSTANCE_SIGNATURE) {
-    logError(new Error(`socketPath unknown`));
+    log(`HYPRLAND unavailabe`);
     return null;
   }
   let socketPath = `${XDG_RUNTIME_DIR}/hypr/${HYPRLAND_INSTANCE_SIGNATURE}/.socket${num}.sock`;
@@ -49,7 +49,7 @@ function connectToHyprSocket(num = "") {
 function connectToNiriSocket() {
   let socketPath = GLib.getenv("NIRI_SOCKET");
   if (!socketPath) {
-    logError(new Error(`socketPath unknown`));
+    log(`NIRI unavailabe`);
     return null;
   }
 
@@ -106,6 +106,22 @@ class ShellInterface {
   init() {
     this.windows = [];
     this.subscribers = [];
+
+    this.subscribe(this, "window-opened", (evts) => {
+      evts.forEach((evt) => {
+        this.windows = this.windows.filter((w) => {
+          return w.id != evt["window"]["id"];
+        });
+        this.windows = [...this.windows, evt["window"]];
+      });
+    });
+    this.subscribe(this, "window-closed", (evts) => {
+      evts.forEach((evt) => {
+        this.windows = this.windows.filter((w) => {
+          return w.id != evt["window"]["id"];
+        });
+      });
+    });
   }
 
   subscribe(sub, event, func) {
@@ -122,7 +138,7 @@ class ShellInterface {
 
   async broadcast(msg) {
     msg.forEach((m) => {
-      let eventType = m.type;
+      let eventType = m.event;
       this.subscribers.forEach((sub) => {
         if (
           (sub.event.endsWith("*") && sub.event.startsWith(eventType)) ||
@@ -145,7 +161,7 @@ class ShellInterface {
 
     const _parseMessage = this.parseMessage.bind(this);
     const _broadcast = this.broadcast.bind(this);
-    function awaitIncoming() {
+    const awaitIncoming = () => {
       try {
         inputStream.read_bytes_async(
           BYTES_NUM,
@@ -175,7 +191,7 @@ class ShellInterface {
       } catch (error) {
         logError(error, "Error starting read_async");
       }
-    }
+    };
 
     awaitIncoming();
     return true;
@@ -215,16 +231,28 @@ class NiriShell extends ShellInterface {
         return;
       }
 
-      // response from requests
-      if (obj["Ok"]) {
-        if (obj["Ok"]["Windows"]) {
-          this.windows = obj["Ok"]["Windows"];
-          res.push({
-            event: "windows-update",
-            windows: this.windows,
-          });
-          return;
-        }
+      if (obj["WindowFocusChanged"]) {
+        res.push({
+          event: "window-focused",
+          windows: obj["WindowFocusChanged"]["id"],
+        });
+        return;
+      }
+
+      if (obj["WindowOpenedOrChanged"]) {
+        res.push({
+          event: "window-opened",
+          window: obj["WindowOpenedOrChanged"]["window"],
+        });
+        return;
+      }
+
+      if (obj["WindowClosed"]) {
+        res.push({
+          event: "window-closed",
+          window: obj["WindowClosed"]["id"],
+        });
+        return;
       }
 
       console.log("-------------");
@@ -258,7 +286,14 @@ class NiriShell extends ShellInterface {
     let response = await sendMessage(connection, message);
     this.disconnect(connection);
 
-    let obj = this.parseMessage(response);
+    let obj = JSON.parse(response);
+    if (obj["Ok"]) {
+      this.windows = obj["Ok"]["Windows"];
+      obj = {
+        event: "windows-update",
+        windows: this.windows,
+      };
+    }
     return Promise.resolve(obj);
   }
 
@@ -267,11 +302,15 @@ class NiriShell extends ShellInterface {
     if (!connection) {
       return;
     }
+
     let message = JSON.stringify({ Action: { FocusWindow: { id } } }) + "\n";
     let response = await sendMessage(connection, message);
     this.disconnect(connection);
 
     let obj = this.parseMessage(response);
+    if (obj.length > 0) {
+      obj = obj[0];
+    }
     return Promise.resolve(obj);
   }
 
@@ -286,6 +325,9 @@ class NiriShell extends ShellInterface {
     this.disconnect(connection);
 
     let obj = this.parseMessage(response);
+    if (obj.length > 0) {
+      obj = obj[0];
+    }
     return Promise.resolve(obj);
   }
 }
@@ -298,6 +340,90 @@ class HyprShell extends ShellInterface {
 
   connect() {
     return connectToHyprSocket();
+  }
+
+  async listen() {
+    let connection = connectToHyprSocket(2);
+    if (!connection) {
+      return;
+    }
+    super.listen(connection, "\n");
+  }
+
+  parseMessage(msg) {
+    let eventMap = {
+      activewindowv2: "window-focused",
+      openwindow: "window-opened",
+      closewindow: "window-closed",
+    };
+
+    let res = [];
+    let lines = msg.trim().split("\n");
+    lines.forEach((l) => {
+      let line = l.replace(">>", ",").split(",");
+      let event = eventMap[line[0]];
+      if (event) {
+        res.push({
+          event: event,
+          window: line[1],
+        });
+      }
+    });
+
+    return res;
+  }
+
+  async getWindows() {
+    let connection = this.connect();
+    if (!connection) {
+      return;
+    }
+    let message = "[j]/clients";
+    let response = await sendMessage(connection, message);
+    this.disconnect(connection);
+
+    let obj = JSON.parse(response);
+    this.windows = obj;
+    obj = {
+      event: "windows-update",
+      windows: obj,
+    };
+    return Promise.resolve(obj);
+  }
+
+  async focusWindow(id) {
+    let connection = this.connect();
+    if (!connection) {
+      return;
+    }
+    let message = `[j]/dispatch focuswindow ${id}`;
+    let response = await sendMessage(connection, message);
+    this.disconnect(connection);
+
+    let obj = JSON.parse(response);
+    this.windows = obj;
+    obj = {
+      event: "windows-focused",
+      windows: obj,
+    };
+
+    return Promise.reject("unimplemented");
+  }
+
+  async spawn(cmd) {
+    let connection = this.connect();
+    if (!connection) {
+      return;
+    }
+    let message = `[j]/dispatch exec ${cmd}`;
+    let response = await sendMessage(connection, message);
+    this.disconnect(connection);
+
+    let obj = JSON.parse(response);
+    obj = {
+      event: obj == "ok" ? "success" : "fail",
+    };
+    return Promise.resolve(obj);
   }
 }
 

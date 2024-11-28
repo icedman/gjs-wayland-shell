@@ -181,12 +181,12 @@ export const Dock = GObject.registerClass(
 
       Main.shell.subscribe(
         this,
-        "WindowOpenedOrChanged",
+        "windows-update",
         this.update_windows.bind(this),
       );
       Main.shell.subscribe(
         this,
-        "WindowClosed",
+        "window-closed",
         this.update_windows.bind(this),
       );
       setTimeout(this.update_windows.bind(this), 1000);
@@ -207,29 +207,6 @@ export const Dock = GObject.registerClass(
       setTimeout(this.update_bg.bind(this), 500);
     }
 
-    async update_windows(obj) {
-      // todo
-      this.windows = [];
-
-      if (this.windows.length == 0) {
-        Main.shell.get_windows().then((res) => {
-          try {
-            let obj = JSON.parse(res);
-            this.windows = obj.Ok?.Windows ?? [];
-            console.log(this.windows);
-          } catch (err) {
-            console.log(res);
-            console.log(err);
-          }
-        });
-        return;
-      }
-
-      // add or update or delete
-      console.log("----------");
-      console.log(obj);
-    }
-
     update_bg() {
       let w = this.box.get_allocated_width();
       let h = this.box.get_allocated_height();
@@ -238,10 +215,16 @@ export const Dock = GObject.registerClass(
       this.remove_css_class("startup");
     }
 
-    focus_or_open(id, exec) {
+    focus_or_open(className, exec) {
+      console.log(className);
+      console.log(Main.shell.windows);
+
       // move to shell
-      let openedWindow = (this.windows ?? []).find((w) => {
-        return w.app_id + ".desktop" == id;
+      let openedWindow = (Main.shell.windows ?? []).find((w) => {
+        if (!w["class"] && w["app_id"]) {
+          w["class"] = w["app_id"];
+        }
+        return w["class"] + ".desktop" == className;
       });
       if (openedWindow) {
         Main.shell.focusWindow(openedWindow.id);

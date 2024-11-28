@@ -17,10 +17,9 @@ function run() {
     console.log(state);
   });
   s.listen();
-  // s.getWindows().then((res) => {
-  //   console.log(res);
-  // });
-
+  s.getWindows().then((res) => {
+    console.log(res);
+  });
   // s.spawn("kitty");
 
   // let n = new Network();
@@ -44,14 +43,15 @@ function run() {
   //   console.log(state);
   // });
   // t.init();
-
-  setTimeout(() => {
-    console.log("done\n\n");
-    loop.quit();
-  }, 3500);
 }
 
 run();
 
 let loop = GLib.MainLoop.new(null, false);
+
+setTimeout(() => {
+  console.log("done\n\n");
+  loop.quit();
+}, 3500);
+
 loop.run();
