@@ -32,9 +32,9 @@
 
 #background {
     border-radius: 20px;
-    background: rgba(0,0,0,0.5);
+    background: rgba(150,150,150,0.15);
     padding: 6px;
-    filter: blur(50px);
+    filter: blur(20px);
 }
 
 #Panel {

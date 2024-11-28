@@ -3,20 +3,11 @@ import Gio from "gi://Gio";
 
 const BYTES_NUM = 4096;
 
-/**
- * Connect to the Niri Wayland socket.
- * @returns {Gio.SocketConnection | null} A connection to the socket, or null on failure.
- */
-function connectToNiriSocket() {
-  let socketPath = GLib.getenv("NIRI_SOCKET");
-  if (!socketPath) {
-    return null;
-  }
-
+function connectToSocket(socketPath, identifier) {
   try {
     // Check if the socket file exists
     if (!GLib.file_test(socketPath, GLib.FileTest.EXISTS)) {
-      logError(new Error(`Niri socket not found at ${socketPath}`));
+      logError(new Error(`${identifier} socket not found at ${socketPath}`));
       return null;
     }
 
@@ -29,12 +20,40 @@ function connectToNiriSocket() {
     // Connect to the socket synchronously
     let connection = client.connect(socketAddress, null);
 
-    log(`Connected to Niri socket at ${socketPath}`);
+    log(`Connected to ${identifier} socket at ${socketPath}`);
     return connection;
   } catch (e) {
-    logError(new Error(`Failed to connect to Niri socket: ${e.message}`));
+    logError(
+      new Error(`Failed to connect to ${identifier} socket: ${e.message}`),
+    );
     return null;
   }
+}
+
+function connectToHyprSocket(num = "") {
+  let XDG_RUNTIME_DIR = GLib.getenv("XDG_RUNTIME_DIR");
+  let HYPRLAND_INSTANCE_SIGNATURE = GLib.getenv("HYPRLAND_INSTANCE_SIGNATURE");
+  if (!XDG_RUNTIME_DIR || !HYPRLAND_INSTANCE_SIGNATURE) {
+    logError(new Error(`socketPath unknown`));
+    return null;
+  }
+  let socketPath = `${XDG_RUNTIME_DIR}/hypr/${HYPRLAND_INSTANCE_SIGNATURE}/.socket${num}.sock`;
+
+  return connectToSocket(socketPath, "HYPR");
+}
+
+/**
+ * Connect to the Niri Wayland socket.
+ * @returns {Gio.SocketConnection | null} A connection to the socket, or null on failure.
+ */
+function connectToNiriSocket() {
+  let socketPath = GLib.getenv("NIRI_SOCKET");
+  if (!socketPath) {
+    logError(new Error(`socketPath unknown`));
+    return null;
+  }
+
+  return connectToSocket(socketPath, "NIRI");
 }
 
 /**
@@ -83,8 +102,9 @@ async function sendMessage(connection, message) {
   return false;
 }
 
-class ShellService {
-  constructor(params) {
+class ShellInterface {
+  init() {
+    this.windows = [];
     this.subscribers = [];
   }
 
@@ -92,38 +112,30 @@ class ShellService {
     this.subscribers.push({ subscriber: sub, event: event, callback: func });
   }
 
-  init() {
-    this.subscribers = [];
-    setTimeout(() => {
-      this.listen();
-    }, 1000);
+  connect() {
+    return null;
   }
 
-  async broadcast(obj) {
-    let eventType = Object.keys(obj)[0];
-    // console.log(eventType);
-    this.subscribers.forEach((sub) => {
-      // console.log(sub);
-      if (
-        (sub.event.endsWith("*") && sub.event.startsWith(eventType)) ||
-        sub.event == eventType
-      ) {
-        sub.callback(obj);
-      }
+  disconnect(connection) {
+    connection.close(null);
+  }
+
+  async broadcast(msg) {
+    msg.forEach((m) => {
+      let eventType = m.type;
+      this.subscribers.forEach((sub) => {
+        if (
+          (sub.event.endsWith("*") && sub.event.startsWith(eventType)) ||
+          sub.event == eventType
+        ) {
+          sub.callback(msg);
+        }
+      });
     });
   }
 
-  async listen() {
-    let connection = connectToNiriSocket();
-    if (connection) {
-      log("Wayland connection to Niri established successfully!");
-    } else {
-      logError(new Error("Failed to establish a Wayland connection to Niri."));
-      return false;
-    }
-
-    let response = await sendMessage(connection, '"EventStream"\n');
-    console.log(response);
+  async listen(connection, msg) {
+    let response = await sendMessage(connection, msg);
 
     let inputStream = connection.get_input_stream();
     if (!inputStream) {
@@ -131,6 +143,7 @@ class ShellService {
       return false;
     }
 
+    const _parseMessage = this.parseMessage.bind(this);
     const _broadcast = this.broadcast.bind(this);
     function awaitIncoming() {
       try {
@@ -149,8 +162,7 @@ class ShellService {
               lines.forEach((line) => {
                 line = line.trim();
                 if (line == "") return;
-                let obj = JSON.parse(line);
-                _broadcast(obj);
+                _broadcast(_parseMessage(line));
               });
             } catch (err) {
               console.log(response);
@@ -169,56 +181,147 @@ class ShellService {
     return true;
   }
 
-  async get_windows() {
-    // Attempt to connect to the Niri Wayland socket
-    let connection = connectToNiriSocket();
-    if (connection) {
-      log("Wayland connection to Niri established successfully!");
-    } else {
-      log("Failed to establish a Wayland connection to Niri.");
-      return false;
-    }
+  parseMessage(msg) {
+    return msg;
+  }
+  getWindows() {}
+  focusWindow(id) {}
+  spawn(cmd) {}
+}
 
-    let message = '"Windows"\n';
-    let response = await sendMessage(connection, message);
-    connection.close(null);
-
-    return Promise.resolve(response); // todo!
+class NiriShell extends ShellInterface {
+  init() {
+    super.init();
+    this.name = "NIRI";
   }
 
-  async spawn(cmd) {
-    // GLib.spawn_command_line_async(cmd.replace("%U", ""));
-    // Attempt to connect to the Niri Wayland socket
-    let connection = connectToNiriSocket();
-    if (connection) {
-      log("Wayland connection to Niri established successfully!");
-    } else {
-      log("Failed to establish a Wayland connection to Niri.");
-      return false;
-    }
+  connect() {
+    return connectToNiriSocket();
+  }
 
-    let message =
-      JSON.stringify({ Action: { Spawn: { command: cmd.split(" ") } } }) + "\n";
+  parseMessage(msg) {
+    let res = [];
+
+    let lines = msg.trim().split("\n");
+    lines.forEach((l) => {
+      let obj = JSON.parse(l);
+
+      if (obj["WindowChanged"]) {
+        this.windows = obj["WindowChanged"]["windows"];
+        res.push({
+          event: "windows-update",
+          windows: this.windows,
+        });
+        return;
+      }
+
+      // response from requests
+      if (obj["Ok"]) {
+        if (obj["Ok"]["Windows"]) {
+          this.windows = obj["Ok"]["Windows"];
+          res.push({
+            event: "windows-update",
+            windows: this.windows,
+          });
+          return;
+        }
+      }
+
+      console.log("-------------");
+      console.log(" unhandled ");
+      console.log("-------------");
+      console.log(obj);
+
+      // return generic success event
+      res.push({
+        event: "success",
+      });
+    });
+
+    return res;
+  }
+
+  async listen() {
+    let connection = this.connect();
+    if (!connection) {
+      return;
+    }
+    super.listen(connection, '"EventStream"\n');
+  }
+
+  async getWindows() {
+    let connection = this.connect();
+    if (!connection) {
+      return;
+    }
+    let message = '"Windows"\n';
     let response = await sendMessage(connection, message);
-    connection.close(null);
-    return Promise.resolve(response); // todo!
+    this.disconnect(connection);
+
+    let obj = this.parseMessage(response);
+    return Promise.resolve(obj);
   }
 
   async focusWindow(id) {
-    // Attempt to connect to the Niri Wayland socket
-    let connection = connectToNiriSocket();
-    if (connection) {
-      log("Wayland connection to Niri established successfully!");
-    } else {
-      log("Failed to establish a Wayland connection to Niri.");
-      return false;
+    let connection = this.connect();
+    if (!connection) {
+      return;
     }
-
     let message = JSON.stringify({ Action: { FocusWindow: { id } } }) + "\n";
     let response = await sendMessage(connection, message);
-    connection.close(null);
-    return Promise.resolve(response); // todo!
+    this.disconnect(connection);
+
+    let obj = this.parseMessage(response);
+    return Promise.resolve(obj);
+  }
+
+  async spawn(cmd) {
+    let connection = this.connect();
+    if (!connection) {
+      return;
+    }
+    let message =
+      JSON.stringify({ Action: { Spawn: { command: cmd.split(" ") } } }) + "\n";
+    let response = await sendMessage(connection, message);
+    this.disconnect(connection);
+
+    let obj = this.parseMessage(response);
+    return Promise.resolve(obj);
   }
 }
 
+class HyprShell extends ShellInterface {
+  init() {
+    super.init();
+    this.name = "HYPR";
+  }
+
+  connect() {
+    return connectToHyprSocket();
+  }
+}
+
+function ShellService(wm) {
+  let supportedWM = {
+    niri: NiriShell,
+    hyprland: HyprShell,
+  };
+
+  let testShells = Object.keys(supportedWM);
+  if (wm && supportedWM[wm]) {
+    testShells = [supportedWM[wm]];
+  }
+
+  for (let i = 0; i < testShells.length; i++) {
+    let shell = new supportedWM[testShells[i]]();
+    let connection = shell.connect();
+    if (connection) {
+      return shell;
+    }
+  }
+
+  return null;
+}
+
 export default ShellService;
+export { NiriShell, HyprShell };
