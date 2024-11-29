@@ -152,7 +152,7 @@ export const Dock = GObject.registerClass(
         title: "Dock",
         name: "Dock",
         default_width: 200,
-        default_height: 40,
+        default_height: 48 + 20,
         ...params,
       });
 
@@ -166,28 +166,23 @@ export const Dock = GObject.registerClass(
     }
 
     init() {
-      let container = new Gtk.Fixed();
+      let container = new Gtk.Overlay(); // Gtk.Fixed
+      this.container = container;
       this.box = new Gtk.Box({ name: "box" });
       this.bg = new Gtk.Box({ name: "background" });
 
-      container.put(this.bg, 0, 0);
-      container.put(this.box, 0, 0);
+      // container.put(this.bg, 0, 0);
+      // container.put(this.box, 0, 0);
+      container.add_overlay(this.bg);
+      container.add_overlay(this.box);
+
+      this.bg.hexpand = true;
+      this.box.hexpand = true;
+
       this.update_icons();
 
       this.set_child(container);
       this.present();
-
-      Main.shell.subscribe(
-        this,
-        "windows-update",
-        this.update_windows.bind(this),
-      );
-      Main.shell.subscribe(
-        this,
-        "window-closed",
-        this.update_windows.bind(this),
-      );
-      setTimeout(this.update_windows.bind(this), 1000);
     }
 
     async update_icons() {
@@ -202,13 +197,15 @@ export const Dock = GObject.registerClass(
         box.append(btn);
       }
 
+      this.container.set_size_request(this.apps.length * (48 + 12), 48);
       setTimeout(this.update_bg.bind(this), 500);
     }
 
     update_bg() {
-      let w = this.box.get_allocated_width();
-      let h = this.box.get_allocated_height();
-      this.bg.set_size_request(w, h);
+      // let w = this.box.get_allocated_width();
+      // let h = this.box.get_allocated_height();
+      // console.log({w,h});
+      // this.bg.set_size_request(w, h);
 
       this.remove_css_class("startup");
     }

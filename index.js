@@ -5,7 +5,7 @@ import Dock from "./dock.js";
 import Panel from "./panel.js";
 import { Power } from "./modules/power.js";
 import { Network } from "./modules/network.js";
-// import { Volume, Mic } from "./modules/volume.js";
+import { Volume, Mic } from "./modules/volume.js";
 import { Trash } from "./modules/trash.js";
 import ShellService from "./shell.js";
 
@@ -55,14 +55,14 @@ globalThis.Main = {
 
   // ui
   dock: new Dock({ apps }),
-  // panel: new Panel(),
+  panel: new Panel(),
 
   // modules
   shell: new ShellService(),
   power: new Power(),
   network: new Network(),
-  // volume: new Volume(),
-  // mic: new Mic(),
+  volume: new Volume(),
+  mic: new Mic(),
   trash: new Trash(),
 };
 
@@ -72,12 +72,17 @@ globalThis.Main = {
   Main.power,
   Main.network,
   Main.volume,
-  // Main.mic,
+  Main.mic,
   Main.trash,
   Main.dock,
-  // Main.panel,
+  Main.panel,
 ].forEach(async (m) => {
-  m.init();
+  try {
+    m.init();
+  } catch (err) {
+    console.log(m);
+    console.log(err);
+  }
 });
 
 Main.shell.listen();

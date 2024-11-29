@@ -5,6 +5,21 @@ import Gio from "gi://Gio";
 import GObject from "gi://GObject";
 import LayerShell from "gi://Gtk4LayerShell";
 
+function getOSName() {
+  const prettyName = GLib.get_os_info("PRETTY_NAME");
+  if (prettyName) return prettyName;
+
+  const name = GLib.get_os_info("NAME");
+  const version = GLib.get_os_info("VERSION");
+  if (name) return version ? `${name} ${version}` : name;
+
+  return "Linux";
+}
+
+function getShorterOSName() {
+  return getOSName().split("(")[0].trim();
+}
+
 function formatDate(date) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0"); // Get month (0-11), add 1 and pad with leading zero
@@ -97,7 +112,7 @@ export const Panel = GObject.registerClass(
       let logo = new PanelItem({
         name: "Logo",
       });
-      logo.set_label("Fedora");
+      logo.set_label(getOSName());
       // logo.set_icon('/usr/share/fedora-logos/fedora_logo_darkbackground.svg');
       left.append(logo);
 

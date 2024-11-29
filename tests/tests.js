@@ -2,11 +2,43 @@ import { Power } from "../modules/power.js";
 import { Network } from "../modules/network.js";
 import { Volume, Mic } from "../modules/volume.js";
 import { Trash } from "../modules/trash.js";
-// import Shell from "../shell.js";
+import {
+  connectToSocket,
+  connectToNiriSocket,
+  connectToHyprSocket,
+  connectToSwaySocket,
+  disconnectSocket,
+  sendMessage,
+  receiveMessage,
+  sendI3Message,
+  receiveI3Message,
+} from "../modules/ipc.js";
 import ShellService from "../shell.js";
 import GLib from "gi://GLib";
 
 function run() {
+  // {
+  //   let conn = connectToSwaySocket();
+  //   sendI3Message(conn, 0, "exec kitty").then((res) => {
+  //     console.log(res);
+  //     receiveI3Message(conn).then((res) => {
+  //       console.log(res);
+  //       disconnectSocket(conn);
+  //     });
+  //   })
+  // }
+
+  // {
+  //   let conn = connectToSwaySocket();
+  //   sendI3Message(conn, 4, "").then((res) => {
+  //     console.log(res);
+  //     receiveI3Message(conn).then((res) => {
+  //       console.log(res);
+  //       disconnectSocket(conn);
+  //     });
+  //   });
+  // }
+
   // let p = new Power();
   // p.subscribe(null, 'power-update', (state) => { console.log(state); });
   // p.init();
@@ -16,8 +48,21 @@ function run() {
   // s.subscribe(null, "window*", (state) => {
   //   console.log(state);
   // });
-  s.listen();
-  s.getWindows();
+  // s.listen();
+  // s.getWindows().then((res) => {
+  //   console.log(res);
+  // }).catch((err) => {
+  //   console.log('oops');
+  //   console.log(err);
+  // });
+  s.getWindows()
+    .then((res) => {
+      console.log(res);
+    })
+    .catch((err) => {
+      console.log("oops");
+      console.log(err);
+    });
   // s.spawn("kitty");
 
   // let n = new Network();

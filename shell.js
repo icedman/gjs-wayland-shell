@@ -1,60 +1,17 @@
 import GLib from "gi://GLib";
 import Gio from "gi://Gio";
 
-const BYTES_NUM = 4096;
-
-function connectToSocket(socketPath, identifier) {
-  try {
-    // Check if the socket file exists
-    if (!GLib.file_test(socketPath, GLib.FileTest.EXISTS)) {
-      logError(new Error(`${identifier} socket not found at ${socketPath}`));
-      return null;
-    }
-
-    // Create a socket address for the Unix socket
-    let socketAddress = Gio.UnixSocketAddress.new(socketPath);
-
-    // Create a socket client
-    let client = new Gio.SocketClient();
-
-    // Connect to the socket synchronously
-    let connection = client.connect(socketAddress, null);
-
-    log(`Connected to ${identifier} socket at ${socketPath}`);
-    return connection;
-  } catch (e) {
-    logError(
-      new Error(`Failed to connect to ${identifier} socket: ${e.message}`),
-    );
-    return null;
-  }
-}
-
-function connectToHyprSocket(num = "") {
-  let XDG_RUNTIME_DIR = GLib.getenv("XDG_RUNTIME_DIR");
-  let HYPRLAND_INSTANCE_SIGNATURE = GLib.getenv("HYPRLAND_INSTANCE_SIGNATURE");
-  if (!XDG_RUNTIME_DIR || !HYPRLAND_INSTANCE_SIGNATURE) {
-    log(`HYPRLAND unavailabe`);
-    return null;
-  }
-  let socketPath = `${XDG_RUNTIME_DIR}/hypr/${HYPRLAND_INSTANCE_SIGNATURE}/.socket${num}.sock`;
-
-  return connectToSocket(socketPath, "HYPR");
-}
-
-/**
- * Connect to the Niri Wayland socket.
- * @returns {Gio.SocketConnection | null} A connection to the socket, or null on failure.
- */
-function connectToNiriSocket() {
-  let socketPath = GLib.getenv("NIRI_SOCKET");
-  if (!socketPath) {
-    log(`NIRI unavailabe`);
-    return null;
-  }
-
-  return connectToSocket(socketPath, "NIRI");
-}
+import {
+  connectToSocket,
+  connectToNiriSocket,
+  connectToHyprSocket,
+  connectToSwaySocket,
+  disconnectSocket,
+  sendMessage,
+  receiveMessage,
+  sendI3Message,
+  receiveI3Message,
+} from "./modules/ipc.js";
 
 /**
  * Logs errors.
@@ -62,44 +19,6 @@ function connectToNiriSocket() {
  */
 function logError(error) {
   log(`Error: ${error.message}`);
-}
-
-/**
- * Send a binary message to the Niri Wayland socket.
- * @param {Gio.SocketConnection} connection - The connected socket.
- * @param {Uint8Array} message - The message to send.
- */
-
-async function sendMessage(connection, message) {
-  try {
-    let outputStream = connection.get_output_stream();
-    if (!outputStream) {
-      logError(new Error("Failed to get output stream."));
-      return false;
-    }
-
-    let inputStream = connection.get_input_stream();
-    if (!inputStream) {
-      logError(new Error("Failed to get input stream."));
-      return false;
-    }
-
-    let bytes = new GLib.Bytes(message); // Convert the message to GLib.Bytes
-    outputStream.write_all(bytes.get_data(), null);
-    outputStream.flush(null);
-    log(`Message sent: ${message}`);
-
-    let response = String.fromCharCode.apply(
-      null,
-      inputStream.read_bytes(BYTES_NUM, null).get_data(),
-    );
-    // log(`Message received: ${response}`);
-    return response;
-  } catch (e) {
-    logError(new Error(`Failed to send message: ${e.message}`));
-  }
-
-  return false;
 }
 
 class ShellInterface {
@@ -179,7 +98,8 @@ class ShellInterface {
 
   async listen(connection, msg) {
     if (msg) {
-      let response = await sendMessage(connection, msg);
+      await sendMessage(connection, msg);
+      let response = await receiveMessage(connection);
       console.log(response);
     }
 
@@ -241,7 +161,7 @@ class ShellInterface {
         return !e.includes("libgtk4-layer-shell");
       });
 
-      console.log(environment);
+      // console.log(environment);
       const [_, args] = GLib.shell_parse_argv(`${cmd}`);
 
       // Spawn a process inheriting the full environment
@@ -346,7 +266,8 @@ class NiriShell extends ShellInterface {
       return;
     }
     let message = '"Windows"\n';
-    let response = await sendMessage(connection, message);
+    await sendMessage(connection, message);
+    let response = await receiveMessage(connection);
     this.disconnect(connection);
 
     let obj = JSON.parse(response);
@@ -369,10 +290,8 @@ class NiriShell extends ShellInterface {
 
     let message =
       JSON.stringify({ Action: { FocusWindow: { id: window["id"] } } }) + "\n";
-
-    console.log(message);
-
-    let response = await sendMessage(connection, message);
+    await sendMessage(connection, message);
+    let response = await receiveMessage(connection);
     this.disconnect(connection);
 
     let obj = this.parseMessage(response);
@@ -389,7 +308,8 @@ class NiriShell extends ShellInterface {
     }
     let message =
       JSON.stringify({ Action: { Spawn: { command: cmd.split(" ") } } }) + "\n";
-    let response = await sendMessage(connection, message);
+    await sendMessage(connection, message);
+    let response = await receiveMessage(connection);
     this.disconnect(connection);
 
     let obj = this.parseMessage(response);
@@ -449,7 +369,8 @@ class HyprShell extends ShellInterface {
       return;
     }
     let message = "[j]/clients";
-    let response = await sendMessage(connection, message);
+    await sendMessage(connection, message);
+    let response = await receiveMessage(connection);
     this.disconnect(connection);
 
     let obj = JSON.parse(response);
@@ -468,7 +389,8 @@ class HyprShell extends ShellInterface {
       return;
     }
     let message = `[j]/dispatch focuswindow ${window["class"]}`;
-    let response = await sendMessage(connection, message);
+    await sendMessage(connection, message);
+    let response = await receiveMessage(connection);
     this.disconnect(connection);
 
     let obj = {
@@ -497,6 +419,7 @@ function ShellService(wm) {
   let supportedWM = {
     niri: NiriShell,
     hyprland: HyprShell,
+    sway: SwayShell,
   };
 
   let testShells = Object.keys(supportedWM);
@@ -515,5 +438,67 @@ function ShellService(wm) {
   return new ShellInterface();
 }
 
+class SwayShell extends ShellInterface {
+  connect() {
+    return connectToSwaySocket();
+  }
+
+  async listen() {
+    let connection = this.connect();
+    if (!connection) {
+      return;
+    }
+    buildIpcHeader(2, 0);
+    super.listen(connection, null);
+  }
+
+  async getWindows() {
+    let connection = this.connect();
+    if (!connection) {
+      return;
+    }
+
+    let message = "";
+    await sendI3Message(connection, 4, "");
+    let response = await receiveI3Message(connection);
+    this.disconnect(connection);
+
+    // let obj = JSON.parse(response);
+    // this.windows = obj;
+    // this.normalizeWindows();
+    // obj = {
+    //   event: "windows-update",
+    //   windows: obj,
+    // };
+    // return Promise.resolve(obj);
+
+    return Promise.resolve(response);
+  }
+
+  async spawn(cmd) {
+    let connection = this.connect();
+    if (!connection) {
+      return;
+    }
+
+    let message = `exec ${cmd}`;
+    await sendI3Message(connection, 0, message);
+    let response = await receiveI3Message(connection);
+    console.log(response);
+    this.disconnect(connection);
+
+    // let obj = JSON.parse(response);
+    // this.windows = obj;
+    // this.normalizeWindows();
+    // obj = {
+    //   event: "windows-update",
+    //   windows: obj,
+    // };
+    // return Promise.resolve(obj);
+
+    return Promise.resolve(response);
+  }
+}
+
 export default ShellService;
-export { NiriShell, HyprShell };
+export { NiriShell, HyprShell, SwayShell };

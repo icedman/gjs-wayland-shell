@@ -31,8 +31,9 @@
 }
 
 #background {
+    border: 2px solid white;
     border-radius: 20px;
-    background: rgba(150,150,150,0.15);
+    background: rgba(50,50,50,0.5);
     padding: 6px;
     filter: blur(20px);
 }
