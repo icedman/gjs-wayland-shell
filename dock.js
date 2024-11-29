@@ -30,7 +30,6 @@ function appInfoMenuModel(appInfo) {
   // console.log(lines);
   appInfo.list_actions().forEach((action) => {
     let name = appInfo.get_action_name(action);
-    console.log(`${action}]`);
     let nextExec = false;
     let exec = null;
     for (let i = 0; i < lines.length; i++) {

@@ -45,24 +45,27 @@ function run() {
 
   let s = ShellService();
   s.init();
-  // s.subscribe(null, "window*", (state) => {
-  //   console.log(state);
-  // });
-  // s.listen();
-  // s.getWindows().then((res) => {
-  //   console.log(res);
-  // }).catch((err) => {
-  //   console.log('oops');
-  //   console.log(err);
-  // });
+  s.subscribe(null, "window*", (event) => {
+    // console.log(event);
+    console.log(s.windows.length);
+  });
+  s.listen();
   s.getWindows()
     .then((res) => {
-      console.log(res);
+      // console.log(res);
     })
     .catch((err) => {
-      console.log("oops");
-      console.log(err);
+      // console.log('oops');
+      // console.log(err);
     });
+  // s.getWindows()
+  //   .then((res) => {
+  //     console.log(res);
+  //   })
+  //   .catch((err) => {
+  //     console.log("oops");
+  //     console.log(err);
+  //   });
   // s.spawn("kitty");
 
   // let n = new Network();

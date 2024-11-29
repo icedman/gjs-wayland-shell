@@ -86,6 +86,10 @@ globalThis.Main = {
 });
 
 Main.shell.listen();
-Main.shell.getWindows();
+setTimeout(() => {
+  Main.shell.getWindows().then((res) => {
+    console.log(Main.shell.windows);
+  });
+}, 3500);
 
 loop.run();

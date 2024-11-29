@@ -150,6 +150,23 @@ function buildIpcHeader(type, len) {
   return GLib.Bytes.new(header);
 }
 
+async function sendI3Message(connection, type, message) {
+  let header = buildIpcHeader(type, message.length); //(new GLib.Bytes(message)).get_size());
+  try {
+    let outputStream = connection.get_output_stream();
+    if (!outputStream) {
+      logError(new Error("Failed to get output stream."));
+      return false;
+    }
+    outputStream.write_all(header.get_data(), null);
+    outputStream.flush(null);
+  } catch (err) {
+    console.log(err);
+  }
+  let res = await sendMessage(connection, message);
+  return Promise.resolve(res);
+}
+
 async function receiveI3Message(connection, count = BYTES_NUM) {
   let inputStream = connection.get_input_stream();
   if (!inputStream) {
@@ -183,23 +200,6 @@ async function receiveI3Message(connection, count = BYTES_NUM) {
   return Promise.resolve(response);
 }
 
-async function sendI3Message(connection, type, message) {
-  let header = buildIpcHeader(type, message.length); //(new GLib.Bytes(message)).get_size());
-  try {
-    let outputStream = connection.get_output_stream();
-    if (!outputStream) {
-      logError(new Error("Failed to get output stream."));
-      return false;
-    }
-    outputStream.write_all(header.get_data(), null);
-    outputStream.flush(null);
-  } catch (err) {
-    console.log(err);
-  }
-  let res = await sendMessage(connection, message);
-  return Promise.resolve(res);
-}
-
 export {
   connectToSocket,
   connectToNiriSocket,
@@ -210,4 +210,6 @@ export {
   receiveMessage,
   sendI3Message,
   receiveI3Message,
+  IPC_HEADER_SIZE,
+  BYTES_NUM,
 };

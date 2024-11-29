@@ -11,6 +11,8 @@ import {
   receiveMessage,
   sendI3Message,
   receiveI3Message,
+  IPC_HEADER_SIZE,
+  BYTES_NUM,
 } from "./modules/ipc.js";
 
 /**
@@ -25,7 +27,10 @@ class ShellInterface {
   init() {
     this.windows = [];
     this.subscribers = [];
+    this.selfSubscribe();
+  }
 
+  selfSubscribe() {
     this.subscribe(this, "window-focused", (evts) => {
       let newWindow = false;
       evts.forEach((evt) => {
@@ -33,13 +38,19 @@ class ShellInterface {
           return w.id == evt["window"]["id"];
         });
         if (!oldWindow) {
-          newWindow = true;
+          newWindow = evt;
         }
       });
       if (newWindow) {
-        this.getWindows().then((res) => {
-          console.log("new windows");
-        });
+        // if data is bare... fetch all windows
+        if (!newWindow["window"]["app_id"]) {
+          this.getWindows().then((res) => {
+            // new windows
+          });
+        } else {
+          this.windows = [...this.windows, newWindow["window"]];
+          this.normalizeWindows();
+        }
       }
     });
     this.subscribe(this, "window-opened", (evts) => {
@@ -48,13 +59,19 @@ class ShellInterface {
           return w.id != evt["window"]["id"];
         });
         this.windows = [...this.windows, evt["window"]];
+        this.normalizeWindows();
       });
     });
     this.subscribe(this, "window-closed", (evts) => {
+      console.log("closing...");
       evts.forEach((evt) => {
+        this.normalizeWindows([evt["window"]]);
+        console.log(evt);
         this.windows = this.windows.filter((w) => {
           return w.id != evt["window"]["id"];
         });
+        console.log(this.windows.map((w) => w["id"]));
+        // console.log(this.windows);
       });
     });
   }
@@ -63,11 +80,24 @@ class ShellInterface {
     this.subscribers.push({ subscriber: sub, event: event, callback: func });
   }
 
-  normalizeWindows() {
-    this.windows.forEach((w) => {
-      if (!w["id"] && w["address"]) {
+  normalizeWindows(target = null) {
+    // fragmentation at its best (this will become unmanagable! .. find a better way)
+    if (!target) {
+      target = this.windows;
+    }
+    target.forEach((w) => {
+      // hyperland
+      if (w["address"]) {
         w["id"] = w["address"];
       }
+      if (w["id"] && `${w["id"]}`.startsWith("0x")) {
+        w["id"] = `${w["id"]}`.substring(2);
+      }
+      // sway
+      if (w["pid"] && this.name == "SWAY") {
+        w["id"] = w["pid"];
+      }
+      // common
       if (!w["class"] && w["app_id"]) {
         w["class"] = w["app_id"];
       }
@@ -90,7 +120,12 @@ class ShellInterface {
           (sub.event.endsWith("*") && sub.event.startsWith(eventType)) ||
           sub.event == eventType
         ) {
-          sub.callback(msg);
+          try {
+            sub.callback(msg);
+          } catch (err) {
+            console.log("???");
+            console.log(err);
+          }
         }
       });
     });
@@ -118,7 +153,7 @@ class ShellInterface {
           GLib.PRIORITY_DEFAULT,
           null,
           (source, result) => {
-            console.log("incoming..");
+            console.log("incoming...");
 
             let bytes = source.read_bytes_finish(result);
             let response = String.fromCharCode.apply(null, bytes.get_data());
@@ -150,6 +185,7 @@ class ShellInterface {
   parseMessage(msg) {
     return msg;
   }
+
   getWindows() {}
   focusWindow(id) {}
 
@@ -238,10 +274,10 @@ class NiriShell extends ShellInterface {
         return;
       }
 
-      console.log("-------------");
-      console.log(" unhandled ");
-      console.log("-------------");
-      console.log(obj);
+      // console.log("-------------");
+      // console.log(" unhandled ");
+      // console.log("-------------");
+      // console.log(obj);
 
       // return generic success event
       res.push({
@@ -376,6 +412,7 @@ class HyprShell extends ShellInterface {
     let obj = JSON.parse(response);
     this.windows = obj;
     this.normalizeWindows();
+    console.log("normalize!");
     obj = {
       event: "windows-update",
       windows: obj,
@@ -431,6 +468,8 @@ function ShellService(wm) {
     let shell = new supportedWM[testShells[i]]();
     let connection = shell.connect();
     if (connection) {
+      shell.disconnect(connection);
+      console.log(testShells[i]);
       return shell;
     }
   }
@@ -439,8 +478,52 @@ function ShellService(wm) {
 }
 
 class SwayShell extends ShellInterface {
+  init() {
+    super.init();
+    this.name = "SWAY";
+  }
+
   connect() {
     return connectToSwaySocket();
+  }
+
+  parseMessage(msg) {
+    try {
+      let obj = JSON.parse(msg);
+      if (obj["container"]) {
+        obj["window"] = obj["container"];
+        obj["container"] = {};
+        this.normalizeWindows([obj["window"]]);
+      }
+      if (obj["change"] == "new") {
+        return [
+          {
+            event: "window-opened",
+            window: obj["window"],
+          },
+        ];
+      }
+      if (obj["change"] == "focus") {
+        return [
+          {
+            event: "window-focused",
+            window: obj["window"],
+          },
+        ];
+      }
+      if (obj["change"] == "close") {
+        return [
+          {
+            event: "window-closed",
+            window: obj["window"],
+          },
+        ];
+      }
+      // console.log(obj);
+    } catch (err) {
+      console.log(err);
+    }
+    return [{ event: "unknown" }];
   }
 
   async listen() {
@@ -448,8 +531,71 @@ class SwayShell extends ShellInterface {
     if (!connection) {
       return;
     }
-    buildIpcHeader(2, 0);
-    super.listen(connection, null);
+
+    await sendI3Message(connection, 2, "['window']");
+
+    let inputStream = connection.get_input_stream();
+    if (!inputStream) {
+      logError(new Error("Failed to get input stream."));
+      return false;
+    }
+
+    const _parseMessage = this.parseMessage.bind(this);
+    const _broadcast = this.broadcast.bind(this);
+    const awaitIncoming = () => {
+      try {
+        inputStream.read_bytes_async(
+          IPC_HEADER_SIZE, // header bytes
+          GLib.PRIORITY_DEFAULT,
+          null,
+          (source, result) => {
+            console.log("incoming..");
+
+            let inputBytes = source.read_bytes_finish(result);
+            let headerBytes = new Uint8Array(inputBytes.get_data());
+
+            let payloadLength =
+              headerBytes[6] |
+              (headerBytes[7] << 8) |
+              (headerBytes[8] << 16) |
+              (headerBytes[9] << 24);
+            let type =
+              headerBytes[10] |
+              (headerBytes[11] << 8) |
+              (headerBytes[12] << 16) |
+              (headerBytes[13] << 24);
+
+            inputBytes = inputStream.read_bytes(payloadLength, null);
+            let responseBytes = new Uint8Array(inputBytes.get_data());
+            let response = String.fromCharCode.apply(null, responseBytes);
+
+            _broadcast(_parseMessage(response));
+
+            awaitIncoming();
+          },
+        );
+      } catch (error) {
+        logError(error, "Error starting read_async");
+      }
+    };
+
+    awaitIncoming();
+  }
+
+  _nodeToWindows(node, bucket) {
+    if (node["app_id"]) {
+      let w = {
+        id: node["pid"],
+        app_id: node["app_id"],
+        class: node["app_id"],
+      };
+      bucket.push(w);
+    }
+    if (node["nodes"]) {
+      node["nodes"].forEach((n) => {
+        this._nodeToWindows(n, bucket);
+      });
+    }
   }
 
   async getWindows() {
@@ -459,20 +605,36 @@ class SwayShell extends ShellInterface {
     }
 
     let message = "";
-    await sendI3Message(connection, 4, "");
+    await sendI3Message(connection, 4, ""); // 4. get_tree
     let response = await receiveI3Message(connection);
     this.disconnect(connection);
 
-    // let obj = JSON.parse(response);
-    // this.windows = obj;
-    // this.normalizeWindows();
-    // obj = {
-    //   event: "windows-update",
-    //   windows: obj,
-    // };
-    // return Promise.resolve(obj);
+    let obj = JSON.parse(response);
+    let windows = [];
+    this._nodeToWindows(obj, windows);
+    this.windows = windows;
+    this.normalizeWindows();
+    // console.log(windows);
+    obj = {
+      event: "windows-update",
+      windows: this.windows,
+    };
+    return Promise.resolve(obj);
+  }
 
-    return Promise.resolve(response);
+  async focusWindow(window) {
+    let connection = this.connect();
+    if (!connection) {
+      return;
+    }
+
+    let message = `[app_id="${window["class"]}"] focus`;
+    await sendI3Message(connection, 0, message);
+    let response = await receiveI3Message(connection);
+    this.disconnect(connection);
+
+    let obj = JSON.parse(response);
+    return Promise.resolve(obj);
   }
 
   async spawn(cmd) {
@@ -484,19 +646,10 @@ class SwayShell extends ShellInterface {
     let message = `exec ${cmd}`;
     await sendI3Message(connection, 0, message);
     let response = await receiveI3Message(connection);
-    console.log(response);
     this.disconnect(connection);
 
-    // let obj = JSON.parse(response);
-    // this.windows = obj;
-    // this.normalizeWindows();
-    // obj = {
-    //   event: "windows-update",
-    //   windows: obj,
-    // };
-    // return Promise.resolve(obj);
-
-    return Promise.resolve(response);
+    let obj = JSON.parse(response);
+    return Promise.resolve(obj);
   }
 }
 
