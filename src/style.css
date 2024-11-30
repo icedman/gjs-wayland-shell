@@ -87,3 +87,7 @@
 #MenuItem:hover {
     background: rgba(150,150,150,0.2);
 }
+
+#BlurBg {
+    border: 2px solid red;
+}

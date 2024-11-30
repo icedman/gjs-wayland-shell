@@ -1,11 +1,87 @@
-.gtklabel {
-/*	color: red;*/
+.dark * {
+	border-color: rgba(0,0,0,0.25);
+	color: rgba(175,175,175,1);
+}
+
+.light * {
+	border-color: rgba(125,125,125,0.5);
+	color: rgba(50,50,50,1);
+}
+
+.adwpreferencesgroup {
+	margin: 10px;
 }
 
 .adwpreferencesgroup .heading {
 	padding: 12px;
 }
 
+.adwpreferencesgroup .dim-label {
+	padding: 0px 12px 12px 12px;
+}
+
 .adwactionrow {
 	padding: 8px;
+}
+
+/*.adwviewswitcherbutton {
+	border-width: 1px;
+	border-radius: 0px;
+	border-right: 0px;
+}
+
+.adwviewswitcher .adwviewswitcherbutton:last-child {
+	border-right: 1px;
+}
+*/
+
+/*
+.adwviewswitcher > * {
+	border-right: 0px;
+}
+
+.adwviewswitcher > :first-child {
+	border-radius: 8px 0 0 8px;
+}
+
+.adwviewswitcher > :last-child {
+	border-radius: 0 8px 8px 0;
+}
+
+.dark .adwviewswitcher > :last-child {
+	border-right: 1px solid rgba(0,0,0,0.25);
+}
+
+.light .adwviewswitcher > :last-child {
+	border-right: 1px solid rgba(125,125,125,0.5);
+}*/
+
+/*
+.adwheaderbar .gtktogglebutton {
+	background: rgba(0,0,0,0);
+	border-color: rgba(0,0,0,0);
+}
+.dark .adwheaderbar .gtktogglebutton:hover {
+	background: rgba(0,0,0,0.25);
+}
+.light .adwheaderbar .gtktogglebutton:hover {
+	background: rgba(125,125,125,0.5);
+}
+*/
+
+.adwviewswitcher > * {
+	border: 0px;
+}
+
+.adwviewswitcherbutton {
+	padding: 0px;
+}
+
+.adwviewswitcherbutton .gtkimage,
+.adwviewswitcherbutton .gtklabel {
+	padding: 4px;
+}
+
+.adwheaderbar .gtktogglebutton {
+	border: 0px;
 }

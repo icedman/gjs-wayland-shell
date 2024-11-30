@@ -1,15 +1,17 @@
 import Gdk from "gi://Gdk?version=4.0";
 import Gtk from "gi://Gtk?version=4.0";
+import Gio from "gi://Gio";
 import GLib from "gi://GLib";
 import Dock from "./dock.js";
 import Panel from "./panel.js";
-import { Power } from "./modules/power.js";
-import { Network } from "./modules/network.js";
-import { Volume, Mic } from "./modules/volume.js";
-import { Trash } from "./modules/trash.js";
+import { Power } from "./lib/power.js";
+import { Network } from "./lib/network.js";
+import { Volume, Mic } from "./lib/volume.js";
+import { Trash } from "./lib/trash.js";
 import ShellService from "./shell.js";
+import "./lib/environment.js";
 
-// let settingsShell = new Gio.Settings({ schema_id: 'org.gnome.shell' });
+// const settingsShell = new Gio.Settings({ schema_id: 'org.gnome.shell' });
 // let apps = settingsShell.get_value('favorite-apps').deepUnpack();
 
 let apps = [
@@ -53,20 +55,21 @@ globalThis.Main = {
     },
   },
 
-  // ui
+  // extensions
   dock: new Dock({ apps }),
   panel: new Panel(),
-
-  // modules
   shell: new ShellService(),
   power: new Power(),
   network: new Network(),
   volume: new Volume(),
   mic: new Mic(),
   trash: new Trash(),
+
+  // settings
+  settings: new Gio.Settings({ schema: "com.github.icedman.gws" }),
 };
 
-// init the modules
+// init the extension
 [
   Main.shell,
   Main.power,
@@ -86,10 +89,10 @@ globalThis.Main = {
 });
 
 Main.shell.listen();
-setTimeout(() => {
-  Main.shell.getWindows().then((res) => {
-    console.log(Main.shell.windows);
-  });
-}, 3500);
+// setTimeout(() => {
+//   Main.shell.getWindows().then((res) => {
+//     console.log(Main.shell.windows);
+//   });
+// }, 3500);
 
 loop.run();

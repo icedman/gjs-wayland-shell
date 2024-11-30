@@ -65,31 +65,38 @@ export const PanelItem = GObject.registerClass(
 );
 
 export const Panel = GObject.registerClass(
-  class Panel extends Gtk.Window {
+  class Panel extends GObject.Object {
     _init(params) {
+      super._init({
+        ...params,
+      });
+    }
+
+    init() {
+      this.enable();
+    }
+
+    enable() {
       let width = Gdk.Display.get_default()
         .get_monitors()
         .get_item(0)
         .get_geometry().width;
 
-      super._init({
+      this.window = new Gtk.Window({
         title: "Panel",
         name: "Panel",
         default_width: width,
         default_height: 20,
-        ...params,
       });
 
-      this.add_css_class("startup");
+      this.window.add_css_class("startup");
 
-      LayerShell.init_for_window(this);
-      LayerShell.set_anchor(this, LayerShell.Edge.TOP, true);
-      LayerShell.auto_exclusive_zone_enable(this);
-      LayerShell.set_margin(this, LayerShell.Edge.TOP, 0);
-      LayerShell.set_layer(this, LayerShell.Layer.TOP);
-    }
+      LayerShell.init_for_window(this.window);
+      LayerShell.set_anchor(this.window, LayerShell.Edge.TOP, true);
+      LayerShell.auto_exclusive_zone_enable(this.window);
+      LayerShell.set_margin(this.window, LayerShell.Edge.TOP, 0);
+      LayerShell.set_layer(this.window, LayerShell.Layer.TOP);
 
-    init() {
       let container = new Gtk.Fixed();
       let box = new Gtk.Box({ name: "box" });
       let bg = new Gtk.Box({ name: "background" });
@@ -150,18 +157,23 @@ export const Panel = GObject.registerClass(
       this.box = box;
       this.bg = bg;
 
-      this.set_child(container);
-      this.present();
+      this.window.set_child(container);
+      this.window.present();
+      setTimeout(() => {
+        this.window.remove_css_class("startup");
+      }, 500);
 
       setTimeout(this.update_bg.bind(this), 500);
       setInterval(this.update.bind(this), 1000 * 60);
 
+      this.subscriptions = [];
       Main.power.subscribe(this, "power-update", (state) => {
         // power.set_label(`${state.fillLevel}%`);
         power.set_label(``);
         power.set_icon(state.icon);
       });
       Main.power.sync();
+      this.subscriptions.push(Main.power);
 
       Main.network.subscribe(this, "network-update", (state) => {
         // network.set_label(`${state.connectivity} ${state.enabled}`);
@@ -169,6 +181,7 @@ export const Panel = GObject.registerClass(
         network.set_icon(state.icon);
       });
       Main.network.sync();
+      this.subscriptions.push(Main.network);
 
       Main.volume.subscribe(this, "volume-update", (state) => {
         // volume.set_label(`${state.connectivity} ${state.enabled}`);
@@ -176,6 +189,7 @@ export const Panel = GObject.registerClass(
         volume.set_icon(state.icon);
       });
       Main.volume.sync();
+      this.subscriptions.push(Main.volume);
 
       Main.mic.subscribe(this, "mic-update", (state) => {
         // mic.set_label(`${state.connectivity} ${state.enabled}`);
@@ -183,6 +197,7 @@ export const Panel = GObject.registerClass(
         mic.set_icon(state.icon);
       });
       Main.mic.sync();
+      this.subscriptions.push(Main.mic);
 
       [volume, mic, network, power].forEach((widget) => {
         right.append(widget);
@@ -191,13 +206,23 @@ export const Panel = GObject.registerClass(
       this.update();
     }
 
+    disable() {
+      // Main.settings.diconnectObject(this);
+      this.window.hide();
+
+      this.container = null;
+      this.box = null;
+      this.bg = null;
+      this.window = null;
+    }
+
     update_bg() {
-      let w = this.get_allocated_width();
-      let h = this.get_allocated_height();
+      let w = this.window.get_allocated_width();
+      let h = this.window.get_allocated_height();
       this.bg.set_size_request(w, h);
       this.box.set_size_request(w, h);
 
-      this.remove_css_class("startup");
+      this.window.remove_css_class("startup");
     }
 
     update() {

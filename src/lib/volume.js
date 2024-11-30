@@ -5,10 +5,6 @@ import Gio from "gi://Gio";
 import GObject from "gi://GObject";
 import Gvc from "gi://Gvc";
 
-Math.clamp = function (x, lower, upper) {
-  return Math.min(Math.max(x, lower), upper);
-};
-
 // Each Gvc.MixerControl is a connection to PulseAudio,
 // so it's better to make it a singleton
 let _mixerControl;

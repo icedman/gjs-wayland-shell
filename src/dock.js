@@ -4,7 +4,7 @@ import GLib from "gi://GLib";
 import Gio from "gi://Gio";
 import GObject from "gi://GObject";
 import LayerShell from "gi://Gtk4LayerShell";
-import { PopupMenu } from "./modules/popupMenu.js";
+import { PopupMenu } from "./lib/popupMenu.js";
 
 function appInfoMenuModel(appInfo) {
   let desktopFilePath = GLib.build_filenamev([
@@ -104,6 +104,8 @@ export const DockItem = GObject.registerClass(
 
       super._init({
         name: "DockItem",
+        hexpand: true,
+        vexpand: true,
       });
 
       this.btn = new Gtk.Button({
@@ -130,7 +132,7 @@ export const DockItem = GObject.registerClass(
 
       this.btn.connect("clicked", (actor) => {
         try {
-          Main.dock.focus_or_open(appInfo.id, appInfo.cmd);
+          Main.shell.focusOrOpen(appInfo.id, appInfo.cmd);
         } catch (err) {
           console.log(err);
         }
@@ -142,84 +144,100 @@ export const DockItem = GObject.registerClass(
 );
 
 export const Dock = GObject.registerClass(
-  class Dock extends Gtk.Window {
+  class Dock extends GObject.Object {
     _init(params) {
-      this.apps = params?.apps ?? [];
+      this.favorite_apps = params?.apps ?? [];
       delete params?.apps;
 
       super._init({
-        title: "Dock",
-        name: "Dock",
-        default_width: 200,
-        default_height: 48 + 20,
         ...params,
       });
-
-      this.add_css_class("startup");
-
-      LayerShell.init_for_window(this);
-      LayerShell.set_anchor(this, LayerShell.Edge.BOTTOM, true);
-      LayerShell.auto_exclusive_zone_enable(this);
-      LayerShell.set_margin(this, LayerShell.Edge.BOTTOM, 4);
-      LayerShell.set_layer(this, LayerShell.Layer.TOP);
     }
 
     init() {
-      let container = new Gtk.Overlay(); // Gtk.Fixed
-      this.container = container;
-      this.box = new Gtk.Box({ name: "box" });
-      this.bg = new Gtk.Box({ name: "background" });
+      this.enable();
+    }
 
-      // container.put(this.bg, 0, 0);
-      // container.put(this.box, 0, 0);
+    enable() {
+      this.load_settings();
+
+      this.window = new Gtk.Window({
+        title: "Dock",
+        name: "Dock",
+        hexpand: true,
+        vexpand: true,
+      });
+
+      this.window.add_css_class("startup");
+
+      LayerShell.init_for_window(this.window);
+      LayerShell.set_anchor(this.window, LayerShell.Edge.BOTTOM, true);
+      LayerShell.auto_exclusive_zone_enable(this.window);
+      LayerShell.set_margin(this.window, LayerShell.Edge.BOTTOM, 4);
+      LayerShell.set_layer(this.window, LayerShell.Layer.TOP);
+
+      let container = new Gtk.Overlay({});
+      this.container = container;
+      this.box = new Gtk.Box({ name: "box", hexpand: true, vexpand: true });
+      this.bg = new Gtk.Box({
+        name: "background",
+        hexpand: true,
+        vexpand: true,
+      });
+
       container.add_overlay(this.bg);
       container.add_overlay(this.box);
-
-      this.bg.hexpand = true;
-      this.box.hexpand = true;
+      container.set_halign(Gtk.Align.END);
+      container.set_valign(Gtk.Align.END);
 
       this.update_icons();
 
-      this.set_child(container);
-      this.present();
+      this.window.set_child(container);
+      this.window.present();
+
+      setTimeout(() => {
+        this.window.remove_css_class("startup");
+      }, 500);
+    }
+
+    disable() {
+      Main.settings.diconnectObject(this);
+      this.window.hide();
+
+      this.container = null;
+      this.box = null;
+      this.bg = null;
+      this.window = null;
+    }
+
+    load_settings() {
+      Main.settings.connectObject(
+        "changed::dark-mode",
+        (settings, key) => {
+          let value = settings.get_value("dark-mode");
+          let type = value.get_type_string();
+          console.log({ key, value, type, b: settings.get_string(key) });
+        },
+        this,
+      );
     }
 
     async update_icons() {
       let bg = this.bg;
       let box = this.box;
 
-      for (let i = 0; i < this.apps.length; i++) {
-        let app = this.apps[i];
+      for (let i = 0; i < this.favorite_apps.length; i++) {
+        let app = this.favorite_apps[i];
         let btn = new DockItem({
           app,
         });
         box.append(btn);
       }
 
-      this.container.set_size_request(this.apps.length * (48 + 12), 48);
-      setTimeout(this.update_bg.bind(this), 500);
-    }
-
-    update_bg() {
-      // let w = this.box.get_allocated_width();
-      // let h = this.box.get_allocated_height();
-      // console.log({w,h});
-      // this.bg.set_size_request(w, h);
-
-      this.remove_css_class("startup");
-    }
-
-    focus_or_open(className, exec) {
-      console.log(className);
-      // move to shell
-      let openedWindow = (Main.shell.windows ?? []).find((w) => {
-        return w["class"] + ".desktop" == className;
-      });
-      if (openedWindow) {
-        Main.shell.focusWindow(openedWindow);
-      } else {
-        Main.shell.spawn(exec);
-      }
+      this.container.set_size_request(
+        this.favorite_apps.length * (48 + 12),
+        48 + 20,
+      );
     }
   },
 );

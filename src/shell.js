@@ -1,5 +1,6 @@
 import GLib from "gi://GLib";
 import Gio from "gi://Gio";
+// import
 
 import {
   connectToSocket,
@@ -13,7 +14,7 @@ import {
   receiveI3Message,
   IPC_HEADER_SIZE,
   BYTES_NUM,
-} from "./modules/ipc.js";
+} from "./lib/ipc.js";
 
 /**
  * Logs errors.
@@ -188,6 +189,17 @@ class ShellInterface {
 
   getWindows() {}
   focusWindow(id) {}
+
+  focusOrOpen(className, exec) {
+    let openedWindow = (this.windows ?? []).find((w) => {
+      return w["class"] + ".desktop" == className;
+    });
+    if (openedWindow) {
+      this.focusWindow(openedWindow);
+    } else {
+      this.spawn(exec);
+    }
+  }
 
   spawn(cmd) {
     try {

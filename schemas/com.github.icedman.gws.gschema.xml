@@ -1,0 +1,9 @@
+<schemalist>
+  <schema id="com.github.icedman.gws" path="/com/github/icedman/gws/">
+    <key name="dark-mode" type="s">
+      <default>"dark"</default>
+      <summary>"Dark or Light</summary>
+      <description>Application theme (dark, light, or auto)</description>
+    </key>
+  </schema>
+</schemalist>

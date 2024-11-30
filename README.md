@@ -1,4 +1,4 @@
-# gnome based shelll over wayland
+# gnome based shell over wayland
 
 # requirements
 1. niri window manager (for now)

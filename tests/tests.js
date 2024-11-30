@@ -1,7 +1,7 @@
-import { Power } from "../modules/power.js";
-import { Network } from "../modules/network.js";
-import { Volume, Mic } from "../modules/volume.js";
-import { Trash } from "../modules/trash.js";
+import { Power } from "../lib/power.js";
+import { Network } from "../lib/network.js";
+import { Volume, Mic } from "../lib/volume.js";
+import { Trash } from "../lib/trash.js";
 import {
   connectToSocket,
   connectToNiriSocket,
@@ -12,7 +12,7 @@ import {
   receiveMessage,
   sendI3Message,
   receiveI3Message,
-} from "../modules/ipc.js";
+} from "../lib/ipc.js";
 import ShellService from "../shell.js";
 import GLib from "gi://GLib";
 
