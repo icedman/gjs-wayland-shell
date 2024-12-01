@@ -8,18 +8,14 @@ const TRASH_UPDATE_INTERVAL = 1000 * 45; // every 45 seconds
 const TRASH_URI = 'trash:///';
 
 const Trash = GObject.registerClass(
+  {
+    Signals: {
+      'trash-update': {},
+    },
+  },
   class Trash extends GObject.Object {
     _init(params) {
       super._init(params);
-      this.subscribers = [];
-    }
-
-    subscribe(sub, event, func) {
-      this.subscribers.push({ subscriber: sub, event: event, callback: func });
-    }
-
-    unsubscribe(sub) {
-      this.subscribers = this.subscribers.filter((s) => s.subscriber != sub);
     }
 
     init() {
@@ -67,11 +63,7 @@ const Trash = GObject.registerClass(
       this.state = {
         full: this.checkTrash(),
       };
-      this.subscribers.forEach((sub) => {
-        if (sub.event == 'trash-update') {
-          sub.callback.bind(sub.subscriber)(this.state);
-        }
-      });
+      this.emit('trash-update');
     }
   },
 );

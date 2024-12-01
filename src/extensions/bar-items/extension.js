@@ -43,6 +43,13 @@ class BarItemsExtension {
       let item = new Main.panel.PanelItem();
       item.set_label('Hello');
       Main.panel.trail.append(item);
+
+      let evt = new Gtk.GestureClick();
+      evt.set_button(3); // right click
+      evt.connect('pressed', (actor, count) => {
+        console.log('Hello');
+      });
+      item.add_controller(evt);
     }
 
     {
@@ -65,11 +72,16 @@ class BarItemsExtension {
       power.set_label('power');
       Main.panel.trail.append(power);
 
-      Main.power.subscribe(this, 'power-update', (state) => {
-        // power.set_label(`${state.fillLevel}%`);
-        power.set_label(``);
-        power.set_icon(state.icon);
-      });
+      Main.power.connectObject(
+        'power-update',
+        () => {
+          let state = Main.power.state;
+          // power.set_label(`${state.fillLevel}%`);
+          power.set_label(``);
+          power.set_icon(state.icon);
+        },
+        this,
+      );
       Main.power.sync();
     }
 
@@ -79,10 +91,15 @@ class BarItemsExtension {
       volume.set_label('volume');
       Main.panel.trail.append(volume);
 
-      Main.volume.subscribe(this, 'volume-update', (state) => {
-        volume.set_label(``);
-        volume.set_icon(state.icon);
-      });
+      Main.volume.connectObject(
+        'volume-update',
+        () => {
+          let state = Main.volume.state;
+          volume.set_label(``);
+          volume.set_icon(state.icon);
+        },
+        this,
+      );
       Main.volume.sync();
     }
 
@@ -92,10 +109,15 @@ class BarItemsExtension {
       mic.set_label('mic');
       Main.panel.trail.append(mic);
 
-      Main.mic.subscribe(this, 'mic-update', (state) => {
-        mic.set_label(``);
-        mic.set_icon(state.icon);
-      });
+      Main.mic.connectObject(
+        'mic-update',
+        () => {
+          let state = Main.mic.state;
+          mic.set_label(``);
+          mic.set_icon(state.icon);
+        },
+        this,
+      );
       Main.mic.sync();
     }
 
@@ -121,21 +143,26 @@ class BarItemsExtension {
       let trash = new Main.dock.DockItem({ app: appInfo });
       // trash.set_icon('/usr/share/fedora-logos/fedora_logo_darkbackground.svg');
       Main.dock.center.append(trash);
-      Main.trash.subscribe(this, 'trash-update', (state) => {
-        if (state.full) {
-          trash.set_icon('user-trash-full');
-        } else {
-          trash.set_icon('user-trash');
-        }
-      });
+      Main.trash.connectObject(
+        'trash-update',
+        () => {
+          let state = Main.trash.state;
+          if (state.full) {
+            trash.set_icon('user-trash-full');
+          } else {
+            trash.set_icon('user-trash');
+          }
+        },
+        this,
+      );
       Main.trash.sync();
     }
   }
 
   disable() {
-    Main.power.unsubscribe(this);
-    Main.volume.unsubscribe(this);
-    Main.mic.unsubscribe(this);
+    Main.power.disconnectObject(this);
+    Main.volume.disconnectObject(this);
+    Main.mic.disconnectObject(this);
     if (this.clockTimer) {
       Main.timer.cancel(this.clockTimer);
       this.clockTimer = null;

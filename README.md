@@ -47,3 +47,27 @@ Add custom css at ```~/.config/gws/style.css```
 * This shell re-uses some of gnome-shell's dbus interfaces
 * gnome-shell need not be running
 
+
+# debugging
+
+To show a console like gnome-shell's looking glass the browse console:
+
+```sh DEBUG_CONSOLE=1 gws```
+
+Query the Main object
+
+```js
+JSON.stringify(Object.keys(Main));
+```
+
+Query the Dock
+
+```js
+JSON.stringify(Main.dock, null, 4);
+```
+
+Query the Panel
+
+```js
+JSON.stringify(Main.panel, null, 4);
+```

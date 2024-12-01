@@ -21,18 +21,14 @@ function signalToIcon(value) {
 }
 
 const Network = GObject.registerClass(
+  {
+    Signals: {
+      'network-update': {},
+    },
+  },
   class Network extends GObject.Object {
     _init(params) {
-      this.subscribers = [];
       super._init(params);
-    }
-
-    subscribe(sub, event, func) {
-      this.subscribers.push({ subscriber: sub, event: event, callback: func });
-    }
-
-    unsubscribe(sub) {
-      this.subscribers = this.subscribers.filter((s) => s.subscriber != sub);
     }
 
     async init() {
@@ -64,11 +60,7 @@ const Network = GObject.registerClass(
           : 'network-wireless-disabled-symbolic',
       };
 
-      this.subscribers.forEach((sub) => {
-        if (sub.event == 'network-update') {
-          sub.callback.bind(sub.subscriber)(this.state);
-        }
-      });
+      this.emit('network-update');
     }
   },
 );

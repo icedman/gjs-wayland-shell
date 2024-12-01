@@ -240,11 +240,12 @@ export const DockPanel = GObject.registerClass(
       });
     }
 
-    free() {
+    destroy() {
       this.hide();
       this.style.unloadAll();
       this.style = null;
       Main.settings.disconnectObject(this);
+      super.destroy();
     }
 
     async update_layout() {
@@ -403,7 +404,7 @@ export const Dock = GObject.registerClass(
     }
 
     disable() {
-      this.window.free();
+      this.window.destroy();
       this.window = null;
     }
 

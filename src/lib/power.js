@@ -22,18 +22,14 @@ const DisplayDeviceInterface =
 	</node> \
 	';
 const Power = GObject.registerClass(
+  {
+    Signals: {
+      'power-update': {},
+    },
+  },
   class Power extends GObject.Object {
     _init(params) {
       super._init(params);
-      this.subscribers = [];
-    }
-
-    subscribe(sub, event, func) {
-      this.subscribers.push({ subscriber: sub, event: event, callback: func });
-    }
-
-    unsubscribe(sub) {
-      this.subscribers = this.subscribers.filter((s) => s.subscriber != sub);
     }
 
     init() {
@@ -79,11 +75,7 @@ const Power = GObject.registerClass(
         icon,
       };
 
-      this.subscribers.forEach((sub) => {
-        if (sub.event == 'power-update') {
-          sub.callback.bind(sub.subscriber)(this.state);
-        }
-      });
+      this.emit('power-update');
     }
   },
 );

@@ -1,7 +1,7 @@
-import { Power } from '../lib/power.js';
-import { Network } from '../lib/network.js';
-import { Volume, Mic } from '../lib/volume.js';
-import { Trash } from '../lib/trash.js';
+import { Power } from '../src/lib/power.js';
+import { Network } from '../src/lib/network.js';
+import { Volume, Mic } from '../src/lib/volume.js';
+import { Trash } from '../src/lib/trash.js';
 import {
   connectToSocket,
   connectToNiriSocket,
@@ -12,83 +12,60 @@ import {
   receiveMessage,
   sendI3Message,
   receiveI3Message,
-} from '../lib/ipc.js';
-import ShellService from '../shell.js';
+} from '../src/lib/ipc.js';
+import ShellService from '../src/shell.js';
 import GLib from 'gi://GLib';
+import '../src/lib/environment.js';
 
-function run() {
-  // {
-  //   let conn = connectToSwaySocket();
-  //   sendI3Message(conn, 0, "exec kitty").then((res) => {
-  //     console.log(res);
-  //     receiveI3Message(conn).then((res) => {
-  //       console.log(res);
-  //       disconnectSocket(conn);
-  //     });
-  //   })
-  // }
-
-  // {
-  //   let conn = connectToSwaySocket();
-  //   sendI3Message(conn, 4, "").then((res) => {
-  //     console.log(res);
-  //     receiveI3Message(conn).then((res) => {
-  //       console.log(res);
-  //       disconnectSocket(conn);
-  //     });
-  //   });
-  // }
-
-  // let p = new Power();
-  // p.subscribe(null, 'power-update', (state) => { console.log(state); });
-  // p.init();
-
+function test_shell() {
   let s = ShellService();
   s.init();
   s.subscribe(null, 'window*', (event) => {
-    // console.log(event);
+    console.log(event);
     console.log(s.windows.length);
   });
   s.listen();
   s.getWindows()
     .then((res) => {
-      // console.log(res);
+      console.log(res);
     })
     .catch((err) => {
-      // console.log('oops');
-      // console.log(err);
+      console.log('oops');
+      console.log(err);
     });
-  // s.getWindows()
-  //   .then((res) => {
-  //     console.log(res);
-  //   })
-  //   .catch((err) => {
-  //     console.log("oops");
-  //     console.log(err);
-  //   });
-  // s.spawn("kitty");
+  s.spawn('kitty');
+}
 
-  // let n = new Network();
-  // n.subscribe(null, 'network-update', (state) => { console.log(state); });
-  // n.init();
+function run() {
+  let p = new Power();
+  p.connect('power-update', () => {
+    console.log(p.state);
+  });
+  p.init();
 
-  // let v = new Volume();
-  // v.subscribe(null, "volume-update", (state) => {
-  //   console.log(state);
-  // });
-  // v.init();
+  let n = new Network();
+  n.connect('network-update', () => {
+    console.log(n.state);
+  });
+  n.init();
 
-  // let m = new Mic();
-  // m.subscribe(null, "mic-update", (state) => {
-  //   console.log(state);
-  // });
-  // m.init();
+  let v = new Volume();
+  v.connect('volume-update', () => {
+    console.log(v.state);
+  });
+  v.init();
 
-  // let t = new Trash();
-  // t.subscribe(null, "trash-update", (state) => {
-  //   console.log(state);
-  // });
-  // t.init();
+  let m = new Mic();
+  m.connect('mic-update', () => {
+    console.log(m.state);
+  });
+  m.init();
+
+  let t = new Trash();
+  t.connect('trash-update', () => {
+    console.log(t.state);
+  });
+  t.init();
 }
 
 run();

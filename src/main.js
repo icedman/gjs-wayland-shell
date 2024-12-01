@@ -58,6 +58,12 @@ cssSources.forEach((path) => {
 });
 
 globalThis.Main = {
+  app: {
+    quit: () => {
+      loop.quit();
+    },
+  },
+
   // timers
   timer: new Timer('loop timer'),
   loTimer: new Timer('lo-res  timer'),

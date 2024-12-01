@@ -21,18 +21,14 @@ export function getMixerControl() {
 }
 
 const Volume = GObject.registerClass(
+  {
+    Signals: {
+      'volume-update': {},
+    },
+  },
   class Volume extends GObject.Object {
     _init(params) {
-      this.subscribers = [];
       super._init(params);
-    }
-
-    subscribe(sub, event, func) {
-      this.subscribers.push({ subscriber: sub, event: event, callback: func });
-    }
-
-    unsubscribe(sub) {
-      this.subscribers = this.subscribers.filter((s) => s.subscriber != sub);
     }
 
     async init() {
@@ -92,30 +88,20 @@ const Volume = GObject.registerClass(
         icon: this.get_icon(),
       };
 
-      // console.log(this.state);
-
-      this.subscribers.forEach((sub) => {
-        if (sub.event == 'volume-update') {
-          sub.callback.bind(sub.subscriber)(this.state);
-        }
-      });
+      this.emit('volume-update');
     }
   },
 );
 
 const Mic = GObject.registerClass(
+  {
+    Signals: {
+      'mic-update': {},
+    },
+  },
   class Mic extends GObject.Object {
     _init(params) {
-      this.subscribers = [];
       super._init(params);
-    }
-
-    subscribe(sub, event, func) {
-      this.subscribers.push({ subscriber: sub, event: event, callback: func });
-    }
-
-    unsubscribe(sub) {
-      this.subscribers = this.subscribers.filter((s) => s.subscriber != sub);
     }
 
     async init() {
@@ -174,13 +160,7 @@ const Mic = GObject.registerClass(
         icon: this.get_icon(),
       };
 
-      console.log(this.state);
-
-      this.subscribers.forEach((sub) => {
-        if (sub.event == 'mic-update') {
-          sub.callback.bind(sub.subscriber)(this.state);
-        }
-      });
+      this.emit('mic-update');
     }
   },
 );

@@ -87,21 +87,11 @@ export const Panel = GObject.registerClass(
     }
 
     disable() {
-      this.window.free();
+      this.window.destroy();
       this.window = null;
     }
 
     load_settings() {}
-
-    update_icons() {
-      // Main.network.subscribe(this, 'network-update', (state) => {
-      //   // network.set_label(`${state.connectivity} ${state.enabled}`);
-      //   network.set_label(``);
-      //   network.set_icon(state.icon);
-      // });
-      // Main.network.sync();
-      // this.subscriptions.push(Main.network);
-    }
   },
 );
 
