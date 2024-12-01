@@ -3,14 +3,6 @@ import Gio from 'gi://Gio';
 
 const BYTES_NUM = 4096;
 
-/**
- * Logs errors.
- * @param {Error} error - The error to log.
- */
-function logError(error) {
-  log(`Error: ${error.message}`);
-}
-
 function connectToSocket(socketPath, identifier) {
   try {
     // Check if the socket file exists

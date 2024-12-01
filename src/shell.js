@@ -16,14 +16,6 @@ import {
   BYTES_NUM,
 } from './lib/ipc.js';
 
-/**
- * Logs errors.
- * @param {Error} error - The error to log.
- */
-function logError(error) {
-  log(`Error: ${error.message}`);
-}
-
 class ShellInterface {
   init() {
     this.windows = [];

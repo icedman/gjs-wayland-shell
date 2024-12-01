@@ -115,14 +115,12 @@ export const DockItem = GObject.registerClass(
         });
 
         let evt = new Gtk.GestureClick();
-        evt.set_button(3);
+        evt.set_button(3); // right click
         evt.connect('pressed', (actor, count) => {
           menu.popup();
         });
         this.btn.add_controller(evt);
         this.append(menu);
-
-        menu.set_parent(this);
       }
 
       this.btn.connect('clicked', (actor) => {
@@ -243,10 +241,10 @@ export const DockPanel = GObject.registerClass(
     }
 
     free() {
-      Main.settings.diconnectObject(this);
       this.hide();
       this.style.unloadAll();
       this.style = null;
+      Main.settings.disconnectObject(this);
     }
 
     async update_layout() {

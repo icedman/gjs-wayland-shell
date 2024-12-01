@@ -34,33 +34,30 @@ let apps = [
 // Initialize Gtk before you start calling anything from the import
 Gtk.init();
 
-let loop = GLib.MainLoop.new(null, false);
-
-const cssSources = [
-  './style.css',
-  `${GLib.getenv('HOME')}/.config/gws/style.css`,
-];
-cssSources.forEach((path) => {
+function loadStyle(path) {
   let provider = new Gtk.CssProvider();
   try {
     provider.load_from_path(path);
   } catch (e) {
-    logError(e, 'Failed to add application style');
+    // quietly fail
+    // logError(e, 'Failed to add application style');
   }
   Gtk.StyleContext.add_provider_for_display(
     Gdk.Display.get_default(),
     provider,
     Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION,
   );
+}
+
+const cssSources = [
+  './style.css',
+  `${GLib.getenv('HOME')}/.config/gws/style.css`,
+];
+cssSources.forEach((path) => {
+  loadStyle(path);
 });
 
 globalThis.Main = {
-  app: {
-    quit: () => {
-      loop.quit();
-    },
-  },
-
   // timers
   timer: new Timer('loop timer'),
   loTimer: new Timer('lo-res  timer'),
@@ -151,13 +148,21 @@ function loadExtensions(directoryPath) {
           'extension.js',
         ]);
 
+        let extensionCssFilePath = GLib.build_filenamev([
+          directoryPath,
+          fileName,
+          'style.css',
+        ]);
+
         (async () => {
           console.log(extensionFilePath);
           let { Extension } = await loadModule(extensionFilePath);
           if (Extension) {
             let extension = new Extension();
             Main.extensions[fileName] = extension;
+            // check if enabled!
             extension.enable();
+            loadStyle(extensionCssFilePath);
           }
         })();
       }
@@ -169,4 +174,5 @@ function loadExtensions(directoryPath) {
 
 loadExtensions('./extensions');
 
+let loop = GLib.MainLoop.new(null, false);
 loop.run();

@@ -31,6 +31,10 @@ const Network = GObject.registerClass(
       this.subscribers.push({ subscriber: sub, event: event, callback: func });
     }
 
+    unsubscribe(sub) {
+      this.subscribers = this.subscribers.filter((s) => s.subscriber != sub);
+    }
+
     async init() {
       this.state = {};
       this._client = await NM.Client.new_async(null);

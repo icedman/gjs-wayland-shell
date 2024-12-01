@@ -55,11 +55,7 @@ class BarItemsExtension {
         let dt = formatDate(new Date());
         clock.set_label(dt);
       };
-      this.clockTimer = Main.timer.runLoop(
-        (s) => updateClock,
-        1000 * 60,
-        'clockTimer',
-      );
+      this.clockTimer = Main.timer.runLoop(updateClock, 1000 * 1, 'clockTimer');
       updateClock();
     }
 
@@ -122,10 +118,9 @@ class BarItemsExtension {
           },
         ],
       };
-      let trash = new Main.dock.DockItem({app: appInfo});
+      let trash = new Main.dock.DockItem({ app: appInfo });
       // trash.set_icon('/usr/share/fedora-logos/fedora_logo_darkbackground.svg');
       Main.dock.center.append(trash);
-    
       Main.trash.subscribe(this, 'trash-update', (state) => {
         if (state.full) {
           trash.set_icon('user-trash-full');
@@ -133,6 +128,7 @@ class BarItemsExtension {
           trash.set_icon('user-trash');
         }
       });
+      Main.trash.sync();
     }
   }
 

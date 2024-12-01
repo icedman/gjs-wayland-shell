@@ -12,11 +12,12 @@ export const Style = class {
   }
 
   unloadAll() {
-    let ctx = St.ThemeContext.get_for_stage(global.stage);
-    let theme = ctx.get_theme();
     Object.keys(this.styles).forEach((k) => {
-      let fn = this.styles[k];
-      theme.unload_stylesheet(fn);
+      let provider = this.styles[k];
+      Gtk.StyleContext.remove_provider_for_display(
+        Gdk.Display.get_default(),
+        provider,
+      );
     });
   }
 

@@ -7,17 +7,21 @@ import GObject from 'gi://GObject';
 export const PopupMenu = GObject.registerClass(
   class PopupMenu extends Gtk.Popover {
     _init(params) {
+      let items = params.items ?? [];
+      delete params?.items;
+
       super._init({
         name: 'Menu',
         has_arrow: false,
         position: 2,
+        ...params,
       });
 
       let box = new Gtk.Box({
         orientation: Gtk.Orientation.VERTICAL,
       });
 
-      params.items.forEach((item) => {
+      items.forEach((item) => {
         let button = new Gtk.Box({
           name: 'MenuItem',
           orientation: Gtk.Orientation.HORIZONTAL,
@@ -41,6 +45,7 @@ export const PopupMenu = GObject.registerClass(
         // button.icon.add_css_class("icon");
         // button.icon.set_visible(false);
         // button.append(button.icon);
+
         button.label = new Gtk.Label();
         button.label.add_css_class('label');
         button.label.hexpand = true;
