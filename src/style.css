@@ -1,70 +1,57 @@
+/* Dock */
 #Dock {
     background: transparent;
     opacity: 1;
     transition: opacity 0.25s ease-in-out;
 }
 
-#Dock button {
+#DockItem .button {
     border: none;
     background: rgba(0,0,0,0);
     border-radius: 16px;
-    -gtk-icon-shadow: rgba(0, 0, 0, 0.6) 0 6px 6px;
 }
 
-#Dock button image {
+#DockItem .button image {
     color: rgba(255,255,255,1);
 }
 
-#Dock button:hover {
+#DockItem .button:hover {
     border: none;
     background: rgba(0,0,0,0.5);
 }
 
-#box {
-    border-radius: 20px;
-    background: rgba(0,0,0,0.5);
-    padding: 6px;
-}
-
-#left, #center, #right {
-    color: #f0f0f0;
-}
-
-#background {
-    border: 2px solid white;
-    border-radius: 20px;
-    background: rgba(50,50,50,0.5);
-    padding: 6px;
-    filter: blur(20px);
-}
-
-#Panel {
-    border-radius: 0px;
+/* Bar */
+#Bar {
     background: transparent;
     opacity: 1;
     transition: opacity 0.25s ease-in-out;
 }
 
-#Logo * {
+#PanelItem.logo * {
     font-family: Helvetica;
     font-weight: bold;
 }
 
-#Panel #background,
-#Panel #box {
-    border-radius: 0px;
-}
-
-#Dock.startup, #Panel.startup {
-    opacity: 0;
-}
-
-.panel-item .icon {
+#PanelItem .icon {
     margin: 0px;
     padding: 0px;
     padding-left: 8px;
     padding-right: 8px;
 }
+
+/* Common */
+
+#lead, #center, #trail {
+}
+
+#container {
+}
+
+#Dock.startup, #Bar.startup {
+    opacity: 0;
+}
+
+/* Menu */
 
 #Menu {
     margin-bottom: 10px;
@@ -86,8 +73,4 @@
 
 #MenuItem:hover {
     background: rgba(150,150,150,0.2);
-}
-
-#BlurBg {
-    border: 2px solid red;
 }

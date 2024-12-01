@@ -1,4 +1,4 @@
-import * as SignalTracker from "./signalTracker.js";
+import * as SignalTracker from './signalTracker.js';
 
 const Signals = imports.signals;
 

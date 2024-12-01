@@ -1,11 +1,11 @@
-import GLib from "gi://GLib";
+import GLib from 'gi://GLib';
 
 Object.keys(GLib).forEach((k) => {
   console.log(k);
 });
 
-const prettyName = GLib.get_os_info("PRETTY_NAME");
-const name = prettyName ? prettyName : GLib.get_os_info("NAME");
+const prettyName = GLib.get_os_info('PRETTY_NAME');
+const name = prettyName ? prettyName : GLib.get_os_info('NAME');
 
 console.log(name);
 

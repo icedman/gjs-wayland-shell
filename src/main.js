@@ -1,34 +1,34 @@
-import Gdk from "gi://Gdk?version=4.0";
-import Gtk from "gi://Gtk?version=4.0";
-import Gio from "gi://Gio";
-import GLib from "gi://GLib";
-import Dock from "./dock.js";
-import Panel from "./panel.js";
-import { Power } from "./lib/power.js";
-import { Network } from "./lib/network.js";
-import { Volume, Mic } from "./lib/volume.js";
-import { Trash } from "./lib/trash.js";
-import ShellService from "./shell.js";
-import "./lib/environment.js";
+import Gdk from 'gi://Gdk?version=4.0';
+import Gtk from 'gi://Gtk?version=4.0';
+import Gio from 'gi://Gio';
+import GLib from 'gi://GLib';
+import Dock from './dock.js';
+import Panel from './panel.js';
+import { Power } from './lib/power.js';
+import { Network } from './lib/network.js';
+import { Volume, Mic } from './lib/volume.js';
+import { Trash } from './lib/trash.js';
+import ShellService from './shell.js';
+import './lib/environment.js';
 
 // const settingsShell = new Gio.Settings({ schema_id: 'org.gnome.shell' });
 // let apps = settingsShell.get_value('favorite-apps').deepUnpack();
 
 let apps = [
   {
-    icon_name: "view-app-grid-symbolic",
-    title: "Fuzzel",
+    icon_name: 'view-app-grid-symbolic',
+    title: 'Fuzzel',
     cmd: `fuzzel`,
   },
-  "kitty.desktop",
-  "org.gnome.Nautilus.desktop",
-  "google-chrome.desktop",
-  "org.mozilla.firefox.desktop",
-  "org.gnome.Calendar.desktop",
-  "org.gnome.clocks.desktop",
-  "org.gnome.Software.desktop",
-  "org.gnome.TextEditor.desktop",
-  "trash",
+  'kitty.desktop',
+  'org.gnome.Nautilus.desktop',
+  'google-chrome.desktop',
+  'org.mozilla.firefox.desktop',
+  'org.gnome.Calendar.desktop',
+  'org.gnome.clocks.desktop',
+  'org.gnome.Software.desktop',
+  'org.gnome.TextEditor.desktop',
+  'trash',
 ];
 
 // Initialize Gtk before you start calling anything from the import
@@ -36,17 +36,23 @@ Gtk.init();
 
 let loop = GLib.MainLoop.new(null, false);
 
-let provider = new Gtk.CssProvider();
-try {
-  provider.load_from_path("./style.css");
-} catch (e) {
-  logError(e, "Failed to add application style");
-}
-Gtk.StyleContext.add_provider_for_display(
-  Gdk.Display.get_default(),
-  provider,
-  Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION,
-);
+const cssSources = [
+  './style.css',
+  `${GLib.getenv('HOME')}/.config/gws/style.css`,
+];
+cssSources.forEach((path) => {
+  let provider = new Gtk.CssProvider();
+  try {
+    provider.load_from_path(path);
+  } catch (e) {
+    logError(e, 'Failed to add application style');
+  }
+  Gtk.StyleContext.add_provider_for_display(
+    Gdk.Display.get_default(),
+    provider,
+    Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION,
+  );
+});
 
 globalThis.Main = {
   app: {
@@ -56,8 +62,8 @@ globalThis.Main = {
   },
 
   // extensions
-  dock: new Dock({ apps }),
-  panel: new Panel(),
+  dock: new Dock({ name: 'Dock', apps }),
+  panel: new Panel({ name: 'Panel' }),
   shell: new ShellService(),
   power: new Power(),
   network: new Network(),
@@ -66,7 +72,7 @@ globalThis.Main = {
   trash: new Trash(),
 
   // settings
-  settings: new Gio.Settings({ schema: "com.github.icedman.gws" }),
+  settings: new Gio.Settings({ schema: 'com.github.icedman.gws' }),
 };
 
 // init the extension
@@ -77,8 +83,8 @@ globalThis.Main = {
   Main.volume,
   Main.mic,
   Main.trash,
-  Main.dock,
   Main.panel,
+  Main.dock,
 ].forEach(async (m) => {
   try {
     m.init();

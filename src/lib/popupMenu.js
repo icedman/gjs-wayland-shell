@@ -1,14 +1,14 @@
-import Gdk from "gi://Gdk?version=4.0";
-import Gtk from "gi://Gtk?version=4.0";
-import GLib from "gi://GLib";
-import Gio from "gi://Gio";
-import GObject from "gi://GObject";
+import Gdk from 'gi://Gdk?version=4.0';
+import Gtk from 'gi://Gtk?version=4.0';
+import GLib from 'gi://GLib';
+import Gio from 'gi://Gio';
+import GObject from 'gi://GObject';
 
 export const PopupMenu = GObject.registerClass(
   class PopupMenu extends Gtk.Popover {
     _init(params) {
       super._init({
-        name: "Menu",
+        name: 'Menu',
         has_arrow: false,
         position: 2,
       });
@@ -19,15 +19,15 @@ export const PopupMenu = GObject.registerClass(
 
       params.items.forEach((item) => {
         let button = new Gtk.Box({
-          name: "MenuItem",
+          name: 'MenuItem',
           orientation: Gtk.Orientation.HORIZONTAL,
           hexpand: true,
         });
 
         let evt = new Gtk.GestureClick();
         // evt.set_button(3);
-        evt.connect("pressed", (actor, count) => {
-          if (item.action == "open") {
+        evt.connect('pressed', (actor, count) => {
+          if (item.action == 'open') {
             Main.dock.focus_or_open(item.id, item.exec);
             this.popdown();
             return;
@@ -42,7 +42,7 @@ export const PopupMenu = GObject.registerClass(
         // button.icon.set_visible(false);
         // button.append(button.icon);
         button.label = new Gtk.Label();
-        button.label.add_css_class("label");
+        button.label.add_css_class('label');
         button.label.hexpand = true;
         button.label.halign = Gtk.Align.START;
         // button.label.set_visible(false);

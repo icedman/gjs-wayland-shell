@@ -6,6 +6,7 @@
     <property name="icon-name">dash-symbolic</property>
     <child>
       <object class="AdwPreferencesGroup">
+        <property name="visible">false</property>
         <child>
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Theme</property>
@@ -37,10 +38,12 @@
     </child>
     <child>
       <object class="AdwPreferencesGroup">
+        <property name="visible">false</property>
         <property name="title" translatable="yes">Icons</property>
         <property name="description" translatable="yes"/>
         <child>
           <object class="AdwActionRow">
+            <property name="visible">false</property>
             <property name="title" translatable="yes">Shrink Icons</property>
             <property name="subtitle" translatable="yes">Shrink the dash icons size.</property>
             <property name="activatable-widget">shrink-icons</property>
@@ -72,11 +75,12 @@
         </child>
         <child>
           <object class="AdwActionRow">
+            <property name="visible">false</property>
             <property name="title" translatable="yes">Icons Spacing</property>
             <property name="subtitle" translatable="yes">Adjust icons spacing.</property>
-            <property name="activatable-widget">icon-spacing</property>
+            <property name="activatable-widget">dock-icon-spacing</property>
             <child>
-              <object class="GtkScale" id="icon-spacing">
+              <object class="GtkScale" id="dock-icon-spacing">
                 <property name="valign">center</property>
                 <property name="hexpand">true</property>
                 <property name="width-request">140px</property>
@@ -91,6 +95,7 @@
         </child>
         <child>
           <object class="AdwActionRow">
+            <property name="visible">false</property>
             <property name="title" translatable="yes">Icon Effect</property>
             <property name="subtitle" translatable="yes">Set icon rendering effect.</property>
             <property name="activatable-widget">icon-effect</property>
@@ -104,6 +109,7 @@
         </child>
         <child>
           <object class="AdwActionRow">
+            <property name="visible">false</property>
             <property name="title" translatable="yes">Icon Effect Color</property>
             <property name="subtitle" translatable="yes">Select icon effect color.</property>
             <property name="activatable-widget">icon-effect-color</property>
@@ -123,9 +129,9 @@
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Icon Shadow</property>
             <property name="subtitle" translatable="yes">Add icon shadow effect.</property>
-            <property name="activatable-widget">icon-shadow</property>
+            <property name="activatable-widget">dock-icon-shadow</property>
             <child>
-              <object class="GtkSwitch" id="icon-shadow">
+              <object class="GtkSwitch" id="dock-icon-shadow">
                 <property name="valign">center</property>
               </object>
             </child>
@@ -133,6 +139,7 @@
         </child>
         <child>
           <object class="AdwActionRow">
+            <property name="visible">false</property>
             <property name="title" translatable="yes">Separator Thickness</property>
             <property name="subtitle" translatable="yes">Set separator thickness.</property>
             <property name="activatable-widget">separator-thickness</property>
@@ -146,6 +153,7 @@
         </child>
         <child>
           <object class="AdwActionRow">
+            <property name="visible">false</property>
             <property name="title" translatable="yes">Separator Color</property>
             <property name="subtitle" translatable="yes">Select separator color.</property>
             <property name="activatable-widget">separator-color</property>
@@ -170,10 +178,10 @@
         <child>
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Panel Mode</property>
-            <property name="subtitle" translatable="yes">Dock the dash on a full-width panel.</property>
-            <property name="activatable-widget">panel-mode</property>
+            <property name="subtitle" translatable="yes">Dock the dash on a full-width.</property>
+            <property name="activatable-widget">dock-panel-mode</property>
             <child>
-              <object class="GtkSwitch" id="panel-mode">
+              <object class="GtkSwitch" id="dock-panel-mode">
                 <property name="valign">center</property>
               </object>
             </child>
@@ -183,9 +191,9 @@
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Edge Distance</property>
             <property name="subtitle" translatable="yes">Adjust dock distance from edge of screen.</property>
-            <property name="activatable-widget">edge-distance</property>
+            <property name="activatable-widget">dock-edge-distance</property>
             <child>
-              <object class="GtkScale" id="edge-distance">
+              <object class="GtkScale" id="dock-edge-distance">
                 <property name="valign">center</property>
                 <property name="hexpand">true</property>
                 <property name="width-request">140px</property>
@@ -193,7 +201,7 @@
                 <property name="value-pos">right</property>
                 <property name="orientation">horizontal</property>
                 <property name="digits">2</property>
-                <property name="adjustment">edge-distance-adjust</property>
+                <property name="adjustment">dock-edge-distance-adjust</property>
               </object>
             </child>
           </object>
@@ -221,9 +229,9 @@
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Border Radius</property>
             <property name="subtitle" translatable="yes">Set dash background border radius.</property>
-            <property name="activatable-widget">border-radius</property>
+            <property name="activatable-widget">dock-border-radius</property>
             <child>
-              <object class="GtkScale" id="border-radius">
+              <object class="GtkScale" id="dock-border-radius">
                 <property name="valign">center</property>
                 <property name="hexpand">true</property>
                 <property name="width-request">140px</property>
@@ -231,7 +239,7 @@
                 <property name="value-pos">right</property>
                 <property name="orientation">horizontal</property>
                 <property name="digits">0</property>
-                <property name="adjustment">border-radius-adjust</property>
+                <property name="adjustment">dock-border-radius-adjust</property>
               </object>
             </child>
           </object>
@@ -240,9 +248,9 @@
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Border Thickness</property>
             <property name="subtitle" translatable="yes">Set border thickness.</property>
-            <property name="activatable-widget">border-thickness</property>
+            <property name="activatable-widget">dock-border-thickness</property>
             <child>
-              <object class="GtkDropDown" id="border-thickness">
+              <object class="GtkDropDown" id="dock-border-thickness">
                 <property name="valign">center</property>
                 <property name="model">border-thickness-model</property>
               </object>
@@ -253,9 +261,9 @@
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Border Color</property>
             <property name="subtitle" translatable="yes">Select border color.</property>
-            <property name="activatable-widget">border-color</property>
+            <property name="activatable-widget">dock-border-color</property>
             <child>
-              <object class="GtkColorButton" id="border-color">
+              <object class="GtkColorButton" id="dock-border-color">
                 <property name="valign">center</property>
                 <property name="hexpand">false</property>
                 <property name="width-request">70px</property>
@@ -270,9 +278,9 @@
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Background Color</property>
             <property name="subtitle" translatable="yes">Set dock background color.</property>
-            <property name="activatable-widget">background-color</property>
+            <property name="activatable-widget">dock-background-color</property>
             <child>
-              <object class="GtkColorButton" id="background-color">
+              <object class="GtkColorButton" id="dock-background-color">
                 <property name="valign">center</property>
                 <property name="hexpand">false</property>
                 <property name="width-request">70px</property>
@@ -285,13 +293,30 @@
         </child>
         <child>
           <object class="AdwActionRow">
-            <property name="visible">true</property>
+            <property name="visible">false</property>
             <property name="title" translatable="yes">Background Blur</property>
             <property name="subtitle" translatable="yes">Add background blur with current wallpaper. Requires imagemagick installed.</property>
-            <property name="activatable-widget">blur-background</property>
+            <property name="activatable-widget">dock-blur-background</property>
             <child>
-              <object class="GtkSwitch" id="blur-background">
+              <object class="GtkSwitch" id="dock-blur-background">
                 <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="yes">Foreground Color</property>
+            <property name="subtitle" translatable="yes">Set foreground color. Set opacity to zero to adapt to background.</property>
+            <property name="activatable-widget">dock-foreground-color</property>
+            <child>
+              <object class="GtkColorButton" id="dock-foreground-color">
+                <property name="valign">center</property>
+                <property name="hexpand">false</property>
+                <property name="width-request">70px</property>
+                <property name="height-request">45px</property>
+                <property name="show-editor">true</property>
+                <property name="use-alpha">true</property>
               </object>
             </child>
           </object>
@@ -300,6 +325,7 @@
     </child>
     <child>
       <object class="AdwPreferencesGroup">
+        <property name="visible">false</property>
         <property name="title" translatable="yes">App Indicators</property>
         <property name="description" translatable="yes"/>
         <child>
@@ -394,14 +420,74 @@
       <object class="AdwPreferencesGroup">
         <property name="title" translatable="yes">Topbar</property>
         <property name="description" translatable="yes"/>
+        <!--
         <child>
           <object class="AdwActionRow">
-            <property name="title" translatable="yes">Customize</property>
-            <property name="subtitle" translatable="yes">Enable topbar customization.</property>
-            <property name="activatable-widget">customize-topbar</property>
+            <property name="visible">false</property>
+            <property name="title" translatable="yes">Panel Mode</property>
+            <property name="subtitle" translatable="yes">Dock the panel on a full-width.</property>
+            <property name="activatable-widget">bar-panel-mode</property>
             <child>
-              <object class="GtkSwitch" id="customize-topbar">
+              <object class="GtkSwitch" id="bar-panel-mode">
                 <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        -->
+        <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="yes">Edge Distance</property>
+            <property name="subtitle" translatable="yes">Adjust dock distance from edge of screen.</property>
+            <property name="activatable-widget">bar-edge-distance</property>
+            <child>
+              <object class="GtkScale" id="bar-edge-distance">
+                <property name="valign">center</property>
+                <property name="hexpand">true</property>
+                <property name="width-request">140px</property>
+                <property name="draw-value">false</property>
+                <property name="value-pos">right</property>
+                <property name="orientation">horizontal</property>
+                <property name="digits">2</property>
+                <property name="adjustment">bar-edge-distance-adjust</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="yes">Bar padding</property>
+            <property name="subtitle" translatable="yes">Set padding size.</property>
+            <property name="activatable-widget">bar-padding</property>
+            <child>
+              <object class="GtkScale" id="bar-padding">
+                <property name="valign">center</property>
+                <property name="hexpand">true</property>
+                <property name="width-request">140px</property>
+                <property name="draw-value">false</property>
+                <property name="value-pos">right</property>
+                <property name="orientation">horizontal</property>
+                <property name="digits">0</property>
+                <property name="adjustment">bar-padding-adjust</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="yes">Border Radius</property>
+            <property name="subtitle" translatable="yes">Set background border radius.</property>
+            <property name="activatable-widget">bar-border-radius</property>
+            <child>
+              <object class="GtkScale" id="bar-border-radius">
+                <property name="valign">center</property>
+                <property name="hexpand">true</property>
+                <property name="width-request">140px</property>
+                <property name="draw-value">false</property>
+                <property name="value-pos">right</property>
+                <property name="orientation">horizontal</property>
+                <property name="digits">0</property>
+                <property name="adjustment">bar-border-radius-adjust</property>
               </object>
             </child>
           </object>
@@ -410,9 +496,9 @@
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Border Thickness</property>
             <property name="subtitle" translatable="yes">Set border thickness.</property>
-            <property name="activatable-widget">topbar-border-thickness</property>
+            <property name="activatable-widget">bar-border-thickness</property>
             <child>
-              <object class="GtkDropDown" id="topbar-border-thickness">
+              <object class="GtkDropDown" id="bar-border-thickness">
                 <property name="valign">center</property>
                 <property name="model">border-thickness-model</property>
               </object>
@@ -423,9 +509,9 @@
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Border Color</property>
             <property name="subtitle" translatable="yes">Select border color.</property>
-            <property name="activatable-widget">topbar-border-color</property>
+            <property name="activatable-widget">bar-border-color</property>
             <child>
-              <object class="GtkColorButton" id="topbar-border-color">
+              <object class="GtkColorButton" id="bar-border-color">
                 <property name="valign">center</property>
                 <property name="hexpand">false</property>
                 <property name="width-request">70px</property>
@@ -439,10 +525,10 @@
         <child>
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Background Color</property>
-            <property name="subtitle" translatable="yes">Set topbar panel background color.</property>
-            <property name="activatable-widget">topbar-background-color</property>
+            <property name="subtitle" translatable="yes">Set background color.</property>
+            <property name="activatable-widget">bar-background-color</property>
             <child>
-              <object class="GtkColorButton" id="topbar-background-color">
+              <object class="GtkColorButton" id="bar-background-color">
                 <property name="valign">center</property>
                 <property name="hexpand">false</property>
                 <property name="width-request">70px</property>
@@ -455,12 +541,12 @@
         </child>
         <child>
           <object class="AdwActionRow">
-            <property name="visible">true</property>
+            <property name="visible">false</property>
             <property name="title" translatable="yes">Background Blur</property>
             <property name="subtitle" translatable="yes">Add background blur with current wallpaper. Requires imagemagick installed.</property>
-            <property name="activatable-widget">topbar-blur-background</property>
+            <property name="activatable-widget">bar-blur-background</property>
             <child>
-              <object class="GtkSwitch" id="topbar-blur-background">
+              <object class="GtkSwitch" id="bar-blur-background">
                 <property name="valign">center</property>
               </object>
             </child>
@@ -469,10 +555,10 @@
         <child>
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Foreground Color</property>
-            <property name="subtitle" translatable="yes">Set topbar panel foreground color. Set opacity to zero to adapt to background.</property>
-            <property name="activatable-widget">topbar-foreground-color</property>
+            <property name="subtitle" translatable="yes">Set foreground color. Set opacity to zero to adapt to background.</property>
+            <property name="activatable-widget">bar-foreground-color</property>
             <child>
-              <object class="GtkColorButton" id="topbar-foreground-color">
+              <object class="GtkColorButton" id="bar-foreground-color">
                 <property name="valign">center</property>
                 <property name="hexpand">false</property>
                 <property name="width-request">70px</property>
@@ -487,6 +573,7 @@
     </child>
     <child>
       <object class="AdwPreferencesGroup">
+        <property name="visible">false</property>
         <property name="title" translatable="yes">Label</property>
         <property name="description" translatable="yes"/>
         <child>
@@ -604,6 +691,11 @@
     <property name="upper">1.0</property>
     <property name="step-increment">0.01</property>
   </object>
+  <object class="GtkAdjustment" id="bar-padding-adjust">
+    <property name="lower">0.0</property>
+    <property name="upper">1.0</property>
+    <property name="step-increment">0.01</property>
+  </object>
   <object class="GtkAdjustment" id="icon-size-adjust">
     <property name="lower">0.0</property>
     <property name="upper">1.0</property>
@@ -614,22 +706,27 @@
     <property name="upper">1.0</property>
     <property name="step-increment">0.01</property>
   </object>
-  <object class="GtkAdjustment" id="background-opacity-adjust">
-    <property name="lower">0.0</property>
-    <property name="upper">1.0</property>
-    <property name="step-increment">0.01</property>
-  </object>
   <object class="GtkAdjustment" id="label-border-radius-adjust">
     <property name="lower">0</property>
     <property name="upper">6</property>
     <property name="step-increment">1</property>
   </object>
-  <object class="GtkAdjustment" id="border-radius-adjust">
+  <object class="GtkAdjustment" id="dock-border-radius-adjust">
     <property name="lower">0</property>
     <property name="upper">8</property>
     <property name="step-increment">1</property>
   </object>
-  <object class="GtkAdjustment" id="edge-distance-adjust">
+  <object class="GtkAdjustment" id="bar-border-radius-adjust">
+    <property name="lower">0</property>
+    <property name="upper">8</property>
+    <property name="step-increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="dock-edge-distance-adjust">
+    <property name="lower">-1.0</property>
+    <property name="upper">1.0</property>
+    <property name="step-increment">0.01</property>
+  </object>
+  <object class="GtkAdjustment" id="bar-edge-distance-adjust">
     <property name="lower">-1.0</property>
     <property name="upper">1.0</property>
     <property name="step-increment">0.01</property>

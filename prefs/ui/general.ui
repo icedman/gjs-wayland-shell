@@ -6,6 +6,7 @@
     <property name="icon-name">general-symbolic</property>
     <child>
       <object class="AdwPreferencesGroup">
+        <property name="visible">true</property>
         <property name="title" translatable="yes">Dock</property>
         <property name="description" translatable="yes"/>
         <child>
@@ -53,6 +54,7 @@
     </child>
     <child>
       <object class="AdwPreferencesGroup">
+        <property name="visible">false</property>
         <property name="title" translatable="yes">Animation</property>
         <property name="description" translatable="yes"/>
         <child>
@@ -105,6 +107,7 @@
     </child>
     <child>
       <object class="AdwPreferencesGroup">
+        <property name="visible">false</property>
         <property name="title" translatable="yes">Autohide</property>
         <property name="description" translatable="yes"/>
         <child>
@@ -160,6 +163,7 @@
     </child>
     <child>
       <object class="AdwPreferencesGroup">
+        <property name="visible">false</property>
         <property name="title" translatable="yes">Debug</property>
         <property name="description" translatable="yes"/>
         <!--

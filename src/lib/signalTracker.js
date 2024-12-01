@@ -1,4 +1,4 @@
-import GObject from "gi://GObject";
+import GObject from 'gi://GObject';
 
 const destroyableTypes = [];
 
@@ -21,11 +21,11 @@ export const TransientSignalHolder = GObject.registerClass(
       super();
 
       if (_hasDestroySignal(owner))
-        owner.connectObject("destroy", () => this.destroy(), this);
+        owner.connectObject('destroy', () => this.destroy(), this);
     }
 
     destroy() {
-      this.emit("destroy");
+      this.emit('destroy');
     }
   },
 );
@@ -86,7 +86,7 @@ class SignalTracker {
    */
   constructor(owner) {
     if (_hasDestroySignal(owner))
-      this._ownerDestroyId = owner.connect_after("destroy", () => this.clear());
+      this._ownerDestroyId = owner.connect_after('destroy', () => this.clear());
 
     this._owner = owner;
     this._map = new Map();
@@ -119,13 +119,13 @@ class SignalTracker {
   _trackDestroy(obj) {
     const signalData = this._getSignalData(obj);
     if (signalData.destroyId) return;
-    signalData.destroyId = obj.connect_after("destroy", () =>
+    signalData.destroyId = obj.connect_after('destroy', () =>
       this.untrack(obj),
     );
   }
 
   _disconnectSignalForProto(proto, obj, id) {
-    proto["disconnect"].call(obj, id);
+    proto['disconnect'].call(obj, id);
   }
 
   _getObjectProto(obj) {
@@ -208,14 +208,14 @@ class SignalTracker {
 export function connectObject(thisObj, ...args) {
   const getParams = (argArray) => {
     const [signalName, handler, arg, ...rest] = argArray;
-    if (typeof arg !== "number") return [signalName, handler, 0, arg, ...rest];
+    if (typeof arg !== 'number') return [signalName, handler, 0, arg, ...rest];
 
     const flags = arg;
     let flagsMask = 0;
     Object.values(GObject.ConnectFlags).forEach((v) => (flagsMask |= v));
     if (!(flags & flagsMask)) throw new Error(`Invalid flag value ${flags}`);
     if (flags & GObject.ConnectFlags.SWAPPED)
-      throw new Error("Swapped signals are not supported");
+      throw new Error('Swapped signals are not supported');
     return [signalName, handler, flags, ...rest];
   };
 
@@ -223,8 +223,8 @@ export function connectObject(thisObj, ...args) {
     const isGObject = emitter instanceof GObject.Object;
     const func =
       flags & GObject.ConnectFlags.AFTER && isGObject
-        ? "connect_after"
-        : "connect";
+        ? 'connect_after'
+        : 'connect';
     const emitterProto = isGObject
       ? GObject.Object.prototype
       : Object.getPrototypeOf(emitter);
@@ -265,7 +265,7 @@ export function registerDestroyableType(gtype) {
   if (!GObject.type_is_a(gtype, GObject.Object))
     throw new Error(`${gtype} is not a GObject subclass`);
 
-  if (!GObject.signal_lookup("destroy", gtype))
+  if (!GObject.signal_lookup('destroy', gtype))
     throw new Error(`${gtype} does not have a destroy signal`);
 
   destroyableTypes.push(gtype);

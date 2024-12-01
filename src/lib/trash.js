@@ -1,11 +1,11 @@
-import Gdk from "gi://Gdk?version=4.0";
-import Gtk from "gi://Gtk?version=4.0";
-import GLib from "gi://GLib";
-import Gio from "gi://Gio";
-import GObject from "gi://GObject";
+import Gdk from 'gi://Gdk?version=4.0';
+import Gtk from 'gi://Gtk?version=4.0';
+import GLib from 'gi://GLib';
+import Gio from 'gi://Gio';
+import GObject from 'gi://GObject';
 
 const TRASH_UPDATE_INTERVAL = 1000 * 45; // every 45 seconds
-const TRASH_URI = "trash:///";
+const TRASH_URI = 'trash:///';
 
 const Trash = GObject.registerClass(
   class Trash extends GObject.Object {
@@ -32,7 +32,7 @@ const Trash = GObject.registerClass(
         null,
       );
       this._trashMonitor.connect(
-        "changed",
+        'changed',
         (fileMonitor, file, otherFile, eventType) => {
           console.log(eventType);
           this.sync();
@@ -51,7 +51,7 @@ const Trash = GObject.registerClass(
     checkTrash() {
       let prevFull = this.state.full ?? false;
       let iter = this._trashDir.enumerate_children(
-        "standard::*",
+        'standard::*',
         Gio.FileQueryInfoFlags.NONE,
         null,
       );
@@ -64,7 +64,7 @@ const Trash = GObject.registerClass(
         full: this.checkTrash(),
       };
       this.subscribers.forEach((sub) => {
-        if (sub.event == "trash-update") {
+        if (sub.event == 'trash-update') {
           sub.callback.bind(sub.subscriber)(this.state);
         }
       });

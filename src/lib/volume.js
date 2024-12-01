@@ -1,9 +1,9 @@
-import Gdk from "gi://Gdk?version=4.0";
-import Gtk from "gi://Gtk?version=4.0";
-import GLib from "gi://GLib";
-import Gio from "gi://Gio";
-import GObject from "gi://GObject";
-import Gvc from "gi://Gvc";
+import Gdk from 'gi://Gdk?version=4.0';
+import Gtk from 'gi://Gtk?version=4.0';
+import GLib from 'gi://GLib';
+import Gio from 'gi://Gio';
+import GObject from 'gi://GObject';
+import Gvc from 'gi://Gvc';
 
 // Each Gvc.MixerControl is a connection to PulseAudio,
 // so it's better to make it a singleton
@@ -15,7 +15,7 @@ let _mixerControl;
 export function getMixerControl() {
   if (_mixerControl) return _mixerControl;
 
-  _mixerControl = new Gvc.MixerControl({ name: "GNOME Shell Volume Control" });
+  _mixerControl = new Gvc.MixerControl({ name: 'GNOME Shell Volume Control' });
   _mixerControl.open();
   return _mixerControl;
 }
@@ -35,21 +35,21 @@ const Volume = GObject.registerClass(
       this.state = {};
 
       this._icons = [
-        "audio-volume-muted-symbolic",
-        "audio-volume-low-symbolic",
-        "audio-volume-medium-symbolic",
-        "audio-volume-high-symbolic",
-        "audio-volume-overamplified-symbolic",
+        'audio-volume-muted-symbolic',
+        'audio-volume-low-symbolic',
+        'audio-volume-medium-symbolic',
+        'audio-volume-high-symbolic',
+        'audio-volume-overamplified-symbolic',
       ];
 
       this._control = getMixerControl();
-      this._control.connect("state-changed", () => {
+      this._control.connect('state-changed', () => {
         this.sync();
       });
-      this._control.connect("default-sink-changed", () => {
+      this._control.connect('default-sink-changed', () => {
         this.sync();
       });
-      this._control.connect("active-output-update", () => {
+      this._control.connect('active-output-update', () => {
         this.sync();
       });
 
@@ -72,11 +72,12 @@ const Volume = GObject.registerClass(
 
     sync() {
       let stream = this._control?.get_default_sink();
+      if (!stream) return;
       if (stream != this._stream) {
-        stream.connect("notify::is-muted", () => {
+        stream.connect('notify::is-muted', () => {
           this.sync();
         });
-        stream.connect("notify::volume", () => {
+        stream.connect('notify::volume', () => {
           this.sync();
         });
         this._stream = stream;
@@ -90,7 +91,7 @@ const Volume = GObject.registerClass(
       // console.log(this.state);
 
       this.subscribers.forEach((sub) => {
-        if (sub.event == "volume-update") {
+        if (sub.event == 'volume-update') {
           sub.callback.bind(sub.subscriber)(this.state);
         }
       });
@@ -113,20 +114,20 @@ const Mic = GObject.registerClass(
       this.state = {};
 
       this._icons = [
-        "microphone-sensitivity-muted-symbolic",
-        "microphone-sensitivity-low-symbolic",
-        "microphone-sensitivity-medium-symbolInputic",
-        "microphone-sensitivity-high-symbolic",
+        'microphone-sensitivity-muted-symbolic',
+        'microphone-sensitivity-low-symbolic',
+        'microphone-sensitivity-medium-symbolInputic',
+        'microphone-sensitivity-high-symbolic',
       ];
 
       this._control = getMixerControl();
-      this._control.connect("state-changed", () => {
+      this._control.connect('state-changed', () => {
         this.sync();
       });
-      this._control.connect("default-source-changed", () => {
+      this._control.connect('default-source-changed', () => {
         this.sync();
       });
-      this._control.connect("active-input-update", () => {
+      this._control.connect('active-input-update', () => {
         this.sync();
       });
 
@@ -149,11 +150,12 @@ const Mic = GObject.registerClass(
 
     sync() {
       let stream = this._control?.get_default_source();
+      if (!stream) return;
       if (stream != this._stream) {
-        stream.connect("notify::is-muted", () => {
+        stream.connect('notify::is-muted', () => {
           this.sync();
         });
-        stream.connect("notify::volume", () => {
+        stream.connect('notify::volume', () => {
           this.sync();
         });
         this._stream = stream;
@@ -167,7 +169,7 @@ const Mic = GObject.registerClass(
       console.log(this.state);
 
       this.subscribers.forEach((sub) => {
-        if (sub.event == "mic-update") {
+        if (sub.event == 'mic-update') {
           sub.callback.bind(sub.subscriber)(this.state);
         }
       });

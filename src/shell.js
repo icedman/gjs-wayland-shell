@@ -1,5 +1,5 @@
-import GLib from "gi://GLib";
-import Gio from "gi://Gio";
+import GLib from 'gi://GLib';
+import Gio from 'gi://Gio';
 // import
 
 import {
@@ -14,7 +14,7 @@ import {
   receiveI3Message,
   IPC_HEADER_SIZE,
   BYTES_NUM,
-} from "./lib/ipc.js";
+} from './lib/ipc.js';
 
 /**
  * Logs errors.
@@ -32,11 +32,11 @@ class ShellInterface {
   }
 
   selfSubscribe() {
-    this.subscribe(this, "window-focused", (evts) => {
+    this.subscribe(this, 'window-focused', (evts) => {
       let newWindow = false;
       evts.forEach((evt) => {
         let oldWindow = !this.windows.find((w) => {
-          return w.id == evt["window"]["id"];
+          return w.id == evt['window']['id'];
         });
         if (!oldWindow) {
           newWindow = evt;
@@ -44,34 +44,34 @@ class ShellInterface {
       });
       if (newWindow) {
         // if data is bare... fetch all windows
-        if (!newWindow["window"]["app_id"]) {
+        if (!newWindow['window']['app_id']) {
           this.getWindows().then((res) => {
             // new windows
           });
         } else {
-          this.windows = [...this.windows, newWindow["window"]];
+          this.windows = [...this.windows, newWindow['window']];
           this.normalizeWindows();
         }
       }
     });
-    this.subscribe(this, "window-opened", (evts) => {
+    this.subscribe(this, 'window-opened', (evts) => {
       evts.forEach((evt) => {
         this.windows = this.windows.filter((w) => {
-          return w.id != evt["window"]["id"];
+          return w.id != evt['window']['id'];
         });
-        this.windows = [...this.windows, evt["window"]];
+        this.windows = [...this.windows, evt['window']];
         this.normalizeWindows();
       });
     });
-    this.subscribe(this, "window-closed", (evts) => {
-      console.log("closing...");
+    this.subscribe(this, 'window-closed', (evts) => {
+      console.log('closing...');
       evts.forEach((evt) => {
-        this.normalizeWindows([evt["window"]]);
+        this.normalizeWindows([evt['window']]);
         console.log(evt);
         this.windows = this.windows.filter((w) => {
-          return w.id != evt["window"]["id"];
+          return w.id != evt['window']['id'];
         });
-        console.log(this.windows.map((w) => w["id"]));
+        console.log(this.windows.map((w) => w['id']));
         // console.log(this.windows);
       });
     });
@@ -88,19 +88,19 @@ class ShellInterface {
     }
     target.forEach((w) => {
       // hyperland
-      if (w["address"]) {
-        w["id"] = w["address"];
+      if (w['address']) {
+        w['id'] = w['address'];
       }
-      if (w["id"] && `${w["id"]}`.startsWith("0x")) {
-        w["id"] = `${w["id"]}`.substring(2);
+      if (w['id'] && `${w['id']}`.startsWith('0x')) {
+        w['id'] = `${w['id']}`.substring(2);
       }
       // sway
-      if (w["pid"] && this.name == "SWAY") {
-        w["id"] = w["pid"];
+      if (w['pid'] && this.name == 'SWAY') {
+        w['id'] = w['pid'];
       }
       // common
-      if (!w["class"] && w["app_id"]) {
-        w["class"] = w["app_id"];
+      if (!w['class'] && w['app_id']) {
+        w['class'] = w['app_id'];
       }
     });
   }
@@ -118,13 +118,13 @@ class ShellInterface {
       let eventType = m.event;
       this.subscribers.forEach((sub) => {
         if (
-          (sub.event.endsWith("*") && sub.event.startsWith(eventType)) ||
+          (sub.event.endsWith('*') && sub.event.startsWith(eventType)) ||
           sub.event == eventType
         ) {
           try {
             sub.callback(msg);
           } catch (err) {
-            console.log("???");
+            console.log('???');
             console.log(err);
           }
         }
@@ -141,7 +141,7 @@ class ShellInterface {
 
     let inputStream = connection.get_input_stream();
     if (!inputStream) {
-      logError(new Error("Failed to get input stream."));
+      logError(new Error('Failed to get input stream.'));
       return false;
     }
 
@@ -154,7 +154,7 @@ class ShellInterface {
           GLib.PRIORITY_DEFAULT,
           null,
           (source, result) => {
-            console.log("incoming...");
+            console.log('incoming...');
 
             let bytes = source.read_bytes_finish(result);
             let response = String.fromCharCode.apply(null, bytes.get_data());
@@ -163,7 +163,7 @@ class ShellInterface {
               let lines = response.split(/\r?\n/);
               lines.forEach((line) => {
                 line = line.trim();
-                if (line == "") return;
+                if (line == '') return;
                 _broadcast(_parseMessage(line));
               });
             } catch (err) {
@@ -175,7 +175,7 @@ class ShellInterface {
           },
         );
       } catch (error) {
-        logError(error, "Error starting read_async");
+        logError(error, 'Error starting read_async');
       }
     };
 
@@ -192,7 +192,7 @@ class ShellInterface {
 
   focusOrOpen(className, exec) {
     let openedWindow = (this.windows ?? []).find((w) => {
-      return w["class"] + ".desktop" == className;
+      return w['class'] + '.desktop' == className;
     });
     if (openedWindow) {
       this.focusWindow(openedWindow);
@@ -206,7 +206,7 @@ class ShellInterface {
       // Get the full environment from the current process
       const environment = GLib.get_environ().filter((e) => {
         // except this... LD_PRELOAD
-        return !e.includes("libgtk4-layer-shell");
+        return !e.includes('libgtk4-layer-shell');
       });
 
       // console.log(environment);
@@ -224,10 +224,10 @@ class ShellInterface {
       if (success) {
         print(`Spawned process with PID: ${pid}`);
       } else {
-        print("Failed to spawn process.");
+        print('Failed to spawn process.');
       }
     } catch (e) {
-      logError(e, "Error spawning process");
+      logError(e, 'Error spawning process');
     }
   }
 }
@@ -235,7 +235,7 @@ class ShellInterface {
 class NiriShell extends ShellInterface {
   init() {
     super.init();
-    this.name = "NIRI";
+    this.name = 'NIRI';
   }
 
   connect() {
@@ -245,42 +245,42 @@ class NiriShell extends ShellInterface {
   parseMessage(msg) {
     let res = [];
 
-    let lines = msg.trim().split("\n");
+    let lines = msg.trim().split('\n');
     lines.forEach((l) => {
       let obj = JSON.parse(l);
 
-      if (obj["WindowChanged"]) {
-        this.windows = obj["WindowChanged"]["windows"];
+      if (obj['WindowChanged']) {
+        this.windows = obj['WindowChanged']['windows'];
         res.push({
-          event: "windows-update",
+          event: 'windows-update',
           windows: this.windows,
         });
         return;
       }
 
-      if (obj["WindowFocusChanged"]) {
+      if (obj['WindowFocusChanged']) {
         res.push({
-          event: "window-focused",
+          event: 'window-focused',
           window: {
-            id: obj["WindowFocusChanged"]["id"],
+            id: obj['WindowFocusChanged']['id'],
           },
         });
         return;
       }
 
-      if (obj["WindowOpenedOrChanged"]) {
+      if (obj['WindowOpenedOrChanged']) {
         res.push({
-          event: "window-opened",
-          window: obj["WindowOpenedOrChanged"]["window"],
+          event: 'window-opened',
+          window: obj['WindowOpenedOrChanged']['window'],
         });
         return;
       }
 
-      if (obj["WindowClosed"]) {
+      if (obj['WindowClosed']) {
         res.push({
-          event: "window-closed",
+          event: 'window-closed',
           window: {
-            id: obj["WindowClosed"]["id"],
+            id: obj['WindowClosed']['id'],
           },
         });
         return;
@@ -293,7 +293,7 @@ class NiriShell extends ShellInterface {
 
       // return generic success event
       res.push({
-        event: "success",
+        event: 'success',
       });
     });
 
@@ -319,11 +319,11 @@ class NiriShell extends ShellInterface {
     this.disconnect(connection);
 
     let obj = JSON.parse(response);
-    if (obj["Ok"]) {
-      this.windows = obj["Ok"]["Windows"];
+    if (obj['Ok']) {
+      this.windows = obj['Ok']['Windows'];
       this.normalizeWindows();
       obj = {
-        event: "windows-update",
+        event: 'windows-update',
         windows: this.windows,
       };
     }
@@ -337,7 +337,7 @@ class NiriShell extends ShellInterface {
     }
 
     let message =
-      JSON.stringify({ Action: { FocusWindow: { id: window["id"] } } }) + "\n";
+      JSON.stringify({ Action: { FocusWindow: { id: window['id'] } } }) + '\n';
     await sendMessage(connection, message);
     let response = await receiveMessage(connection);
     this.disconnect(connection);
@@ -355,7 +355,7 @@ class NiriShell extends ShellInterface {
       return;
     }
     let message =
-      JSON.stringify({ Action: { Spawn: { command: cmd.split(" ") } } }) + "\n";
+      JSON.stringify({ Action: { Spawn: { command: cmd.split(' ') } } }) + '\n';
     await sendMessage(connection, message);
     let response = await receiveMessage(connection);
     this.disconnect(connection);
@@ -371,7 +371,7 @@ class NiriShell extends ShellInterface {
 class HyprShell extends ShellInterface {
   init() {
     super.init();
-    this.name = "HYPR";
+    this.name = 'HYPR';
   }
 
   connect() {
@@ -388,15 +388,15 @@ class HyprShell extends ShellInterface {
 
   parseMessage(msg) {
     let eventMap = {
-      activewindowv2: "window-focused",
-      openwindow: "window-opened",
-      closewindow: "window-closed",
+      activewindowv2: 'window-focused',
+      openwindow: 'window-opened',
+      closewindow: 'window-closed',
     };
 
     let res = [];
-    let lines = msg.trim().split("\n");
+    let lines = msg.trim().split('\n');
     lines.forEach((l) => {
-      let line = l.replace(">>", ",").split(",");
+      let line = l.replace('>>', ',').split(',');
       let event = eventMap[line[0]];
       if (event) {
         res.push({
@@ -416,7 +416,7 @@ class HyprShell extends ShellInterface {
     if (!connection) {
       return;
     }
-    let message = "[j]/clients";
+    let message = '[j]/clients';
     await sendMessage(connection, message);
     let response = await receiveMessage(connection);
     this.disconnect(connection);
@@ -424,9 +424,9 @@ class HyprShell extends ShellInterface {
     let obj = JSON.parse(response);
     this.windows = obj;
     this.normalizeWindows();
-    console.log("normalize!");
+    console.log('normalize!');
     obj = {
-      event: "windows-update",
+      event: 'windows-update',
       windows: obj,
     };
     return Promise.resolve(obj);
@@ -437,13 +437,13 @@ class HyprShell extends ShellInterface {
     if (!connection) {
       return;
     }
-    let message = `[j]/dispatch focuswindow ${window["class"]}`;
+    let message = `[j]/dispatch focuswindow ${window['class']}`;
     await sendMessage(connection, message);
     let response = await receiveMessage(connection);
     this.disconnect(connection);
 
     let obj = {
-      event: response == "ok" ? "success" : "fail",
+      event: response == 'ok' ? 'success' : 'fail',
     };
     return Promise.resolve(obj);
   }
@@ -458,7 +458,7 @@ class HyprShell extends ShellInterface {
     this.disconnect(connection);
 
     let obj = {
-      event: response == "ok" ? "success" : "fail",
+      event: response == 'ok' ? 'success' : 'fail',
     };
     return Promise.resolve(obj);
   }
@@ -492,7 +492,7 @@ function ShellService(wm) {
 class SwayShell extends ShellInterface {
   init() {
     super.init();
-    this.name = "SWAY";
+    this.name = 'SWAY';
   }
 
   connect() {
@@ -502,32 +502,32 @@ class SwayShell extends ShellInterface {
   parseMessage(msg) {
     try {
       let obj = JSON.parse(msg);
-      if (obj["container"]) {
-        obj["window"] = obj["container"];
-        obj["container"] = {};
-        this.normalizeWindows([obj["window"]]);
+      if (obj['container']) {
+        obj['window'] = obj['container'];
+        obj['container'] = {};
+        this.normalizeWindows([obj['window']]);
       }
-      if (obj["change"] == "new") {
+      if (obj['change'] == 'new') {
         return [
           {
-            event: "window-opened",
-            window: obj["window"],
+            event: 'window-opened',
+            window: obj['window'],
           },
         ];
       }
-      if (obj["change"] == "focus") {
+      if (obj['change'] == 'focus') {
         return [
           {
-            event: "window-focused",
-            window: obj["window"],
+            event: 'window-focused',
+            window: obj['window'],
           },
         ];
       }
-      if (obj["change"] == "close") {
+      if (obj['change'] == 'close') {
         return [
           {
-            event: "window-closed",
-            window: obj["window"],
+            event: 'window-closed',
+            window: obj['window'],
           },
         ];
       }
@@ -535,7 +535,7 @@ class SwayShell extends ShellInterface {
     } catch (err) {
       console.log(err);
     }
-    return [{ event: "unknown" }];
+    return [{ event: 'unknown' }];
   }
 
   async listen() {
@@ -548,7 +548,7 @@ class SwayShell extends ShellInterface {
 
     let inputStream = connection.get_input_stream();
     if (!inputStream) {
-      logError(new Error("Failed to get input stream."));
+      logError(new Error('Failed to get input stream.'));
       return false;
     }
 
@@ -561,7 +561,7 @@ class SwayShell extends ShellInterface {
           GLib.PRIORITY_DEFAULT,
           null,
           (source, result) => {
-            console.log("incoming..");
+            console.log('incoming..');
 
             let inputBytes = source.read_bytes_finish(result);
             let headerBytes = new Uint8Array(inputBytes.get_data());
@@ -587,7 +587,7 @@ class SwayShell extends ShellInterface {
           },
         );
       } catch (error) {
-        logError(error, "Error starting read_async");
+        logError(error, 'Error starting read_async');
       }
     };
 
@@ -595,16 +595,16 @@ class SwayShell extends ShellInterface {
   }
 
   _nodeToWindows(node, bucket) {
-    if (node["app_id"]) {
+    if (node['app_id']) {
       let w = {
-        id: node["pid"],
-        app_id: node["app_id"],
-        class: node["app_id"],
+        id: node['pid'],
+        app_id: node['app_id'],
+        class: node['app_id'],
       };
       bucket.push(w);
     }
-    if (node["nodes"]) {
-      node["nodes"].forEach((n) => {
+    if (node['nodes']) {
+      node['nodes'].forEach((n) => {
         this._nodeToWindows(n, bucket);
       });
     }
@@ -616,8 +616,8 @@ class SwayShell extends ShellInterface {
       return;
     }
 
-    let message = "";
-    await sendI3Message(connection, 4, ""); // 4. get_tree
+    let message = '';
+    await sendI3Message(connection, 4, ''); // 4. get_tree
     let response = await receiveI3Message(connection);
     this.disconnect(connection);
 
@@ -628,7 +628,7 @@ class SwayShell extends ShellInterface {
     this.normalizeWindows();
     // console.log(windows);
     obj = {
-      event: "windows-update",
+      event: 'windows-update',
       windows: this.windows,
     };
     return Promise.resolve(obj);
@@ -640,7 +640,7 @@ class SwayShell extends ShellInterface {
       return;
     }
 
-    let message = `[app_id="${window["class"]}"] focus`;
+    let message = `[app_id="${window['class']}"] focus`;
     await sendI3Message(connection, 0, message);
     let response = await receiveI3Message(connection);
     this.disconnect(connection);
