@@ -8,6 +8,7 @@ import { Power } from './lib/power.js';
 import { Network } from './lib/network.js';
 import { Volume, Mic } from './lib/volume.js';
 import { Trash } from './lib/trash.js';
+import { Timer } from './lib/timer.js';
 import ShellService from './shell.js';
 import './lib/environment.js';
 
@@ -28,7 +29,6 @@ let apps = [
   'org.gnome.clocks.desktop',
   'org.gnome.Software.desktop',
   'org.gnome.TextEditor.desktop',
-  'trash',
 ];
 
 // Initialize Gtk before you start calling anything from the import
@@ -61,7 +61,12 @@ globalThis.Main = {
     },
   },
 
-  // extensions
+  // timers
+  timer: new Timer('loop timer'),
+  loTimer: new Timer('lo-res  timer'),
+  hiTimer: new Timer('hi-res timer'),
+
+  // modules
   dock: new Dock({ name: 'Dock', apps }),
   panel: new Panel({ name: 'Panel' }),
   shell: new ShellService(),
@@ -71,9 +76,22 @@ globalThis.Main = {
   mic: new Mic(),
   trash: new Trash(),
 
+  // extensions
+  extensions: {},
+
   // settings
   settings: new Gio.Settings({ schema: 'com.github.icedman.gws' }),
 };
+
+// init timers
+// three available timers
+// for persistent runs
+Main.timer.initialize(3500);
+// for animation runs
+// resolution (15) will be modified by animation-fps
+Main.hiTimer.initialize(15);
+// for deferred or debounced runs
+Main.loTimer.initialize(750);
 
 // init the extension
 [
@@ -95,10 +113,60 @@ globalThis.Main = {
 });
 
 Main.shell.listen();
-// setTimeout(() => {
-//   Main.shell.getWindows().then((res) => {
-//     console.log(Main.shell.windows);
-//   });
-// }, 3500);
+
+// load and init extensions
+async function loadModule(moduleName) {
+  try {
+    const module = await import(moduleName);
+    console.log(`Successfully loaded ${moduleName}`);
+    return module;
+  } catch (error) {
+    console.error(`Error loading module ${moduleName}:`, error);
+  }
+}
+
+function loadExtensions(directoryPath) {
+  try {
+    // Create a Gio.File object for the directory
+    let directory = Gio.File.new_for_path(directoryPath);
+    console.log(directory);
+
+    // Enumerate the files
+    let enumerator = directory.enumerate_children(
+      'standard::name,standard::type',
+      Gio.FileQueryInfoFlags.NONE,
+      null,
+    );
+
+    // Iterate through the files
+    let info;
+    while ((info = enumerator.next_file(null)) !== null) {
+      let fileName = info.get_name();
+      let fileType = info.get_file_type();
+
+      if (fileType === Gio.FileType.DIRECTORY) {
+        let extensionFilePath = GLib.build_filenamev([
+          directoryPath,
+          fileName,
+          'extension.js',
+        ]);
+
+        (async () => {
+          console.log(extensionFilePath);
+          let { Extension } = await loadModule(extensionFilePath);
+          if (Extension) {
+            let extension = new Extension();
+            Main.extensions[fileName] = extension;
+            extension.enable();
+          }
+        })();
+      }
+    }
+  } catch (error) {
+    print(`Error enumerating files: ${error.message}`);
+  }
+}
+
+loadExtensions('./extensions');
 
 loop.run();

@@ -5,7 +5,7 @@ import Gio from 'gi://Gio';
 import GObject from 'gi://GObject';
 import NM from 'gi://NM';
 
-Gio._promisify(Gio.DBusConnection.prototype, 'call');
+// Gio._promisify(Gio.DBusConnection.prototype, 'call');
 Gio._promisify(NM.Client, 'new_async');
 Gio._promisify(NM.Client.prototype, 'check_connectivity_async');
 Gio._promisify(NM.DeviceWifi.prototype, 'request_scan_async');

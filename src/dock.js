@@ -32,7 +32,7 @@ function appInfoMenuModel(appInfo) {
   let desktopFilePath = GLib.build_filenamev([
     '/usr/share/applications',
     appInfo.get_id(),
-  ]); // Adjust path as needed
+  ]);
   let content = GLib.file_get_contents(desktopFilePath)[1];
   let lines = String.fromCharCode.apply(null, content).split('\n');
 
@@ -96,34 +96,6 @@ export const DockItem = GObject.registerClass(
         }
       }
 
-      if (!appInfo && params.app == 'trash') {
-        appInfo = {
-          id: params.app,
-          icon_name: 'user-trash',
-          title: 'Trash',
-          cmd: `nautilus --select trash:///`,
-          menu: [
-            {
-              action: 'open',
-              name: 'Open Window',
-              exec: 'nautilus --select trash:///',
-            },
-            {
-              action: 'empty',
-              name: 'Empty Trash',
-              exec: 'gio trash --empty',
-            },
-          ],
-        };
-        Main.trash.subscribe(this, 'trash-update', (state) => {
-          if (state.full) {
-            this.btn.child.set_from_icon_name('user-trash-full');
-          } else {
-            this.btn.child.set_from_icon_name('user-trash');
-          }
-        });
-      }
-
       super._init({
         name: 'DockItem',
         hexpand: true,
@@ -162,6 +134,14 @@ export const DockItem = GObject.registerClass(
       });
       this.btn.child.set_pixel_size(48);
       this.append(this.btn);
+    }
+
+    set_icon(icon) {
+      if (icon && icon.startsWith('/')) {
+        this.btn.child.set_from_file(icon);
+      } else {
+        this.btn.child.set_from_icon_name(icon);
+      }
     }
   },
 );
@@ -386,6 +366,9 @@ export const Dock = GObject.registerClass(
       super._init({
         ...params,
       });
+
+      // export the DockItem
+      this.DockItem = DockItem;
     }
 
     init() {
@@ -416,7 +399,7 @@ export const Dock = GObject.registerClass(
 
       this.window.present();
 
-      setTimeout(() => {
+      Main.hiTimer.runOnce(() => {
         this.window.remove_css_class('startup');
       }, 0);
     }

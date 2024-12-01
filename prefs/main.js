@@ -154,8 +154,6 @@ function show_preference_group(widget) {
       return;
     }
 
-    console.log(k);
-
     show_preference_group(widget);
 
     let value = settings.getSetting(k);

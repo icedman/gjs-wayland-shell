@@ -87,7 +87,7 @@ export const Style = class {
     if (g.length == 1) g += g;
     if (b.length == 1) b += b;
     let res = `#${r}${g}${b}`;
-    console.log(`${color} ${res}`);
+    // console.log(`${color} ${res}`);
     return res;
   }
 };
