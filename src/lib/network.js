@@ -61,87 +61,114 @@ const _ = (t) => {
   return t;
 };
 
+const PopupBaseMenuItem = GObject.registerClass(
+  {
+    Properties: {
+      active: GObject.ParamSpec.boolean(
+        'active',
+        null,
+        null,
+        GObject.ParamFlags.READWRITE,
+        false,
+      ),
+      sensitive: GObject.ParamSpec.boolean(
+        'sensitive',
+        null,
+        null,
+        GObject.ParamFlags.READWRITE,
+        true,
+      ),
+      // added
+      activate: GObject.ParamSpec.boolean(
+        'activate',
+        null,
+        null,
+        GObject.ParamFlags.READWRITE,
+        false,
+      ),
+      can_focus: GObject.ParamSpec.boolean(
+        'can_focus',
+        null,
+        null,
+        GObject.ParamFlags.READWRITE,
+        false,
+      ),
+      style_class: GObject.ParamSpec.string(
+        'style_class',
+        null,
+        null,
+        GObject.ParamFlags.READWRITE,
+        '',
+      ),
+    },
+    Signals: {
+      activate: {}, //  param_types: [Clutter.Event.$gtype] },
+      destroy: {},
+    },
+  },
+  class PopupBaseMenuItem extends GObject.Object {
+    activate() {}
+    add_child(child) {}
+  },
+);
+const PopupMenuSection = GObject.registerClass(
+  {
+    Properties: {
+      actor: GObject.ParamSpec.boolean(
+        'actor',
+        null,
+        null,
+        GObject.ParamFlags.READWRITE,
+        false,
+      ),
+    },
+  },
+  class PopupMenuSection extends GObject.Object {
+    _init() {
+      super._init();
+      this.children = [];
+    }
+
+    addMenuItem(item) {
+      this.children.push(item);
+      // console.log(item);
+    }
+
+    connect() {}
+    connectObject() {}
+    setHeader(icon, header) {
+      console.log({ icon, header });
+    }
+    addHeaderSuffix(spinner__) {
+      console.log(spinner__);
+    }
+    addSettingsAction() {}
+  },
+);
+const PopupSubMenuMenuItem = GObject.registerClass(
+  {},
+  class PopupSubMenuMenuItem extends GObject.Object {
+    constructor(name, subMenu__) {
+      super();
+    }
+    hide() {}
+  },
+);
+const Switch = GObject.registerClass(
+  {},
+  class Switch extends GObject.Object {},
+);
+const PopupSeparatorMenuItem = GObject.registerClass(
+  {},
+  class PopupSeparatorMenuItem extends GObject.Object {},
+);
+
 const PopupMenu = {
-  PopupBaseMenuItem: GObject.registerClass(
-    {
-      Properties: {
-        active: GObject.ParamSpec.boolean(
-          'active',
-          null,
-          null,
-          GObject.ParamFlags.READWRITE,
-          false,
-        ),
-        sensitive: GObject.ParamSpec.boolean(
-          'sensitive',
-          null,
-          null,
-          GObject.ParamFlags.READWRITE,
-          true,
-        ),
-        // added
-        activate: GObject.ParamSpec.boolean(
-          'activate',
-          null,
-          null,
-          GObject.ParamFlags.READWRITE,
-          false,
-        ),
-        can_focus: GObject.ParamSpec.boolean(
-          'can_focus',
-          null,
-          null,
-          GObject.ParamFlags.READWRITE,
-          false,
-        ),
-        style_class: GObject.ParamSpec.string(
-          'style_class',
-          null,
-          null,
-          GObject.ParamFlags.READWRITE,
-          '',
-        ),
-      },
-      Signals: {
-        activate: {}, //  param_types: [Clutter.Event.$gtype] },
-        destroy: {},
-      },
-    },
-    class PopupBaseMenuItem extends GObject.Object {
-      activate() {}
-      add_child(child) {}
-    },
-  ),
-  PopupMenuSection: GObject.registerClass(
-    {
-      Properties: {
-        actor: GObject.ParamSpec.boolean(
-          'actor',
-          null,
-          null,
-          GObject.ParamFlags.READWRITE,
-          false,
-        ),
-      },
-    },
-    class PopupMenuSection extends GObject.Object {
-      addMenuItem(item) {}
-    },
-  ),
-  PopupSubMenuMenuItem: GObject.registerClass(
-    {},
-    class PopupSubMenuMenuItem extends GObject.Object {
-      constructor(name, subMenu__) {
-        super();
-      }
-      hide() {}
-    },
-  ),
-  Switch: GObject.registerClass({}, class Switch extends GObject.Object {}),
-  PopupSeparatorMenuItem: GObject.registerClass(
-    {},
-    class PopupSeparatorMenuItem extends GObject.Object {},
-  ),
+  PopupBaseMenuItem,
+  PopupMenuSection,
+  PopupSubMenuMenuItem,
+  Switch,
+  PopupSeparatorMenuItem,
 };
 
 const Icon = GObject.registerClass(
@@ -151,20 +178,6 @@ const Icon = GObject.registerClass(
     }
 
     connect() {}
-  },
-);
-
-const Menu = GObject.registerClass(
-  class Menu extends GObject.Object {
-    _init() {
-      super._init();
-    }
-
-    connect() {}
-    connectObject() {}
-    setHeader() {}
-    addHeaderSuffix() {}
-    addSettingsAction() {}
   },
 );
 
@@ -180,6 +193,29 @@ const Spinner = GObject.registerClass(
 
 const QuickMenuToggle = GObject.registerClass(
   {
+    Properties: {
+      visible: GObject.ParamSpec.boolean(
+        'visible',
+        null,
+        null,
+        GObject.ParamFlags.READWRITE,
+        false,
+      ),
+      reactive: GObject.ParamSpec.boolean(
+        'reactive',
+        null,
+        null,
+        GObject.ParamFlags.READWRITE,
+        false,
+      ),
+      checked: GObject.ParamSpec.boolean(
+        'checked',
+        null,
+        null,
+        GObject.ParamFlags.READWRITE,
+        false,
+      ),
+    },
     Signals: {
       clicked: {},
     },
@@ -188,13 +224,30 @@ const QuickMenuToggle = GObject.registerClass(
     _init() {
       super._init();
 
-      this.menu = new Menu();
+      this.menu = new PopupMenu.PopupMenuSection();
     }
   },
 );
 
 const SystemIndicator = GObject.registerClass(
-  {},
+  {
+    Properties: {
+      visible: GObject.ParamSpec.boolean(
+        'visible',
+        null,
+        null,
+        GObject.ParamFlags.READWRITE,
+        false,
+      ),
+      reactive: GObject.ParamSpec.boolean(
+        'reactive',
+        null,
+        null,
+        GObject.ParamFlags.READWRITE,
+        false,
+      ),
+    },
+  },
   class SystemIndicator extends GObject.Object {
     _init() {
       super._init();
@@ -1663,9 +1716,9 @@ const NMToggle = GObject.registerClass(
       this._itemSorter = new ItemSorter({ trackMru: true });
 
       this._itemsSection = new PopupMenu.PopupMenuSection();
-      // this.menu.addMenuItem(this._itemsSection);
+      this.menu.addMenuItem(this._itemsSection);
 
-      // this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+      this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
       // this._itemBinding = new GObject.BindingGroup();
       // this._itemBinding.bind('icon-name',

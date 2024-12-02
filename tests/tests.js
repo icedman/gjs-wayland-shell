@@ -26,48 +26,48 @@ import Console from '../src/extensions/console/extension.js';
 globalThis.Main = {};
 
 function test_shell() {
-  //   let s = ShellService();
-  //   s.enable();
-  //   s.subscribe(null, 'window*', (event) => {
-  //     console.log(event);
-  //     console.log(s.windows.length);
-  //   });
-  //   s.listen();
-  //   s.getWindows()
-  //     .then((res) => {
-  //       console.log(res);
-  //     })
-  //     .catch((err) => {
-  //       console.log('oops');
-  //       console.log(err);
-  //     });
-  //   s.spawn('kitty');
+  let s = ShellService();
+  s.enable();
+  s.subscribe(null, 'window*', (event) => {
+    console.log(event);
+    console.log(s.windows.length);
+  });
+  s.listen();
+  s.getWindows()
+    .then((res) => {
+      console.log(res);
+    })
+    .catch((err) => {
+      console.log('oops');
+      console.log(err);
+    });
+  s.spawn('kitty');
 }
 
 function test_bar_items() {
-  //   let p = new Power();
-  //   p.connect('power-update', (obj) => {
-  //     console.log(obj.state);
-  //   });
-  //   p.enable();
+  let p = new Power();
+  p.connect('power-update', (obj) => {
+    console.log(obj.state);
+  });
+  p.enable();
 
-  //   let v = new Volume();
-  //   v.connect('volume-update', (obj) => {
-  //     console.log(obj.state);
-  //   });
-  //   v.enable();
+  let v = new Volume();
+  v.connect('volume-update', (obj) => {
+    console.log(obj.state);
+  });
+  v.enable();
 
-  //   let m = new Mic();
-  //   m.connect('mic-update', (obj) => {
-  //     console.log(obj.state);
-  //   });
-  //   m.enable();
+  let m = new Mic();
+  m.connect('mic-update', (obj) => {
+    console.log(obj.state);
+  });
+  m.enable();
 
-  //   let t = new Trash();
-  //   t.connect('trash-update', (obj) => {
-  //     console.log(obj.state);
-  //   });
-  //   t.enable();
+  let t = new Trash();
+  t.connect('trash-update', (obj) => {
+    console.log(obj.state);
+  });
+  t.enable();
 
   let b = new Brightness();
   b.connect('brightness-update', (obj) => {
@@ -84,7 +84,10 @@ async function test_network() {
 }
 
 Gtk.init();
-test_bar_items();
+
+// test_shell();
+// test_bar_items();
+test_network();
 
 try {
   let c = new Console();
