@@ -2,7 +2,7 @@
 
 import GLib from 'gi://GLib';
 
-export const Timer = class {
+const Timer = class {
   constructor(name) {
     this._name = name;
     this._subscribers = [];
@@ -404,3 +404,5 @@ export const Timer = class {
     }
   }
 };
+
+export default Timer;

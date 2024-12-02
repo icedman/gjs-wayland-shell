@@ -45,6 +45,7 @@ Add custom css at ```~/.config/gws/style.css```
 
 # why is gnome-shell required?
 * This shell re-uses some of gnome-shell's dbus interfaces
+* This shell re-uses a lot of gnome-shell's code
 * gnome-shell need not be running
 
 

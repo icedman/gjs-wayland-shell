@@ -6,6 +6,7 @@ import GObject from 'gi://GObject';
 import LayerShell from 'gi://Gtk4LayerShell';
 import { PopupMenu } from './lib/popupMenu.js';
 import { Style } from './lib/style.js';
+import { Extension } from './lib/extensionInterface.js';
 
 const dockLocation = ['bottom', 'left', 'right', 'top'];
 const dockEdge = [
@@ -354,8 +355,8 @@ export const DockPanel = GObject.registerClass(
   },
 );
 
-export const Dock = GObject.registerClass(
-  class Dock extends GObject.Object {
+const Dock = GObject.registerClass(
+  class Dock extends Extension {
     _init(params) {
       this.name = params.name ?? 'Dock';
       this.favorite_apps = params?.apps ?? [];
@@ -368,10 +369,6 @@ export const Dock = GObject.registerClass(
 
       // export the DockItem
       this.DockItem = DockItem;
-    }
-
-    init() {
-      this.enable();
     }
 
     enable() {
@@ -401,11 +398,14 @@ export const Dock = GObject.registerClass(
       Main.hiTimer.runOnce(() => {
         this.window.remove_css_class('startup');
       }, 0);
+
+      super.enable();
     }
 
     disable() {
       this.window.destroy();
       this.window = null;
+      super.disable();
     }
 
     load_settings() {}

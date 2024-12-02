@@ -4,6 +4,7 @@ import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
 import GObject from 'gi://GObject';
 import Gvc from 'gi://Gvc';
+import { Extension } from './extensionInterface.js';
 
 // Each Gvc.MixerControl is a connection to PulseAudio,
 // so it's better to make it a singleton
@@ -23,15 +24,16 @@ export function getMixerControl() {
 const Volume = GObject.registerClass(
   {
     Signals: {
-      'volume-update': {},
+      'volume-update': { param_types: [GObject.TYPE_OBJECT] },
     },
   },
-  class Volume extends GObject.Object {
+  class Volume extends Extension {
     _init(params) {
       super._init(params);
     }
 
-    async init() {
+    async enable() {
+      super.enable();
       this.state = {};
 
       this._icons = [
@@ -54,6 +56,10 @@ const Volume = GObject.registerClass(
       });
 
       this.sync();
+    }
+
+    disable() {
+      super.disable();
     }
 
     get_icon() {
@@ -88,7 +94,7 @@ const Volume = GObject.registerClass(
         icon: this.get_icon(),
       };
 
-      this.emit('volume-update');
+      this.emit('volume-update', this);
     }
   },
 );
@@ -96,15 +102,15 @@ const Volume = GObject.registerClass(
 const Mic = GObject.registerClass(
   {
     Signals: {
-      'mic-update': {},
+      'mic-update': { param_types: [GObject.TYPE_OBJECT] },
     },
   },
-  class Mic extends GObject.Object {
+  class Mic extends Extension {
     _init(params) {
       super._init(params);
     }
 
-    async init() {
+    async enable() {
       this.state = {};
 
       this._icons = [
@@ -127,6 +133,8 @@ const Mic = GObject.registerClass(
 
       this.sync();
     }
+
+    disable() {}
 
     get_icon() {
       if (!this._stream) return null;
@@ -160,7 +168,7 @@ const Mic = GObject.registerClass(
         icon: this.get_icon(),
       };
 
-      this.emit('mic-update');
+      this.emit('mic-update', this);
     }
   },
 );

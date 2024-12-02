@@ -3,6 +3,7 @@ import Gtk from 'gi://Gtk?version=4.0';
 import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
 import GObject from 'gi://GObject';
+import { Extension } from '../../lib/extensionInterface.js';
 
 function getOSName() {
   const prettyName = GLib.get_os_info('PRETTY_NAME');
@@ -28,153 +29,208 @@ function formatDate(date) {
   return `${year}-${month}-${day} ${hours}:${minutes}`;
 }
 
-class BarItemsExtension {
-  enable() {
-    let items = [];
+const BarItemsExtension = GObject.registerClass(
+  class BarItemsExtension extends Extension {
+    enable() {
+      super.enable();
+      this.attachPanelItems();
+      this.attachDockItems();
 
-    {
-      let logo = new Main.panel.PanelItem();
-      logo.add_css_class('logo');
-      logo.set_label(getOSName());
-      Main.panel.lead.append(logo);
-    }
-
-    {
-      let item = new Main.panel.PanelItem();
-      item.set_label('Hello');
-      Main.panel.trail.append(item);
-
-      let evt = new Gtk.GestureClick();
-      evt.set_button(3); // right click
-      evt.connect('pressed', (actor, count) => {
-        console.log('Hello');
+      Main.panel.connect('notify::enabled', () => {
+        if (Main.panel.enabled) {
+          this.attachPanelItems();
+        } else {
+          this.panelItems = null;
+        }
       });
-      item.add_controller(evt);
+      Main.dock.connect('notify::enabled', () => {
+        if (Main.dock.enabled) {
+          this.attachDockItems();
+        } else {
+          this.dockItems = null;
+        }
+      });
     }
 
-    {
-      let clock = new Main.panel.PanelItem();
-      clock.add_css_class('clock');
-      clock.set_label('Clock');
-      Main.panel.center.append(clock);
+    attachPanelItems() {
+      if (!Main.panel.enabled || this.panelItems) return;
 
-      const updateClock = () => {
-        let dt = formatDate(new Date());
-        clock.set_label(dt);
-      };
-      this.clockTimer = Main.timer.runLoop(updateClock, 1000 * 1, 'clockTimer');
-      updateClock();
-    }
+      this.panelItems = [];
 
-    {
-      let power = new Main.panel.PanelItem();
-      power.add_css_class('power');
-      power.set_label('power');
-      Main.panel.trail.append(power);
+      {
+        let logo = new Main.panel.PanelItem();
+        logo.add_css_class('logo');
+        logo.set_label(getOSName());
+        Main.panel.lead.append(logo);
+        this.panelItems.push(logo);
+      }
 
-      Main.power.connectObject(
-        'power-update',
-        () => {
-          let state = Main.power.state;
-          // power.set_label(`${state.fillLevel}%`);
-          power.set_label(``);
-          power.set_icon(state.icon);
-        },
-        this,
-      );
-      Main.power.sync();
-    }
+      {
+        let item = new Main.panel.PanelItem();
+        item.set_label('Hello');
+        Main.panel.trail.append(item);
+        this.panelItems.push(item);
 
-    {
-      let volume = new Main.panel.PanelItem();
-      volume.add_css_class('volume');
-      volume.set_label('volume');
-      Main.panel.trail.append(volume);
+        let evt = new Gtk.GestureClick();
+        evt.set_button(3); // right click
+        evt.connect('pressed', (actor, count) => {
+          console.log('Hello');
+        });
+        item.add_controller(evt);
+      }
 
-      Main.volume.connectObject(
-        'volume-update',
-        () => {
-          let state = Main.volume.state;
-          volume.set_label(``);
-          volume.set_icon(state.icon);
-        },
-        this,
-      );
-      Main.volume.sync();
-    }
+      {
+        let clock = new Main.panel.PanelItem();
+        clock.add_css_class('clock');
+        clock.set_label('Clock');
+        Main.panel.center.append(clock);
+        this.panelItems.push(clock);
 
-    {
-      let mic = new Main.panel.PanelItem();
-      mic.add_css_class('mic');
-      mic.set_label('mic');
-      Main.panel.trail.append(mic);
+        const updateClock = () => {
+          let dt = formatDate(new Date());
+          clock.set_label(dt);
+        };
+        this.clockTimer = Main.timer.runLoop(
+          updateClock,
+          1000 * 1,
+          'clockTimer',
+        );
+        updateClock();
+      }
 
-      Main.mic.connectObject(
-        'mic-update',
-        () => {
-          let state = Main.mic.state;
-          mic.set_label(``);
-          mic.set_icon(state.icon);
-        },
-        this,
-      );
-      Main.mic.sync();
-    }
+      {
+        let power = new Main.panel.PanelItem();
+        power.add_css_class('power');
+        power.set_label('power');
+        Main.panel.trail.append(power);
+        this.panelItems.push(power);
 
-    {
-      let appInfo = {
-        id: 'trash',
-        icon_name: 'user-trash',
-        title: 'Trash',
-        cmd: `nautilus --select trash:///`,
-        menu: [
-          {
-            action: 'open',
-            name: 'Open Window',
-            exec: 'nautilus --select trash:///',
+        Main.power.connectObject(
+          'power-update',
+          () => {
+            let state = Main.power.state;
+            // power.set_label(`${state.fillLevel}%`);
+            power.set_label(``);
+            power.set_icon(state.icon);
           },
-          {
-            action: 'empty',
-            name: 'Empty Trash',
-            exec: `gio trash --empty`,
+          this,
+        );
+        Main.power.sync();
+      }
+
+      {
+        let volume = new Main.panel.PanelItem();
+        volume.add_css_class('volume');
+        volume.set_label('volume');
+        Main.panel.trail.append(volume);
+        this.panelItems.push(volume);
+
+        Main.volume.connectObject(
+          'volume-update',
+          () => {
+            let state = Main.volume.state;
+            volume.set_label(``);
+            volume.set_icon(state.icon);
           },
-        ],
-      };
-      let trash = new Main.dock.DockItem({ app: appInfo });
-      // trash.set_icon('/usr/share/fedora-logos/fedora_logo_darkbackground.svg');
-      Main.dock.center.append(trash);
-      Main.trash.connectObject(
-        'trash-update',
-        () => {
-          let state = Main.trash.state;
-          if (state.full) {
-            trash.set_icon('user-trash-full');
-          } else {
-            trash.set_icon('user-trash');
-          }
-        },
-        this,
-      );
-      Main.trash.sync();
+          this,
+        );
+        Main.volume.sync();
+      }
+
+      {
+        let mic = new Main.panel.PanelItem();
+        mic.add_css_class('mic');
+        mic.set_label('mic');
+        Main.panel.trail.append(mic);
+        this.panelItems.push(mic);
+
+        Main.mic.connectObject(
+          'mic-update',
+          () => {
+            let state = Main.mic.state;
+            mic.set_label(``);
+            mic.set_icon(state.icon);
+          },
+          this,
+        );
+        Main.mic.sync();
+      }
     }
-  }
 
-  disable() {
-    Main.power.disconnectObject(this);
-    Main.volume.disconnectObject(this);
-    Main.mic.disconnectObject(this);
-    if (this.clockTimer) {
-      Main.timer.cancel(this.clockTimer);
-      this.clockTimer = null;
+    detachPanelItems() {
+      if (!this.panelItems) return;
+
+      (this.panelItems || []).forEach((item) => {
+        item.parent?.remove(item);
+      });
+      this.panelItems = null;
     }
-  }
 
-  preferences() {}
-}
+    attachDockItems() {
+      if (!Main.dock.enabled || this.dockItems) return;
 
-const Extension = BarItemsExtension;
-export { Extension };
+      this.dockItems = [];
 
-// let network = new PanelItem();
-// network.add_css_class('network');
-// network.set_label('network');
+      {
+        let appInfo = {
+          id: 'trash',
+          icon_name: 'user-trash',
+          title: 'Trash',
+          cmd: `nautilus --select trash:///`,
+          menu: [
+            {
+              action: 'open',
+              name: 'Open Window',
+              exec: 'nautilus --select trash:///',
+            },
+            {
+              action: 'empty',
+              name: 'Empty Trash',
+              exec: `gio trash --empty`,
+            },
+          ],
+        };
+        let trash = new Main.dock.DockItem({ app: appInfo });
+        // trash.set_icon('/usr/share/fedora-logos/fedora_logo_darkbackground.svg');
+        Main.dock.center.append(trash);
+        this.dockItems.push(trash);
+
+        Main.trash.connectObject(
+          'trash-update',
+          () => {
+            let state = Main.trash.state;
+            if (state.full) {
+              trash.set_icon('user-trash-full');
+            } else {
+              trash.set_icon('user-trash');
+            }
+          },
+          this,
+        );
+        Main.trash.sync();
+      }
+    }
+
+    detachDockItems() {
+      (this.dockItems || []).forEach((item) => {
+        item.parent?.remove(item);
+      });
+      this.dockItems = null;
+    }
+
+    disable() {
+      super.disable();
+      this.detachPanelItems();
+      this.detachDockItems();
+      Main.power.disconnectObject(this);
+      Main.volume.disconnectObject(this);
+      Main.mic.disconnectObject(this);
+      if (this.clockTimer) {
+        Main.timer.cancel(this.clockTimer);
+        this.clockTimer = null;
+      }
+    }
+  },
+);
+
+export default BarItemsExtension;

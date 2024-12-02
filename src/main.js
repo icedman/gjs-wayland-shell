@@ -4,11 +4,11 @@ import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import Dock from './dock.js';
 import Panel from './panel.js';
-import { Power } from './lib/power.js';
-import { Network } from './lib/network.js';
+import Power from './lib/power.js';
+import Network from './lib/network.js';
 import { Volume, Mic } from './lib/volume.js';
-import { Trash } from './lib/trash.js';
-import { Timer } from './lib/timer.js';
+import Trash from './lib/trash.js';
+import Timer from './lib/timer.js';
 import ShellService from './shell.js';
 import './lib/environment.js';
 
@@ -69,9 +69,11 @@ globalThis.Main = {
   loTimer: new Timer('lo-res  timer'),
   hiTimer: new Timer('hi-res timer'),
 
-  // modules
+  // ui
   dock: new Dock({ name: 'Dock', apps }),
   panel: new Panel({ name: 'Panel' }),
+
+  // services
   shell: new ShellService(),
   power: new Power(),
   network: new Network(),
@@ -108,7 +110,7 @@ Main.loTimer.initialize(750);
   Main.dock,
 ].forEach(async (m) => {
   try {
-    m.init();
+    m.enable();
   } catch (err) {
     console.log(m);
     console.log(err);
@@ -162,11 +164,11 @@ function loadExtensions(directoryPath) {
 
         (async () => {
           console.log(extensionFilePath);
-          let { Extension } = await loadModule(extensionFilePath);
+          let Extension = await loadModule(extensionFilePath);
           if (Extension) {
-            let extension = new Extension();
+            let extension = new Extension.default();
             Main.extensions[fileName] = extension;
-            // check if enabled!
+            // check if enabled in settings?
             extension.enable();
             loadStyle(extensionCssFilePath);
           }

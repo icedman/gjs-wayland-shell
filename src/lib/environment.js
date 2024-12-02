@@ -6,6 +6,10 @@ Math.clamp = function (x, lower, upper) {
   return Math.min(Math.max(x, lower), upper);
 };
 
+const Format = imports.format;
+
+String.prototype.format = Format.format;
+
 GObject.Object.prototype.connectObject = function (...args) {
   SignalTracker.connectObject(this, ...args);
 };

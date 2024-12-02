@@ -4,6 +4,7 @@ import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
 import GObject from 'gi://GObject';
 import LayerShell from 'gi://Gtk4LayerShell';
+import { Extension } from './lib/extensionInterface.js';
 
 import { DockPanel } from './dock.js';
 
@@ -41,8 +42,8 @@ export const PanelItem = GObject.registerClass(
   },
 );
 
-export const Panel = GObject.registerClass(
-  class Panel extends GObject.Object {
+const Panel = GObject.registerClass(
+  class Panel extends Extension {
     _init(params) {
       this.name = params.name ?? 'Panel';
       delete params?.name;
@@ -53,10 +54,6 @@ export const Panel = GObject.registerClass(
 
       // export the PanelItem
       this.PanelItem = PanelItem;
-    }
-
-    init() {
-      this.enable();
     }
 
     enable() {
@@ -84,11 +81,14 @@ export const Panel = GObject.registerClass(
       Main.hiTimer.runOnce(() => {
         this.window.remove_css_class('startup');
       }, 50);
+
+      super.enable();
     }
 
     disable() {
       this.window.destroy();
       this.window = null;
+      super.disable();
     }
 
     load_settings() {}

@@ -3,6 +3,7 @@ import Gtk from 'gi://Gtk?version=4.0';
 import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
 import GObject from 'gi://GObject';
+import { Extension } from './extensionInterface.js';
 
 const TRASH_UPDATE_INTERVAL = 1000 * 45; // every 45 seconds
 const TRASH_URI = 'trash:///';
@@ -10,18 +11,23 @@ const TRASH_URI = 'trash:///';
 const Trash = GObject.registerClass(
   {
     Signals: {
-      'trash-update': {},
+      'trash-update': { param_types: [GObject.TYPE_OBJECT] },
     },
   },
-  class Trash extends GObject.Object {
+  class Trash extends Extension {
     _init(params) {
       super._init(params);
     }
 
-    init() {
+    async enable() {
+      super.enable();
       this.state = {};
       this.monitorTrash();
       this.sync();
+    }
+
+    disable() {
+      super.disable();
     }
 
     monitorTrash() {
@@ -63,9 +69,9 @@ const Trash = GObject.registerClass(
       this.state = {
         full: this.checkTrash(),
       };
-      this.emit('trash-update');
+      this.emit('trash-update', this);
     }
   },
 );
 
-export { Trash };
+export default Trash;

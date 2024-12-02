@@ -4,6 +4,7 @@ import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
 import GObject from 'gi://GObject';
 import UPower from 'gi://UPowerGlib';
+import { Extension } from './extensionInterface.js';
 
 const BUS_NAME = 'org.freedesktop.UPower';
 const OBJECT_PATH = '/org/freedesktop/UPower/devices/DisplayDevice';
@@ -24,15 +25,16 @@ const DisplayDeviceInterface =
 const Power = GObject.registerClass(
   {
     Signals: {
-      'power-update': {},
+      'power-update': { param_types: [GObject.TYPE_OBJECT] },
     },
   },
-  class Power extends GObject.Object {
+  class Power extends Extension {
     _init(params) {
       super._init(params);
     }
 
-    init() {
+    async enable() {
+      super.enable();
       this.state = {};
 
       const PowerManagerProxy = Gio.DBusProxy.makeProxyWrapper(
@@ -52,6 +54,10 @@ const Power = GObject.registerClass(
           this.sync();
         },
       );
+    }
+
+    disable() {
+      super.disable();
     }
 
     sync() {
@@ -75,9 +81,9 @@ const Power = GObject.registerClass(
         icon,
       };
 
-      this.emit('power-update');
+      this.emit('power-update', this);
     }
   },
 );
 
-export { Power };
+export default Power;
