@@ -1594,7 +1594,7 @@ const NMVpnConnectionItem = GObject.registerClass(
       super(section, connection);
 
       // this._label.x_expand = true;
-      this.accessible_role = Atk.Role.CHECK_MENU_ITEM;
+      // this.accessible_role = Atk.Role.CHECK_MENU_ITEM;
       this._icon.hide();
       // this.label_actor = this._label;
 
@@ -1616,8 +1616,8 @@ const NMVpnConnectionItem = GObject.registerClass(
     }
 
     _sync() {
-      if (this.is_active) this.add_accessible_state(Atk.StateType.CHECKED);
-      else this.remove_accessible_state(Atk.StateType.CHECKED);
+      // if (this.is_active) this.add_accessible_state(Atk.StateType.CHECKED);
+      // else this.remove_accessible_state(Atk.StateType.CHECKED);
     }
 
     _activeConnectionStateChanged() {

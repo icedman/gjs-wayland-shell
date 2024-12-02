@@ -5,6 +5,7 @@ import GLib from 'gi://GLib';
 import Dock from './dock.js';
 import Panel from './panel.js';
 import Power from './lib/power.js';
+import Brightness from './lib/brightness.js';
 import Network from './lib/network.js';
 import { Volume, Mic } from './lib/volume.js';
 import Trash from './lib/trash.js';
@@ -76,6 +77,7 @@ globalThis.Main = {
   // services
   shell: new ShellService(),
   power: new Power(),
+  brightness: new Brightness(),
   network: new Network(),
   volume: new Volume(),
   mic: new Mic(),
@@ -102,6 +104,7 @@ Main.loTimer.initialize(750);
 [
   Main.shell,
   Main.power,
+  Main.brightness,
   Main.network,
   Main.volume,
   Main.mic,
