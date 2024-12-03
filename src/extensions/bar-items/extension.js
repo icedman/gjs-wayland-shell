@@ -65,19 +65,19 @@ const BarItemsExtension = GObject.registerClass(
         this.panelItems.push(logo);
       }
 
-      {
-        let item = new Main.panel.PanelItem();
-        item.set_label('Hello');
-        Main.panel.trail.append(item);
-        this.panelItems.push(item);
+      // {
+      //   let item = new Main.panel.PanelItem();
+      //   item.set_label('Hello');
+      //   Main.panel.trail.append(item);
+      //   this.panelItems.push(item);
 
-        let evt = new Gtk.GestureClick();
-        evt.set_button(3); // right click
-        evt.connect('pressed', (actor, count) => {
-          console.log('Hello');
-        });
-        item.add_controller(evt);
-      }
+      //   let evt = new Gtk.GestureClick();
+      //   evt.set_button(3); // right click
+      //   evt.connect('pressed', (actor, count) => {
+      //     console.log('Hello');
+      //   });
+      //   item.add_controller(evt);
+      // }
 
       {
         let clock = new Main.panel.PanelItem();
@@ -96,6 +96,25 @@ const BarItemsExtension = GObject.registerClass(
           'clockTimer',
         );
         updateClock();
+      }
+
+      {
+        let network = new Main.panel.PanelItem();
+        network.add_css_class('network');
+        network.set_label('network');
+        Main.panel.trail.append(network);
+        this.panelItems.push(network);
+
+        Main.network.connectObject(
+          'network-update',
+          () => {
+            let state = Main.network.state;
+            network.set_label(``);
+            network.set_icon(state.icon);
+          },
+          this,
+        );
+        Main.network.sync();
       }
 
       {

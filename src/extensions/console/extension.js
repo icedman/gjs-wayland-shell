@@ -63,6 +63,7 @@ const ConsoleExtension = GObject.registerClass(
 
       // Function to append text to the output view
       function appendOutput(text) {
+        console.log(text);
         outputBuffer.insert(outputBuffer.get_end_iter(), text, text.length);
         // let adj = scroller.get_adjustment();
         // adj.set_value(adj.get_upper());

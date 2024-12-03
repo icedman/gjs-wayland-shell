@@ -4,13 +4,15 @@ import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import Dock from './dock.js';
 import Panel from './panel.js';
-import Power from './lib/power.js';
-import Brightness from './lib/brightness.js';
-import Network from './lib/network.js';
-import { Volume, Mic } from './lib/volume.js';
-import Trash from './lib/trash.js';
-import Timer from './lib/timer.js';
 import ShellService from './shell.js';
+
+import Power from './services/power.js';
+import Brightness from './services/brightness.js';
+import Network from './services/network.js';
+import { Volume, Mic } from './services/volume.js';
+import Trash from './services/trash.js';
+import Timer from './lib/timer.js';
+
 import './lib/environment.js';
 
 // const settingsShell = new Gio.Settings({ schema_id: 'org.gnome.shell' });

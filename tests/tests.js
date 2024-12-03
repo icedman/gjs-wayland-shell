@@ -52,7 +52,7 @@ function test_bar_items() {
   p.enable();
 
   let v = new Volume();
-  v.connect('volume-update', (obj) => {
+  v.connect('notify::state', (obj) => {
     console.log(obj.state);
   });
   v.enable();
@@ -79,6 +79,9 @@ function test_bar_items() {
 
 async function test_network() {
   let n = new Network();
+  n.connect('network-update', (obj) => {
+    console.log(obj.state);
+  });
   n.enable();
   Main.network = n;
 }

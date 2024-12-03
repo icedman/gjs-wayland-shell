@@ -4,7 +4,7 @@ import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
 import GObject from 'gi://GObject';
 import Gvc from 'gi://Gvc';
-import { Extension } from './extensionInterface.js';
+import { Extension } from '../lib/extensionInterface.js';
 
 // Each Gvc.MixerControl is a connection to PulseAudio,
 // so it's better to make it a singleton

@@ -4,7 +4,7 @@ import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
 import GObject from 'gi://GObject';
 import UPower from 'gi://UPowerGlib';
-import { Extension } from './extensionInterface.js';
+import { Extension } from '../lib/extensionInterface.js';
 
 const BUS_NAME = 'org.freedesktop.UPower';
 const OBJECT_PATH = '/org/freedesktop/UPower/devices/DisplayDevice';

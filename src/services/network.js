@@ -5,12 +5,12 @@ import Gio from 'gi://Gio';
 import GObject from 'gi://GObject';
 import Polkit from 'gi://Polkit';
 import NM from 'gi://NM';
-import { Extension } from './extensionInterface.js';
+import { Extension } from '../lib/extensionInterface.js';
 
-import * as Signals from './signals.js';
-import * as Util from './misc.js';
+import * as Signals from '../lib/signals.js';
+import * as Util from '../lib/misc.js';
 
-import { registerDestroyableType } from './signalTracker.js';
+import { registerDestroyableType } from '../lib/signalTracker.js';
 
 Gio._promisify(Gio.DBusConnection.prototype, 'call');
 Gio._promisify(NM.Client, 'new_async');
@@ -109,6 +109,8 @@ const PopupBaseMenuItem = GObject.registerClass(
   class PopupBaseMenuItem extends GObject.Object {
     activate() {}
     add_child(child) {}
+    show() {}
+    hide() {}
   },
 );
 const PopupMenuSection = GObject.registerClass(
@@ -122,45 +124,48 @@ const PopupMenuSection = GObject.registerClass(
         false,
       ),
     },
+    Signals: {
+      'open-state-changed': {},
+    },
   },
   class PopupMenuSection extends GObject.Object {
     _init() {
       super._init();
+      this.icon = new Icon();
+      this.label = '';
       this.children = [];
     }
 
     addMenuItem(item) {
       this.children.push(item);
-      // console.log(item);
     }
 
-    connect() {}
-    connectObject() {}
     setHeader(icon, header) {
-      console.log({ icon, header });
+      // console.log({ icon, header });
+      this.icon['icon-name'] = icon;
+      this.label = header;
     }
     addHeaderSuffix(spinner__) {
-      console.log(spinner__);
+      // console.log(spinner__);
     }
     addSettingsAction() {}
   },
 );
 const PopupSubMenuMenuItem = GObject.registerClass(
   {},
-  class PopupSubMenuMenuItem extends GObject.Object {
+  class PopupSubMenuMenuItem extends PopupBaseMenuItem {
     constructor(name, subMenu__) {
       super();
     }
-    hide() {}
   },
 );
 const Switch = GObject.registerClass(
   {},
-  class Switch extends GObject.Object {},
+  class Switch extends PopupBaseMenuItem {},
 );
 const PopupSeparatorMenuItem = GObject.registerClass(
   {},
-  class PopupSeparatorMenuItem extends GObject.Object {},
+  class PopupSeparatorMenuItem extends PopupBaseMenuItem {},
 );
 
 const PopupMenu = {
@@ -172,12 +177,28 @@ const PopupMenu = {
 };
 
 const Icon = GObject.registerClass(
+  {
+    Properties: {
+      'icon-name': GObject.ParamSpec.string(
+        'icon-name',
+        null,
+        null,
+        GObject.ParamFlags.READWRITE,
+        '',
+      ),
+      title: GObject.ParamSpec.string(
+        'title',
+        null,
+        null,
+        GObject.ParamFlags.READWRITE,
+        '',
+      ),
+    },
+  },
   class Icon extends GObject.Object {
     _init() {
       super._init();
     }
-
-    connect() {}
   },
 );
 
@@ -194,6 +215,41 @@ const Spinner = GObject.registerClass(
 const QuickMenuToggle = GObject.registerClass(
   {
     Properties: {
+      'icon-name': GObject.ParamSpec.string(
+        'icon-name',
+        null,
+        null,
+        GObject.ParamFlags.READWRITE,
+        '',
+      ),
+      title: GObject.ParamSpec.string(
+        'title',
+        null,
+        null,
+        GObject.ParamFlags.READWRITE,
+        '',
+      ),
+      subtitle: GObject.ParamSpec.string(
+        'subtitle',
+        null,
+        null,
+        GObject.ParamFlags.READWRITE,
+        '',
+      ),
+      gicon: GObject.ParamSpec.object(
+        'gicon',
+        null,
+        null,
+        GObject.ParamFlags.READWRITE,
+        Gio.Icon,
+      ),
+      'menu-enabled': GObject.ParamSpec.boolean(
+        'menu-enabled',
+        null,
+        null,
+        GObject.ParamFlags.READWRITE,
+        true,
+      ),
       visible: GObject.ParamSpec.boolean(
         'visible',
         null,
@@ -252,6 +308,10 @@ const SystemIndicator = GObject.registerClass(
     _init() {
       super._init();
       this.quickSettingsItems = [];
+    }
+
+    _addIndicator() {
+      return new Icon();
     }
   },
 );
@@ -1223,6 +1283,7 @@ const WirelessNetwork = GObject.registerClass(
           'org.freedesktop.NetworkManager.settings.modify.system',
           null,
           null,
+          null,
         );
         let allowedToShare = false;
         if (permission) allowedToShare = permission.get_allowed();
@@ -1602,10 +1663,11 @@ const NMWirelessDeviceItem = GObject.registerClass(
       const pos = this._itemSorter.upsert(item);
       // this.section.moveMenuItem(item, pos);
 
-      console.log('-----------------');
-      console.log(' resort item');
-      console.log('-----------------');
-      console.log(item);
+      // console.log('-----------------');
+      // console.log(' resort item');
+      // console.log('-----------------');
+      // console.log(item);
+
       this._updateItemsVisibility();
     }
 
@@ -1720,17 +1782,29 @@ const NMToggle = GObject.registerClass(
 
       this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
-      // this._itemBinding = new GObject.BindingGroup();
-      // this._itemBinding.bind('icon-name',
-      //     this, 'icon-name', GObject.BindingFlags.DEFAULT);
-      // this._itemBinding.bind_property_full('source',
-      //     this, 'title', GObject.BindingFlags.DEFAULT,
-      //     () => [true, this._getDefaultName()],
-      //     null);
-      // this._itemBinding.bind_full('name',
-      //     this, 'subtitle', GObject.BindingFlags.DEFAULT,
-      //     (bind, source) => [true, this._transformSubtitle(source)],
-      //     null);
+      this._itemBinding = new GObject.BindingGroup();
+      this._itemBinding.bind(
+        'icon-name',
+        this,
+        'icon-name',
+        GObject.BindingFlags.DEFAULT,
+      );
+      this._itemBinding.bind_property_full(
+        'source',
+        this,
+        'title',
+        GObject.BindingFlags.DEFAULT,
+        () => [true, this._getDefaultName()],
+        null,
+      );
+      this._itemBinding.bind_full(
+        'name',
+        this,
+        'subtitle',
+        GObject.BindingFlags.DEFAULT,
+        (bind, source) => [true, this._transformSubtitle(source)],
+        null,
+      );
 
       this.connect('clicked', () => this.activate());
     }
@@ -1756,8 +1830,8 @@ const NMToggle = GObject.registerClass(
     activate() {
       const activeItems = [...this._getActiveItems()];
 
-      // if (activeItems.length > 0) activeItems.forEach((i) => i.activate());
-      // else this._itemBinding.source?.activate();
+      if (activeItems.length > 0) activeItems.forEach((i) => i.activate());
+      else this._itemBinding.source?.activate();
     }
 
     _loadInitialItems() {
@@ -1785,7 +1859,7 @@ const NMToggle = GObject.registerClass(
     _itemActiveChanged() {
       // force an update in case we changed
       // from or to multiple active items
-      // this._itemBinding.source?.notify('name');
+      this._itemBinding.source?.notify('name');
       this._sync();
     }
 
@@ -1861,7 +1935,7 @@ const NMToggle = GObject.registerClass(
       this.visible = this._client?.networking_enabled && this._items.size > 0;
       this._updateItemsVisibility();
       this._updateChecked();
-      // this._itemBinding.source = this._getPrimaryItem();
+      this._itemBinding.source = this._getPrimaryItem();
     }
   },
 );
@@ -2134,12 +2208,12 @@ const NMWirelessToggle = GObject.registerClass(
     constructor() {
       super(NM.DeviceType.WIFI);
 
-      // this._itemBinding.bind(
-      //   'is-hotspot',
-      //   this,
-      //   'menu-enabled',
-      //   GObject.BindingFlags.INVERT_BOOLEAN,
-      // );
+      this._itemBinding.bind(
+        'is-hotspot',
+        this,
+        'menu-enabled',
+        GObject.BindingFlags.INVERT_BOOLEAN,
+      );
 
       this._scanningSpinner = new Spinner(16);
 
@@ -2174,9 +2248,9 @@ const NMWirelessToggle = GObject.registerClass(
     }
 
     activate() {
-      // const primaryItem = this._itemBinding.source;
-      // if (primaryItem?.is_hotspot) primaryItem.activate();
-      // else this._client.wireless_enabled = !this._client.wireless_enabled;
+      const primaryItem = this._itemBinding.source;
+      if (primaryItem?.is_hotspot) primaryItem.activate();
+      else this._client.wireless_enabled = !this._client.wireless_enabled;
     }
 
     async _scanDevice(device) {
@@ -2459,16 +2533,16 @@ export const Indicator = GObject.registerClass(
         );
       });
 
-      // this._primaryIndicator = this._addIndicator();
+      this._primaryIndicator = this._addIndicator();
       // this._vpnIndicator = this._addIndicator();
 
-      // this._primaryIndicatorBinding = new GObject.BindingGroup();
-      // this._primaryIndicatorBinding.bind(
-      //   'icon-name',
-      //   this._primaryIndicator,
-      //   'icon-name',
-      //   GObject.BindingFlags.DEFAULT,
-      // );
+      this._primaryIndicatorBinding = new GObject.BindingGroup();
+      this._primaryIndicatorBinding.bind(
+        'icon-name',
+        this._primaryIndicator,
+        'icon-name',
+        GObject.BindingFlags.DEFAULT,
+      );
 
       // this._vpnToggle.bind_property(
       //   'checked',
@@ -2524,6 +2598,7 @@ export const Indicator = GObject.registerClass(
       try {
         this._configPermission = await Polkit.Permission.new(
           'org.freedesktop.NetworkManager.network-control',
+          null,
           null,
           null,
         );
@@ -2613,18 +2688,18 @@ export const Indicator = GObject.registerClass(
     _updateIcon() {
       const [dev] = this._mainConnection?.get_devices() ?? [];
       const primaryToggle = this._deviceToggles.get(dev?.device_type) ?? null;
-      // this._primaryIndicatorBinding.source = primaryToggle;
+      this._primaryIndicatorBinding.source = primaryToggle;
 
-      // if (!primaryToggle) {
-      //   if (this._client.connectivity === NM.ConnectivityState.FULL)
-      //     this._primaryIndicator.icon_name = 'network-wired-symbolic';
-      //   else
-      //     this._primaryIndicator.icon_name = 'network-wired-no-route-symbolic';
-      // }
+      if (!primaryToggle) {
+        if (this._client.connectivity === NM.ConnectivityState.FULL)
+          this._primaryIndicator.icon_name = 'network-wired-symbolic';
+        else
+          this._primaryIndicator.icon_name = 'network-wired-no-route-symbolic';
+      }
 
-      // const state = this._client.get_state();
-      // const connected = state === NM.State.CONNECTED_GLOBAL;
-      // this._primaryIndicator.visible = primaryToggle != null || connected;
+      const state = this._client.get_state();
+      const connected = state === NM.State.CONNECTED_GLOBAL;
+      this._primaryIndicator.visible = primaryToggle != null || connected;
     }
   },
 );
@@ -2642,8 +2717,13 @@ const Network = GObject.registerClass(
 
     async enable() {
       super.enable();
+
+      this.state = {};
       try {
         this.indicator = new Indicator();
+        this.indicator._primaryIndicator.connect('notify::icon-name', () => {
+          this.sync();
+        });
       } catch (err) {
         console.log(err);
       }
@@ -2655,6 +2735,17 @@ const Network = GObject.registerClass(
         this.indicator.clear();
       }
       this.indicator = null;
+    }
+
+    sync() {
+      if (!this.indicator) return;
+      this.state = {
+        icon:
+          this.indicator._primaryIndicator.icon_name ??
+          'network-wired-no-route-symbolic',
+        // network device
+      };
+      this.emit('network-update', this);
     }
   },
 );

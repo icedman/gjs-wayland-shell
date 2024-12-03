@@ -3,7 +3,7 @@ import Gtk from 'gi://Gtk?version=4.0';
 import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
 import GObject from 'gi://GObject';
-import { Extension } from './extensionInterface.js';
+import { Extension } from '../lib/extensionInterface.js';
 
 const TRASH_UPDATE_INTERVAL = 1000 * 45; // every 45 seconds
 const TRASH_URI = 'trash:///';
@@ -40,7 +40,7 @@ const Trash = GObject.registerClass(
       this._trashMonitor.connect(
         'changed',
         (fileMonitor, file, otherFile, eventType) => {
-          console.log(eventType);
+          // console.log(eventType);
           this.sync();
           clearInterval(this._scheduleId);
           this._scheduleId = setInterval(() => {
