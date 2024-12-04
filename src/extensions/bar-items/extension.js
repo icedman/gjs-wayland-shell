@@ -4,6 +4,7 @@ import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
 import GObject from 'gi://GObject';
 import { Extension } from '../../lib/extensionInterface.js';
+import { PopupMenu } from '../../lib/popupMenu.js';
 
 function getOSName() {
   const prettyName = GLib.get_os_info('PRETTY_NAME');
@@ -57,6 +58,9 @@ const BarItemsExtension = GObject.registerClass(
 
       this.panelItems = [];
 
+      let builder = new Gtk.Builder();
+      builder.add_from_file(`${this.path}/ui/volume.ui`);
+
       {
         let logo = new Main.panel.PanelItem();
         logo.add_css_class('logo');
@@ -65,19 +69,12 @@ const BarItemsExtension = GObject.registerClass(
         this.panelItems.push(logo);
       }
 
-      // {
-      //   let item = new Main.panel.PanelItem();
-      //   item.set_label('Hello');
-      //   Main.panel.trail.append(item);
-      //   this.panelItems.push(item);
-
-      //   let evt = new Gtk.GestureClick();
-      //   evt.set_button(3); // right click
-      //   evt.connect('pressed', (actor, count) => {
-      //     console.log('Hello');
-      //   });
-      //   item.add_controller(evt);
-      // }
+      {
+        let item = new Main.panel.PanelItem();
+        item.set_label('Hello');
+        Main.panel.trail.append(item);
+        this.panelItems.push(item);
+      }
 
       {
         let clock = new Main.panel.PanelItem();
@@ -111,10 +108,46 @@ const BarItemsExtension = GObject.registerClass(
             let state = Main.network.state;
             network.set_label(``);
             network.set_icon(state.icon);
+            // network.visible = state.visible;
           },
           this,
         );
         Main.network.sync();
+
+        let menu = new PopupMenu({
+          has_arrow: true,
+        });
+
+        let w = new Gtk.Label();
+        menu.child.append(w);
+        network.append(menu);
+
+        let evt = new Gtk.GestureClick();
+        // evt.set_button(3); // right click
+        evt.connect('pressed', (actor, count) => {
+          let state = Main.network.state;
+          let source = Main.network.indicator._primaryIndicatorBinding.source;
+          if (source) {
+            w.set_label(`${source.title} ${source.subtitle}`);
+            menu.popup();
+            return;
+          }
+        });
+        network.add_controller(evt);
+
+        {
+          let evt = new Gtk.GestureClick();
+          evt.set_button(3); // right click
+          evt.connect('pressed', (actor, count) => {
+            let state = Main.network.state;
+            if (state.address) {
+              w.set_label(state.address);
+              menu.popup();
+              return;
+            }
+          });
+          network.add_controller(evt);
+        }
       }
 
       {
@@ -135,7 +168,29 @@ const BarItemsExtension = GObject.registerClass(
           this,
         );
         Main.power.sync();
+
+        let menu = new PopupMenu({
+          has_arrow: true,
+        });
+
+        let w = new Gtk.Label();
+        menu.child.append(w);
+        power.append(menu);
+
+        let evt = new Gtk.GestureClick();
+        // evt.set_button(3); // right click
+        evt.connect('pressed', (actor, count) => {
+          if (Main.power.state?.fillLevel) {
+            w.set_label(
+              `${Main.power.state.fillLevel}% ${Main.power.state.chargingState}`,
+            );
+          }
+          menu.popup();
+        });
+        power.add_controller(evt);
       }
+
+      const updateVolume = (vol) => {};
 
       {
         let volume = new Main.panel.PanelItem();
@@ -144,12 +199,67 @@ const BarItemsExtension = GObject.registerClass(
         Main.panel.trail.append(volume);
         this.panelItems.push(volume);
 
+        let menu = new PopupMenu({
+          has_arrow: true,
+        });
+
+        let widget = builder.get_object('volume-widget');
+        let w = builder.get_object('volume');
+        let l = builder.get_object('volume-label');
+        let t = builder.get_object('volume-toggle');
+        l.set_size_request(40, -1);
+        widget.parent.remove(widget);
+        menu.child.append(widget);
+        volume.append(menu);
+
+        let evt = new Gtk.GestureClick();
+        // evt.set_button(3); // right click
+        evt.connect('pressed', (actor, count) => {
+          menu.popup();
+        });
+        volume.add_controller(evt);
+
+        let updateVolume = () => {
+          this._debounceVolume = Main.loTimer.debounce(
+            Main.loTimer,
+            () => {
+              let value = w.get_value();
+              Main.volume._stream.volume = Main.volume.state.max_volume * value;
+            },
+            5,
+            this._debounceVolume,
+          );
+        };
+
+        w.connect('value-changed', (w) => {
+          updateVolume();
+        });
+        t.connect('clicked', (t) => {
+          let stream = Main.volume._stream;
+          let control = Main.volume._control;
+          if (!stream || !control) return;
+          const { isMuted } = stream;
+          if (isMuted && stream.volume === 0) {
+            stream.volume = 0.4 * control.get_vol_max_norm();
+            stream.push_volume();
+          }
+          stream.change_is_muted(!isMuted);
+        });
+
         Main.volume.connectObject(
           'volume-update',
           () => {
             let state = Main.volume.state;
             volume.set_label(``);
             volume.set_icon(state.icon);
+            t.set_icon_name(state.icon);
+            w.set_value(state.level / 100);
+            l.set_label(`${Math.floor(state.level)}%`);
+            if (state.is_muted) {
+              l.set_label(`0%`);
+            }
+            w.set_sensitive(!state.is_muted);
+            // console.log(state);
           },
           this,
         );
@@ -173,6 +283,13 @@ const BarItemsExtension = GObject.registerClass(
           this,
         );
         Main.mic.sync();
+
+        let evt = new Gtk.GestureClick();
+        // evt.set_button(3); // right click
+        evt.connect('pressed', (actor, count) => {
+          Main.mic._stream['is-muted'] = !Main.mic._stream['is-muted'];
+        });
+        mic.add_controller(evt);
       }
     }
 
@@ -244,9 +361,15 @@ const BarItemsExtension = GObject.registerClass(
       Main.power.disconnectObject(this);
       Main.volume.disconnectObject(this);
       Main.mic.disconnectObject(this);
+
+      // cleanup timers
       if (this.clockTimer) {
         Main.timer.cancel(this.clockTimer);
         this.clockTimer = null;
+      }
+      if (this._debounceVolume) {
+        Main.loTimer.cancel(this._debounceVolume);
+        this._debounceVolume = null;
       }
     }
   },

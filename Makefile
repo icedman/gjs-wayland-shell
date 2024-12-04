@@ -13,7 +13,6 @@ lint:
 	eslint ./
 
 xml-lint:
-	cd src/ui ; \
 	find . -name "*.ui" -type f -exec xmllint --output '{}' --format '{}' \;
 
 pretty: xml-lint

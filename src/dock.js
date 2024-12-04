@@ -203,6 +203,8 @@ export const DockPanel = GObject.registerClass(
 
       let prefix = this.name.toLowerCase();
       this.stylePrefix = prefix;
+
+      this.settings = Main.settings;
       this.settingsMap = {
         [`${prefix}-location`]: this.update_layout.bind(this),
         [`${prefix}-edge-distance`]: this.update_layout.bind(this),
@@ -229,11 +231,11 @@ export const DockPanel = GObject.registerClass(
           .replace(`${this.name.toLowerCase()}-`, '')
           .replaceAll('-', '_')
           .toUpperCase();
-        this[_key] = Main.settings.getSetting(k);
-        Main.settings.connectObject(
+        this[_key] = this.settings.getSetting(k);
+        this.settings.connectObject(
           `changed::${k}`,
           () => {
-            this[_key] = Main.settings.getSetting(k);
+            this[_key] = this.settings.getSetting(k);
             this.settingsMap[k]();
           },
           this,

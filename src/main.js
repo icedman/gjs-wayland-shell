@@ -9,14 +9,15 @@ import ShellService from './shell.js';
 import Power from './services/power.js';
 import Brightness from './services/brightness.js';
 import Network from './services/network.js';
+import Mounts from './services/mounts.js';
 import { Volume, Mic } from './services/volume.js';
 import Trash from './services/trash.js';
 import Timer from './lib/timer.js';
 
 import './lib/environment.js';
 
-// const settingsShell = new Gio.Settings({ schema_id: 'org.gnome.shell' });
-// let apps = settingsShell.get_value('favorite-apps').deepUnpack();
+const settingsShell = new Gio.Settings({ schema_id: 'org.gnome.shell' });
+let favoriteApps = settingsShell.get_value('favorite-apps').deepUnpack();
 
 let apps = [
   {
@@ -24,6 +25,7 @@ let apps = [
     title: 'Fuzzel',
     cmd: `fuzzel`,
   },
+  // ...favoriteApps
   'kitty.desktop',
   'org.gnome.Nautilus.desktop',
   'google-chrome.desktop',
@@ -79,6 +81,7 @@ globalThis.Main = {
   // services
   shell: new ShellService(),
   power: new Power(),
+  mounts: new Mounts(),
   brightness: new Brightness(),
   network: new Network(),
   volume: new Volume(),
@@ -155,15 +158,14 @@ function loadExtensions(directoryPath) {
       let fileType = info.get_file_type();
 
       if (fileType === Gio.FileType.DIRECTORY) {
+        let extensionPath = GLib.build_filenamev([directoryPath, fileName]);
         let extensionFilePath = GLib.build_filenamev([
-          directoryPath,
-          fileName,
+          extensionPath,
           'extension.js',
         ]);
 
         let extensionCssFilePath = GLib.build_filenamev([
-          directoryPath,
-          fileName,
+          extensionPath,
           'style.css',
         ]);
 
@@ -174,6 +176,7 @@ function loadExtensions(directoryPath) {
             let extension = new Extension.default();
             Main.extensions[fileName] = extension;
             // check if enabled in settings?
+            extension.path = extensionPath;
             extension.enable();
             loadStyle(extensionCssFilePath);
           }

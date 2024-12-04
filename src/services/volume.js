@@ -92,7 +92,13 @@ const Volume = GObject.registerClass(
       this.state = {
         ready: this._control?.get_state() === Gvc.MixerControlState.READY,
         icon: this.get_icon(),
+        is_muted: this._stream.is_muted,
+        volume: this._stream.volume,
+        max_volume: this._control.get_vol_max_norm(),
+        level: 0,
       };
+      this.state.level =
+        (100 * this.state.volume) / (this.state.max_volume ?? 1);
 
       this.emit('volume-update', this);
     }

@@ -20,7 +20,13 @@ export const PopupMenu = GObject.registerClass(
       let box = new Gtk.Box({
         orientation: Gtk.Orientation.VERTICAL,
       });
+      this.box = box;
+      this.set_child(box);
+      this.setItems(items);
+    }
 
+    setItems(items) {
+      let box = this.box;
       items.forEach((item) => {
         let button = new Gtk.Box({
           name: 'MenuItem',
@@ -28,11 +34,12 @@ export const PopupMenu = GObject.registerClass(
           hexpand: true,
         });
 
+        // make this configurable
         let evt = new Gtk.GestureClick();
         // evt.set_button(3);
         evt.connect('pressed', (actor, count) => {
           if (item.action == 'open') {
-            Main.dock.focus_or_open(item.id, item.exec);
+            Main.shell.focusOrOpen(item.id, item.exec);
             this.popdown();
             return;
           }
@@ -57,8 +64,6 @@ export const PopupMenu = GObject.registerClass(
 
         box.append(button);
       });
-
-      this.set_child(box);
     }
   },
 );

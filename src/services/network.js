@@ -111,6 +111,7 @@ const PopupBaseMenuItem = GObject.registerClass(
     add_child(child) {}
     show() {}
     hide() {}
+    destroy() {}
   },
 );
 const PopupMenuSection = GObject.registerClass(
@@ -866,18 +867,25 @@ const NMDeviceItem = GObject.registerClass(
 
       const item = new NMDeviceConnectionItem(this, connection);
 
-      // this.bind_property('radio-mode',
-      //     item, 'radio-mode',
-      //     GObject.BindingFlags.SYNC_CREATE);
-      // this.bind_property('name',
-      //     item, 'device-name',
-      //     GObject.BindingFlags.SYNC_CREATE);
-      // this.bind_property('icon-name',
-      //     item, 'icon-name',
-      //     GObject.BindingFlags.SYNC_CREATE);
-      // item.connectObject(
-      //     'notify::name', () => this._resortItem(item),
-      //     this);
+      this.bind_property(
+        'radio-mode',
+        item,
+        'radio-mode',
+        GObject.BindingFlags.SYNC_CREATE,
+      );
+      this.bind_property(
+        'name',
+        item,
+        'device-name',
+        GObject.BindingFlags.SYNC_CREATE,
+      );
+      this.bind_property(
+        'icon-name',
+        item,
+        'icon-name',
+        GObject.BindingFlags.SYNC_CREATE,
+      );
+      item.connectObject('notify::name', () => this._resortItem(item), this);
 
       const pos = this._itemSorter.upsert(item);
       this.section.addMenuItem(item, pos);
@@ -1844,9 +1852,10 @@ const NMToggle = GObject.registerClass(
     _transformSubtitle(source) {
       const nActive = this.checked ? [...this._getActiveItems()].length : 0;
       if (nActive > 1)
-        return ngettext('%d connected', '%d connected', nActive).format(
-          nActive,
-        );
+        // return ngettext('%d connected', '%d connected', nActive).format(
+        //   nActive,
+        // );
+        return `${nActive} connected`;
       return source;
     }
 
@@ -2718,7 +2727,9 @@ const Network = GObject.registerClass(
     async enable() {
       super.enable();
 
-      this.state = {};
+      this.state = {
+        visible: false,
+      };
       try {
         this.indicator = new Indicator();
         this.indicator._primaryIndicator.connect('notify::icon-name', () => {
@@ -2743,11 +2754,38 @@ const Network = GObject.registerClass(
         icon:
           this.indicator._primaryIndicator.icon_name ??
           'network-wired-no-route-symbolic',
-        // network device
+        visible: this.indicator._primaryIndicator.visible,
+        address: null,
       };
+
+      try {
+        const config = this.indicator._mainConnection?.get_ip4_config();
+        let addresses = config?.get_addresses();
+        addresses = NM.utils_ip_addresses_to_variant(addresses).deep_unpack();
+        if (addresses?.length) {
+          let address = addresses[0].address;
+          let ip = address.deep_unpack();
+          this.state.address = ip;
+        }
+      } catch (err) {
+        // console.log(err);
+      }
+
       this.emit('network-update', this);
     }
   },
 );
 
 export default Network;
+
+// Main.network.indicator.quickSettingsItems
+// Main.network.indicator._mainConnection
+// Main.network.indicator._primaryIndicatorBinding.source.icon
+// Main.network.indicator._primaryIndicatorBinding.source.subtitle
+// Main.network.indicator._primaryIndicatorBinding.source._getPrimaryItem()._mainSection.children[1].children[0]._network._name
+
+// const config Main.network.indicator._mainConnection.get_ip4_config();
+// let addresses = config.get_addresses();
+// addresses = NM.utils_ip_addresses_to_variant(addresses).deep_unpack();
+// let address = addresses[0].address;
+// let ip = address.deep_unpack();

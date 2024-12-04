@@ -3,11 +3,12 @@ import Gtk from 'gi://Gtk?version=4.0';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 
-import Power from '../src/lib/power.js';
-import Network from '../src/lib/network.js';
-import Brightness from '../src/lib/brightness.js';
-import { Volume, Mic } from '../src/lib/volume.js';
-import Trash from '../src/lib/trash.js';
+import Power from '../src/services/power.js';
+import Network from '../src/services/network.js';
+import Brightness from '../src/services/brightness.js';
+import Mounts from '../src/services/mounts.js';
+import { Volume, Mic } from '../src/services/volume.js';
+import Trash from '../src/services/trash.js';
 // import {
 //   connectToSocket,
 //   connectToNiriSocket,
@@ -45,36 +46,21 @@ function test_shell() {
 }
 
 function test_bar_items() {
-  let p = new Power();
-  p.connect('power-update', (obj) => {
-    console.log(obj.state);
+  Main = {
+    power: new Power(),
+    mounts: new Mounts(),
+    brightness: new Brightness(),
+    volume: new Volume(),
+    mic: new Mic(),
+    trash: new Trash(),
+  };
+  Object.keys(Main).forEach((k) => {
+    let service = Main[k];
+    service.connect(`${k}-update`, (obj) => {
+      console.log(obj.state);
+    });
+    service.enable();
   });
-  p.enable();
-
-  let v = new Volume();
-  v.connect('notify::state', (obj) => {
-    console.log(obj.state);
-  });
-  v.enable();
-
-  let m = new Mic();
-  m.connect('mic-update', (obj) => {
-    console.log(obj.state);
-  });
-  m.enable();
-
-  let t = new Trash();
-  t.connect('trash-update', (obj) => {
-    console.log(obj.state);
-  });
-  t.enable();
-
-  let b = new Brightness();
-  b.connect('brightness-update', (obj) => {
-    console.log(obj.state);
-  });
-  b.enable();
-  Main.brightness = b;
 }
 
 async function test_network() {
@@ -89,8 +75,8 @@ async function test_network() {
 Gtk.init();
 
 // test_shell();
-// test_bar_items();
-test_network();
+test_bar_items();
+// test_network();
 
 try {
   let c = new Console();

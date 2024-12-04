@@ -403,6 +403,15 @@ const Timer = class {
       this.unsubscribe(obj);
     }
   }
+
+  debounce(timer, callback, timeout, id) {
+    if (!id) {
+      return timer.runDebounced(callback, timeout, id);
+    } else {
+      timer.runDebounced(id);
+      return id;
+    }
+  }
 };
 
 export default Timer;

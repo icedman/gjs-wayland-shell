@@ -1,0 +1,1040 @@
+ [
+    {
+        "menu": {
+            "icon": {},
+            "label": "Wired Connections",
+            "children": [
+                {
+                    "icon": {},
+                    "label": "",
+                    "children": []
+                },
+                {}
+            ]
+        },
+        "_items": {},
+        "_itemSorter": {
+            "_trackMru": true,
+            "_itemsOrder": [],
+            "_itemsMruOrder": []
+        },
+        "_itemsSection": {
+            "icon": {},
+            "label": "",
+            "children": []
+        },
+        "_itemBinding": {},
+        "_deviceType": 1,
+        "_nmDevices": {},
+        "_deviceNames": {},
+        "_client": {}
+    },
+    {
+        "menu": {
+            "icon": {},
+            "label": "Wi–Fi",
+            "children": [
+                {
+                    "icon": {},
+                    "label": "",
+                    "children": [
+                        {
+                            "activate": false,
+                            "_useSubmenu": false,
+                            "_mainSection": {
+                                "icon": {},
+                                "label": "",
+                                "children": [
+                                    {},
+                                    {
+                                        "icon": {},
+                                        "label": "",
+                                        "children": [
+                                            {
+                                                "_network": {
+                                                    "_device": {},
+                                                    "_accessPoints": {},
+                                                    "_connections": [
+                                                        {}
+                                                    ],
+                                                    "_name": "PLDTHOMEFIBR5G2e828",
+                                                    "_ssid": {},
+                                                    "_bestAp": {},
+                                                    "_mode": 2,
+                                                    "_securityType": 7
+                                                },
+                                                "visible": true
+                                            },
+                                            {
+                                                "_network": {
+                                                    "_device": {},
+                                                    "_accessPoints": {},
+                                                    "_connections": [
+                                                        {}
+                                                    ],
+                                                    "_name": "PLDTHOMEFIBR2e828",
+                                                    "_ssid": {},
+                                                    "_bestAp": {},
+                                                    "_mode": 2,
+                                                    "_securityType": 7
+                                                },
+                                                "visible": true
+                                            },
+                                            {
+                                                "_network": {
+                                                    "_device": {},
+                                                    "_accessPoints": {},
+                                                    "_connections": [],
+                                                    "_name": "@Ruijie-s5123",
+                                                    "_ssid": {},
+                                                    "_bestAp": {},
+                                                    "_mode": 2,
+                                                    "_securityType": 7
+                                                },
+                                                "visible": true
+                                            },
+                                            {
+                                                "_network": {
+                                                    "_device": {},
+                                                    "_accessPoints": {},
+                                                    "_connections": [],
+                                                    "_name": "DITO_18A69_2.4",
+                                                    "_ssid": {},
+                                                    "_bestAp": {},
+                                                    "_mode": 2,
+                                                    "_securityType": 7
+                                                },
+                                                "visible": true
+                                            },
+                                            {
+                                                "_network": {
+                                                    "_device": {},
+                                                    "_accessPoints": {},
+                                                    "_connections": [],
+                                                    "_name": "Home LTE_2.4",
+                                                    "_ssid": {},
+                                                    "_mode": 2,
+                                                    "_securityType": 7
+                                                },
+                                                "visible": true
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "_submenuItem": {},
+                            "section": {
+                                "icon": {},
+                                "label": "",
+                                "children": [
+                                    {
+                                        "_network": {
+                                            "_device": {},
+                                            "_accessPoints": {},
+                                            "_connections": [
+                                                {}
+                                            ],
+                                            "_name": "PLDTHOMEFIBR5G2e828",
+                                            "_ssid": {},
+                                            "_bestAp": {},
+                                            "_mode": 2,
+                                            "_securityType": 7
+                                        },
+                                        "visible": true
+                                    },
+                                    {
+                                        "_network": {
+                                            "_device": {},
+                                            "_accessPoints": {},
+                                            "_connections": [
+                                                {}
+                                            ],
+                                            "_name": "PLDTHOMEFIBR2e828",
+                                            "_ssid": {},
+                                            "_bestAp": {},
+                                            "_mode": 2,
+                                            "_securityType": 7
+                                        },
+                                        "visible": true
+                                    },
+                                    {
+                                        "_network": {
+                                            "_device": {},
+                                            "_accessPoints": {},
+                                            "_connections": [],
+                                            "_name": "@Ruijie-s5123",
+                                            "_ssid": {},
+                                            "_bestAp": {},
+                                            "_mode": 2,
+                                            "_securityType": 7
+                                        },
+                                        "visible": true
+                                    },
+                                    {
+                                        "_network": {
+                                            "_device": {},
+                                            "_accessPoints": {},
+                                            "_connections": [],
+                                            "_name": "DITO_18A69_2.4",
+                                            "_ssid": {},
+                                            "_bestAp": {},
+                                            "_mode": 2,
+                                            "_securityType": 7
+                                        },
+                                        "visible": true
+                                    },
+                                    {
+                                        "_network": {
+                                            "_device": {},
+                                            "_accessPoints": {},
+                                            "_connections": [],
+                                            "_name": "Home LTE_2.4",
+                                            "_ssid": {},
+                                            "_mode": 2,
+                                            "_securityType": 7
+                                        },
+                                        "visible": true
+                                    }
+                                ]
+                            },
+                            "_client": {},
+                            "_device": {},
+                            "_deviceName": "Wi-Fi",
+                            "_networkItems": {},
+                            "_itemSorter": {
+                                "_trackMru": false,
+                                "_itemsOrder": [
+                                    {
+                                        "_network": {
+                                            "_device": {},
+                                            "_accessPoints": {},
+                                            "_connections": [
+                                                {}
+                                            ],
+                                            "_name": "PLDTHOMEFIBR2e828",
+                                            "_ssid": {},
+                                            "_bestAp": {},
+                                            "_mode": 2,
+                                            "_securityType": 7
+                                        },
+                                        "visible": true
+                                    },
+                                    {
+                                        "_network": {
+                                            "_device": {},
+                                            "_accessPoints": {},
+                                            "_connections": [
+                                                {}
+                                            ],
+                                            "_name": "PLDTHOMEFIBR5G2e828",
+                                            "_ssid": {},
+                                            "_bestAp": {},
+                                            "_mode": 2,
+                                            "_securityType": 7
+                                        },
+                                        "visible": true
+                                    },
+                                    {
+                                        "_network": {
+                                            "_device": {},
+                                            "_accessPoints": {},
+                                            "_connections": [],
+                                            "_name": "@Ruijie-s5123",
+                                            "_ssid": {},
+                                            "_bestAp": {},
+                                            "_mode": 2,
+                                            "_securityType": 7
+                                        },
+                                        "visible": true
+                                    },
+                                    {
+                                        "_network": {
+                                            "_device": {},
+                                            "_accessPoints": {},
+                                            "_connections": [],
+                                            "_name": "DITO_18A69_2.4",
+                                            "_ssid": {},
+                                            "_bestAp": {},
+                                            "_mode": 2,
+                                            "_securityType": 7
+                                        },
+                                        "visible": true
+                                    }
+                                ],
+                                "_itemsMruOrder": []
+                            },
+                            "_activeAccessPoint": null,
+                            "_activeConnection": null,
+                            "visible": true
+                        }
+                    ]
+                },
+                {}
+            ]
+        },
+        "_items": {},
+        "_itemSorter": {
+            "_trackMru": true,
+            "_itemsOrder": [
+                {
+                    "activate": false,
+                    "_useSubmenu": false,
+                    "_mainSection": {
+                        "icon": {},
+                        "label": "",
+                        "children": [
+                            {},
+                            {
+                                "icon": {},
+                                "label": "",
+                                "children": [
+                                    {
+                                        "_network": {
+                                            "_device": {},
+                                            "_accessPoints": {},
+                                            "_connections": [
+                                                {}
+                                            ],
+                                            "_name": "PLDTHOMEFIBR5G2e828",
+                                            "_ssid": {},
+                                            "_bestAp": {},
+                                            "_mode": 2,
+                                            "_securityType": 7
+                                        },
+                                        "visible": true
+                                    },
+                                    {
+                                        "_network": {
+                                            "_device": {},
+                                            "_accessPoints": {},
+                                            "_connections": [
+                                                {}
+                                            ],
+                                            "_name": "PLDTHOMEFIBR2e828",
+                                            "_ssid": {},
+                                            "_bestAp": {},
+                                            "_mode": 2,
+                                            "_securityType": 7
+                                        },
+                                        "visible": true
+                                    },
+                                    {
+                                        "_network": {
+                                            "_device": {},
+                                            "_accessPoints": {},
+                                            "_connections": [],
+                                            "_name": "@Ruijie-s5123",
+                                            "_ssid": {},
+                                            "_bestAp": {},
+                                            "_mode": 2,
+                                            "_securityType": 7
+                                        },
+                                        "visible": true
+                                    },
+                                    {
+                                        "_network": {
+                                            "_device": {},
+                                            "_accessPoints": {},
+                                            "_connections": [],
+                                            "_name": "DITO_18A69_2.4",
+                                            "_ssid": {},
+                                            "_bestAp": {},
+                                            "_mode": 2,
+                                            "_securityType": 7
+                                        },
+                                        "visible": true
+                                    },
+                                    {
+                                        "_network": {
+                                            "_device": {},
+                                            "_accessPoints": {},
+                                            "_connections": [],
+                                            "_name": "Home LTE_2.4",
+                                            "_ssid": {},
+                                            "_mode": 2,
+                                            "_securityType": 7
+                                        },
+                                        "visible": true
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "_submenuItem": {},
+                    "section": {
+                        "icon": {},
+                        "label": "",
+                        "children": [
+                            {
+                                "_network": {
+                                    "_device": {},
+                                    "_accessPoints": {},
+                                    "_connections": [
+                                        {}
+                                    ],
+                                    "_name": "PLDTHOMEFIBR5G2e828",
+                                    "_ssid": {},
+                                    "_bestAp": {},
+                                    "_mode": 2,
+                                    "_securityType": 7
+                                },
+                                "visible": true
+                            },
+                            {
+                                "_network": {
+                                    "_device": {},
+                                    "_accessPoints": {},
+                                    "_connections": [
+                                        {}
+                                    ],
+                                    "_name": "PLDTHOMEFIBR2e828",
+                                    "_ssid": {},
+                                    "_bestAp": {},
+                                    "_mode": 2,
+                                    "_securityType": 7
+                                },
+                                "visible": true
+                            },
+                            {
+                                "_network": {
+                                    "_device": {},
+                                    "_accessPoints": {},
+                                    "_connections": [],
+                                    "_name": "@Ruijie-s5123",
+                                    "_ssid": {},
+                                    "_bestAp": {},
+                                    "_mode": 2,
+                                    "_securityType": 7
+                                },
+                                "visible": true
+                            },
+                            {
+                                "_network": {
+                                    "_device": {},
+                                    "_accessPoints": {},
+                                    "_connections": [],
+                                    "_name": "DITO_18A69_2.4",
+                                    "_ssid": {},
+                                    "_bestAp": {},
+                                    "_mode": 2,
+                                    "_securityType": 7
+                                },
+                                "visible": true
+                            },
+                            {
+                                "_network": {
+                                    "_device": {},
+                                    "_accessPoints": {},
+                                    "_connections": [],
+                                    "_name": "Home LTE_2.4",
+                                    "_ssid": {},
+                                    "_mode": 2,
+                                    "_securityType": 7
+                                },
+                                "visible": true
+                            }
+                        ]
+                    },
+                    "_client": {},
+                    "_device": {},
+                    "_deviceName": "Wi-Fi",
+                    "_networkItems": {},
+                    "_itemSorter": {
+                        "_trackMru": false,
+                        "_itemsOrder": [
+                            {
+                                "_network": {
+                                    "_device": {},
+                                    "_accessPoints": {},
+                                    "_connections": [
+                                        {}
+                                    ],
+                                    "_name": "PLDTHOMEFIBR2e828",
+                                    "_ssid": {},
+                                    "_bestAp": {},
+                                    "_mode": 2,
+                                    "_securityType": 7
+                                },
+                                "visible": true
+                            },
+                            {
+                                "_network": {
+                                    "_device": {},
+                                    "_accessPoints": {},
+                                    "_connections": [
+                                        {}
+                                    ],
+                                    "_name": "PLDTHOMEFIBR5G2e828",
+                                    "_ssid": {},
+                                    "_bestAp": {},
+                                    "_mode": 2,
+                                    "_securityType": 7
+                                },
+                                "visible": true
+                            },
+                            {
+                                "_network": {
+                                    "_device": {},
+                                    "_accessPoints": {},
+                                    "_connections": [],
+                                    "_name": "@Ruijie-s5123",
+                                    "_ssid": {},
+                                    "_bestAp": {},
+                                    "_mode": 2,
+                                    "_securityType": 7
+                                },
+                                "visible": true
+                            },
+                            {
+                                "_network": {
+                                    "_device": {},
+                                    "_accessPoints": {},
+                                    "_connections": [],
+                                    "_name": "DITO_18A69_2.4",
+                                    "_ssid": {},
+                                    "_bestAp": {},
+                                    "_mode": 2,
+                                    "_securityType": 7
+                                },
+                                "visible": true
+                            }
+                        ],
+                        "_itemsMruOrder": []
+                    },
+                    "_activeAccessPoint": null,
+                    "_activeConnection": null,
+                    "visible": true
+                }
+            ],
+            "_itemsMruOrder": [
+                {
+                    "activate": false,
+                    "_useSubmenu": false,
+                    "_mainSection": {
+                        "icon": {},
+                        "label": "",
+                        "children": [
+                            {},
+                            {
+                                "icon": {},
+                                "label": "",
+                                "children": [
+                                    {
+                                        "_network": {
+                                            "_device": {},
+                                            "_accessPoints": {},
+                                            "_connections": [
+                                                {}
+                                            ],
+                                            "_name": "PLDTHOMEFIBR5G2e828",
+                                            "_ssid": {},
+                                            "_bestAp": {},
+                                            "_mode": 2,
+                                            "_securityType": 7
+                                        },
+                                        "visible": true
+                                    },
+                                    {
+                                        "_network": {
+                                            "_device": {},
+                                            "_accessPoints": {},
+                                            "_connections": [
+                                                {}
+                                            ],
+                                            "_name": "PLDTHOMEFIBR2e828",
+                                            "_ssid": {},
+                                            "_bestAp": {},
+                                            "_mode": 2,
+                                            "_securityType": 7
+                                        },
+                                        "visible": true
+                                    },
+                                    {
+                                        "_network": {
+                                            "_device": {},
+                                            "_accessPoints": {},
+                                            "_connections": [],
+                                            "_name": "@Ruijie-s5123",
+                                            "_ssid": {},
+                                            "_bestAp": {},
+                                            "_mode": 2,
+                                            "_securityType": 7
+                                        },
+                                        "visible": true
+                                    },
+                                    {
+                                        "_network": {
+                                            "_device": {},
+                                            "_accessPoints": {},
+                                            "_connections": [],
+                                            "_name": "DITO_18A69_2.4",
+                                            "_ssid": {},
+                                            "_bestAp": {},
+                                            "_mode": 2,
+                                            "_securityType": 7
+                                        },
+                                        "visible": true
+                                    },
+                                    {
+                                        "_network": {
+                                            "_device": {},
+                                            "_accessPoints": {},
+                                            "_connections": [],
+                                            "_name": "Home LTE_2.4",
+                                            "_ssid": {},
+                                            "_mode": 2,
+                                            "_securityType": 7
+                                        },
+                                        "visible": true
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "_submenuItem": {},
+                    "section": {
+                        "icon": {},
+                        "label": "",
+                        "children": [
+                            {
+                                "_network": {
+                                    "_device": {},
+                                    "_accessPoints": {},
+                                    "_connections": [
+                                        {}
+                                    ],
+                                    "_name": "PLDTHOMEFIBR5G2e828",
+                                    "_ssid": {},
+                                    "_bestAp": {},
+                                    "_mode": 2,
+                                    "_securityType": 7
+                                },
+                                "visible": true
+                            },
+                            {
+                                "_network": {
+                                    "_device": {},
+                                    "_accessPoints": {},
+                                    "_connections": [
+                                        {}
+                                    ],
+                                    "_name": "PLDTHOMEFIBR2e828",
+                                    "_ssid": {},
+                                    "_bestAp": {},
+                                    "_mode": 2,
+                                    "_securityType": 7
+                                },
+                                "visible": true
+                            },
+                            {
+                                "_network": {
+                                    "_device": {},
+                                    "_accessPoints": {},
+                                    "_connections": [],
+                                    "_name": "@Ruijie-s5123",
+                                    "_ssid": {},
+                                    "_bestAp": {},
+                                    "_mode": 2,
+                                    "_securityType": 7
+                                },
+                                "visible": true
+                            },
+                            {
+                                "_network": {
+                                    "_device": {},
+                                    "_accessPoints": {},
+                                    "_connections": [],
+                                    "_name": "DITO_18A69_2.4",
+                                    "_ssid": {},
+                                    "_bestAp": {},
+                                    "_mode": 2,
+                                    "_securityType": 7
+                                },
+                                "visible": true
+                            },
+                            {
+                                "_network": {
+                                    "_device": {},
+                                    "_accessPoints": {},
+                                    "_connections": [],
+                                    "_name": "Home LTE_2.4",
+                                    "_ssid": {},
+                                    "_mode": 2,
+                                    "_securityType": 7
+                                },
+                                "visible": true
+                            }
+                        ]
+                    },
+                    "_client": {},
+                    "_device": {},
+                    "_deviceName": "Wi-Fi",
+                    "_networkItems": {},
+                    "_itemSorter": {
+                        "_trackMru": false,
+                        "_itemsOrder": [
+                            {
+                                "_network": {
+                                    "_device": {},
+                                    "_accessPoints": {},
+                                    "_connections": [
+                                        {}
+                                    ],
+                                    "_name": "PLDTHOMEFIBR2e828",
+                                    "_ssid": {},
+                                    "_bestAp": {},
+                                    "_mode": 2,
+                                    "_securityType": 7
+                                },
+                                "visible": true
+                            },
+                            {
+                                "_network": {
+                                    "_device": {},
+                                    "_accessPoints": {},
+                                    "_connections": [
+                                        {}
+                                    ],
+                                    "_name": "PLDTHOMEFIBR5G2e828",
+                                    "_ssid": {},
+                                    "_bestAp": {},
+                                    "_mode": 2,
+                                    "_securityType": 7
+                                },
+                                "visible": true
+                            },
+                            {
+                                "_network": {
+                                    "_device": {},
+                                    "_accessPoints": {},
+                                    "_connections": [],
+                                    "_name": "@Ruijie-s5123",
+                                    "_ssid": {},
+                                    "_bestAp": {},
+                                    "_mode": 2,
+                                    "_securityType": 7
+                                },
+                                "visible": true
+                            },
+                            {
+                                "_network": {
+                                    "_device": {},
+                                    "_accessPoints": {},
+                                    "_connections": [],
+                                    "_name": "DITO_18A69_2.4",
+                                    "_ssid": {},
+                                    "_bestAp": {},
+                                    "_mode": 2,
+                                    "_securityType": 7
+                                },
+                                "visible": true
+                            }
+                        ],
+                        "_itemsMruOrder": []
+                    },
+                    "_activeAccessPoint": null,
+                    "_activeConnection": null,
+                    "visible": true
+                }
+            ]
+        },
+        "_itemsSection": {
+            "icon": {},
+            "label": "",
+            "children": [
+                {
+                    "activate": false,
+                    "_useSubmenu": false,
+                    "_mainSection": {
+                        "icon": {},
+                        "label": "",
+                        "children": [
+                            {},
+                            {
+                                "icon": {},
+                                "label": "",
+                                "children": [
+                                    {
+                                        "_network": {
+                                            "_device": {},
+                                            "_accessPoints": {},
+                                            "_connections": [
+                                                {}
+                                            ],
+                                            "_name": "PLDTHOMEFIBR5G2e828",
+                                            "_ssid": {},
+                                            "_bestAp": {},
+                                            "_mode": 2,
+                                            "_securityType": 7
+                                        },
+                                        "visible": true
+                                    },
+                                    {
+                                        "_network": {
+                                            "_device": {},
+                                            "_accessPoints": {},
+                                            "_connections": [
+                                                {}
+                                            ],
+                                            "_name": "PLDTHOMEFIBR2e828",
+                                            "_ssid": {},
+                                            "_bestAp": {},
+                                            "_mode": 2,
+                                            "_securityType": 7
+                                        },
+                                        "visible": true
+                                    },
+                                    {
+                                        "_network": {
+                                            "_device": {},
+                                            "_accessPoints": {},
+                                            "_connections": [],
+                                            "_name": "@Ruijie-s5123",
+                                            "_ssid": {},
+                                            "_bestAp": {},
+                                            "_mode": 2,
+                                            "_securityType": 7
+                                        },
+                                        "visible": true
+                                    },
+                                    {
+                                        "_network": {
+                                            "_device": {},
+                                            "_accessPoints": {},
+                                            "_connections": [],
+                                            "_name": "DITO_18A69_2.4",
+                                            "_ssid": {},
+                                            "_bestAp": {},
+                                            "_mode": 2,
+                                            "_securityType": 7
+                                        },
+                                        "visible": true
+                                    },
+                                    {
+                                        "_network": {
+                                            "_device": {},
+                                            "_accessPoints": {},
+                                            "_connections": [],
+                                            "_name": "Home LTE_2.4",
+                                            "_ssid": {},
+                                            "_mode": 2,
+                                            "_securityType": 7
+                                        },
+                                        "visible": true
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "_submenuItem": {},
+                    "section": {
+                        "icon": {},
+                        "label": "",
+                        "children": [
+                            {
+                                "_network": {
+                                    "_device": {},
+                                    "_accessPoints": {},
+                                    "_connections": [
+                                        {}
+                                    ],
+                                    "_name": "PLDTHOMEFIBR5G2e828",
+                                    "_ssid": {},
+                                    "_bestAp": {},
+                                    "_mode": 2,
+                                    "_securityType": 7
+                                },
+                                "visible": true
+                            },
+                            {
+                                "_network": {
+                                    "_device": {},
+                                    "_accessPoints": {},
+                                    "_connections": [
+                                        {}
+                                    ],
+                                    "_name": "PLDTHOMEFIBR2e828",
+                                    "_ssid": {},
+                                    "_bestAp": {},
+                                    "_mode": 2,
+                                    "_securityType": 7
+                                },
+                                "visible": true
+                            },
+                            {
+                                "_network": {
+                                    "_device": {},
+                                    "_accessPoints": {},
+                                    "_connections": [],
+                                    "_name": "@Ruijie-s5123",
+                                    "_ssid": {},
+                                    "_bestAp": {},
+                                    "_mode": 2,
+                                    "_securityType": 7
+                                },
+                                "visible": true
+                            },
+                            {
+                                "_network": {
+                                    "_device": {},
+                                    "_accessPoints": {},
+                                    "_connections": [],
+                                    "_name": "DITO_18A69_2.4",
+                                    "_ssid": {},
+                                    "_bestAp": {},
+                                    "_mode": 2,
+                                    "_securityType": 7
+                                },
+                                "visible": true
+                            },
+                            {
+                                "_network": {
+                                    "_device": {},
+                                    "_accessPoints": {},
+                                    "_connections": [],
+                                    "_name": "Home LTE_2.4",
+                                    "_ssid": {},
+                                    "_mode": 2,
+                                    "_securityType": 7
+                                },
+                                "visible": true
+                            }
+                        ]
+                    },
+                    "_client": {},
+                    "_device": {},
+                    "_deviceName": "Wi-Fi",
+                    "_networkItems": {},
+                    "_itemSorter": {
+                        "_trackMru": false,
+                        "_itemsOrder": [
+                            {
+                                "_network": {
+                                    "_device": {},
+                                    "_accessPoints": {},
+                                    "_connections": [
+                                        {}
+                                    ],
+                                    "_name": "PLDTHOMEFIBR2e828",
+                                    "_ssid": {},
+                                    "_bestAp": {},
+                                    "_mode": 2,
+                                    "_securityType": 7
+                                },
+                                "visible": true
+                            },
+                            {
+                                "_network": {
+                                    "_device": {},
+                                    "_accessPoints": {},
+                                    "_connections": [
+                                        {}
+                                    ],
+                                    "_name": "PLDTHOMEFIBR5G2e828",
+                                    "_ssid": {},
+                                    "_bestAp": {},
+                                    "_mode": 2,
+                                    "_securityType": 7
+                                },
+                                "visible": true
+                            },
+                            {
+                                "_network": {
+                                    "_device": {},
+                                    "_accessPoints": {},
+                                    "_connections": [],
+                                    "_name": "@Ruijie-s5123",
+                                    "_ssid": {},
+                                    "_bestAp": {},
+                                    "_mode": 2,
+                                    "_securityType": 7
+                                },
+                                "visible": true
+                            },
+                            {
+                                "_network": {
+                                    "_device": {},
+                                    "_accessPoints": {},
+                                    "_connections": [],
+                                    "_name": "DITO_18A69_2.4",
+                                    "_ssid": {},
+                                    "_bestAp": {},
+                                    "_mode": 2,
+                                    "_securityType": 7
+                                },
+                                "visible": true
+                            }
+                        ],
+                        "_itemsMruOrder": []
+                    },
+                    "_activeAccessPoint": null,
+                    "_activeConnection": null,
+                    "visible": true
+                }
+            ]
+        },
+        "_itemBinding": {},
+        "_deviceType": 2,
+        "_nmDevices": {},
+        "_deviceNames": {},
+        "_scanningSpinner": {},
+        "_client": {}
+    },
+    {
+        "menu": {
+            "icon": {},
+            "label": "Bluetooth Tethers",
+            "children": [
+                {
+                    "icon": {},
+                    "label": "",
+                    "children": []
+                },
+                {}
+            ]
+        },
+        "_items": {},
+        "_itemSorter": {
+            "_trackMru": true,
+            "_itemsOrder": [],
+            "_itemsMruOrder": []
+        },
+        "_itemsSection": {
+            "icon": {},
+            "label": "",
+            "children": []
+        },
+        "_itemBinding": {},
+        "_deviceType": 5,
+        "_nmDevices": {},
+        "_deviceNames": {},
+        "_client": {}
+    },
+    {
+        "menu": {
+            "icon": {},
+            "label": "VPN",
+            "children": [
+                {
+                    "icon": {},
+                    "label": "",
+                    "children": []
+                },
+                {}
+            ]
+        },
+        "_items": {},
+        "_itemSorter": {
+            "_trackMru": true,
+            "_itemsOrder": [],
+            "_itemsMruOrder": []
+        },
+        "_itemsSection": {
+            "icon": {},
+            "label": "",
+            "children": []
+        },
+        "_itemBinding": {},
+        "_client": {}
+    }
+]
