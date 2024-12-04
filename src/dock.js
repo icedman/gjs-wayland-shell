@@ -5,7 +5,6 @@ import Gio from 'gi://Gio';
 import GObject from 'gi://GObject';
 import LayerShell from 'gi://Gtk4LayerShell';
 import { PopupMenu } from './lib/popupMenu.js';
-import { Style } from './lib/style.js';
 import { Extension } from './lib/extensionInterface.js';
 
 const dockLocation = ['bottom', 'left', 'right', 'top'];
@@ -158,7 +157,7 @@ export const DockPanel = GObject.registerClass(
         ...params,
       });
 
-      this.style = new Style();
+      this.style = Main.style;
 
       LayerShell.init_for_window(this);
       LayerShell.set_anchor(this, LayerShell.Edge.BOTTOM, true);
@@ -245,7 +244,6 @@ export const DockPanel = GObject.registerClass(
 
     destroy() {
       this.hide();
-      this.style.unloadAll();
       this.style = null;
       Main.settings.disconnectObject(this);
       super.destroy();
@@ -347,7 +345,7 @@ export const DockPanel = GObject.registerClass(
 
       try {
         // console.log(styles);
-        this.style.build(`${this.stylePrefix}-style`, styles);
+        this.style.buildCss(`${this.stylePrefix}-style`, styles);
       } catch (err) {
         console.log(err);
       }

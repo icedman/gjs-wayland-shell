@@ -2,12 +2,15 @@ import Gdk from 'gi://Gdk?version=4.0';
 import Gtk from 'gi://Gtk?version=4.0';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
+import GObject from 'gi://GObject';
+import { Extension } from '../lib/extensionInterface.js';
 
 const CustomStylesPath = '/tmp';
 
-export const Style = class {
+const Style = class {
   constructor() {
     this.styles = {};
+    this.style_file = {};
     this.style_contents = {};
   }
 
@@ -43,10 +46,11 @@ export const Style = class {
     provider = new Gtk.CssProvider();
 
     this.style_contents[name] = content;
+    let file_path = `${CustomStylesPath}/${name}.css`;
 
     {
       // for debug purposes only
-      let fn = Gio.File.new_for_path(`${CustomStylesPath}/${name}.css`);
+      let fn = Gio.File.new_for_path(file_path);
       const [, etag] = fn.replace_contents(
         content,
         null,
@@ -56,10 +60,14 @@ export const Style = class {
       );
     }
 
+    console.log('---------');
+    console.log(`style ${name}`);
+
     try {
       provider.load_from_string(content);
     } catch (e) {
       logError(e, 'Failed to add application style');
+      return;
     }
 
     this.styles[name] = provider;
@@ -71,6 +79,56 @@ export const Style = class {
     );
 
     log(content);
+
+    if (name != 'user') {
+      this.reload('user');
+    }
+  }
+
+  load(name, file_path) {
+    let provider = this.styles[name];
+    if (provider) {
+      Gtk.StyleContext.remove_provider_for_display(
+        Gdk.Display.get_default(),
+        provider,
+      );
+    }
+
+    provider = new Gtk.CssProvider();
+
+    console.log('---------');
+    console.log(`style ${name}`);
+
+    try {
+      provider.load_from_path(file_path);
+    } catch (e) {
+      logError(e, 'Failed to add application style');
+      return;
+    }
+
+    this.styles[name] = provider;
+    this.style_file[name] = file_path;
+
+    Gtk.StyleContext.add_provider_for_display(
+      Gdk.Display.get_default(),
+      provider,
+      Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION,
+    );
+
+    if (name != 'user') {
+      this.reload('user');
+    }
+  }
+
+  reload(name) {
+    let file_path = this.style_file[name];
+    console.log(file_path);
+    if (!file_path) {
+      return;
+    }
+
+    console.log('reloading...');
+    this.load(name, file_path);
   }
 
   rgba(color) {
@@ -92,3 +150,59 @@ export const Style = class {
     return res;
   }
 };
+
+const StyleExtension = GObject.registerClass(
+  class StyleExtension extends Extension {
+    _init(params) {
+      super._init(params);
+      this.style = new Style();
+      this.rgba = this.style.rgba;
+      this.hex = this.style.hex;
+    }
+
+    async enable() {
+      super.enable();
+    }
+
+    disable() {
+      super.disable();
+      this.style.unloadAll();
+      if (this.monitor) {
+        this.monitor.disconnectObject(this);
+        this.monitor = null;
+      }
+    }
+
+    buildCss(name, style_array) {
+      this.style.build(name, style_array);
+    }
+
+    loadCssFile(name, file_path) {
+      this.style.load(name, file_path);
+      if (name == 'user') {
+        this.watchUser(file_path);
+      }
+    }
+
+    watchUser(path) {
+      // Create a Gio.File object for the file to monitor
+      console.log(`watching ${path}`);
+      const file = Gio.File.new_for_path(path);
+
+      // Create a file monitor for the file
+      this.monitor = file.monitor(Gio.FileMonitorFlags.CHANGES_ONLY, null);
+
+      // Connect the callback to monitor the file for changes
+      this.monitor.connectObject(
+        'changed',
+        (monitor, file, otherFile, eventType) => {
+          if (eventType != Gio.FileMonitorEvent.CHANGED) return;
+          this.style.reload('user');
+        },
+        this,
+      );
+    }
+  },
+);
+
+export default StyleExtension;

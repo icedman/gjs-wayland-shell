@@ -22,6 +22,7 @@ const DisplayDeviceInterface =
 	  </interface> \
 	</node> \
 	';
+
 const Power = GObject.registerClass(
   {
     Signals: {
@@ -80,6 +81,17 @@ const Power = GObject.registerClass(
         fillLevel,
         icon,
       };
+
+      if (_proxy.State === UPower.DeviceState.FULLY_CHARGED) {
+        //   //
+      } else if (
+        _proxy.State === UPower.DeviceState.CHARGING &&
+        _proxy.TimeToFull > 0
+      ) {
+        this.state.timeToFull = _proxy.TimeToFull;
+      } else if (_proxy.TimeToEmpty > 0) {
+        this.state.timeToEmpty = _proxy.TimeToEmpty;
+      }
 
       this.emit('power-update', this);
     }

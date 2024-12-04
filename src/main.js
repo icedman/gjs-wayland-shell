@@ -12,6 +12,7 @@ import Network from './services/network.js';
 import Mounts from './services/mounts.js';
 import { Volume, Mic } from './services/volume.js';
 import Trash from './services/trash.js';
+import Style from './lib/style.js';
 import Timer from './lib/timer.js';
 
 import './lib/environment.js';
@@ -39,29 +40,6 @@ let apps = [
 // Initialize Gtk before you start calling anything from the import
 Gtk.init();
 
-function loadStyle(path) {
-  let provider = new Gtk.CssProvider();
-  try {
-    provider.load_from_path(path);
-  } catch (e) {
-    // quietly fail
-    // logError(e, 'Failed to add application style');
-  }
-  Gtk.StyleContext.add_provider_for_display(
-    Gdk.Display.get_default(),
-    provider,
-    Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION,
-  );
-}
-
-const cssSources = [
-  './style.css',
-  `${GLib.getenv('HOME')}/.config/gws/style.css`,
-];
-cssSources.forEach((path) => {
-  loadStyle(path);
-});
-
 globalThis.Main = {
   app: {
     quit: () => {
@@ -87,6 +65,7 @@ globalThis.Main = {
   volume: new Volume(),
   mic: new Mic(),
   trash: new Trash(),
+  style: new Style(),
 
   // extensions
   extensions: {},
@@ -175,10 +154,9 @@ function loadExtensions(directoryPath) {
           if (Extension) {
             let extension = new Extension.default();
             Main.extensions[fileName] = extension;
-            // check if enabled in settings?
             extension.path = extensionPath;
             extension.enable();
-            loadStyle(extensionCssFilePath);
+            Main.style.loadCssFile(fileName, extensionCssFilePath);
           }
         })();
       }
@@ -188,7 +166,9 @@ function loadExtensions(directoryPath) {
   }
 }
 
+Main.style.loadCssFile('app', './style.css');
 loadExtensions('./extensions');
+Main.style.loadCssFile('user', `${GLib.getenv('HOME')}/.config/gws/style.css`);
 
 let loop = GLib.MainLoop.new(null, false);
 loop.run();

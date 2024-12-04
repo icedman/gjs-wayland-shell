@@ -30,6 +30,14 @@ function formatDate(date) {
   return `${year}-${month}-${day} ${hours}:${minutes}`;
 }
 
+function formatTimeToString(seconds) {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const remainingSeconds = seconds % 60;
+
+  return `${hours}h ${minutes}m`;
+}
+
 const BarItemsExtension = GObject.registerClass(
   class BarItemsExtension extends Extension {
     enable() {
@@ -181,13 +189,39 @@ const BarItemsExtension = GObject.registerClass(
         // evt.set_button(3); // right click
         evt.connect('pressed', (actor, count) => {
           if (Main.power.state?.fillLevel) {
+            let timeTo = '';
+            if (Main.power.state.timeToFull) {
+              timeTo = `${formatTimeToString(Main.power.state.timeToFull)} to eull`;
+            } else if (Main.power.state.timeToEmpty) {
+              timeTo = `${formatTimeToString(Main.power.state.timeToEmpty)} to empty`;
+            }
             w.set_label(
-              `${Main.power.state.fillLevel}% ${Main.power.state.chargingState}`,
+              `${Main.power.state.fillLevel}% ${Main.power.state.chargingState}${timeTo}`,
             );
           }
           menu.popup();
         });
         power.add_controller(evt);
+
+        {
+          // let evt = new Gtk.GestureClick();
+          // evt.set_button(3); // right click
+          // evt.connect('pressed', (actor, count) => {
+          //   if (Main.power.state?.fillLevel) {
+          //     let timeTo = '';
+          //     if (Main.power.state.timeToFull) {
+          //       timeTo = `${formatTimeToString(Main.power.state.timeToFull)} to eull`;
+          //     } else if (Main.power.state.timeToEmpty) {
+          //       timeTo = `${formatTimeToString(Main.power.state.timeToEmpty)} to empty`;
+          //     }
+          //     w.set_label(
+          //       `${Main.power.state.chargingState}${timeTo}`,
+          //     );
+          //     menu.popup();
+          //   }
+          // });
+          // power.add_controller(evt);
+        }
       }
 
       const updateVolume = (vol) => {};
