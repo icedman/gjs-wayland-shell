@@ -60,15 +60,15 @@ const Style = class {
       );
     }
 
-    console.log('---------');
-    console.log(`style ${name}`);
-
     try {
       provider.load_from_string(content);
     } catch (e) {
       logError(e, 'Failed to add application style');
       return;
     }
+
+    console.log('---------');
+    console.log(`style ${name}`);
 
     this.styles[name] = provider;
 
@@ -96,15 +96,15 @@ const Style = class {
 
     provider = new Gtk.CssProvider();
 
-    console.log('---------');
-    console.log(`style ${name}`);
-
     try {
       provider.load_from_path(file_path);
     } catch (e) {
       logError(e, 'Failed to add application style');
       return;
     }
+
+    console.log('---------');
+    console.log(`style ${name}`);
 
     this.styles[name] = provider;
     this.style_file[name] = file_path;
@@ -154,10 +154,16 @@ const Style = class {
 const StyleExtension = GObject.registerClass(
   class StyleExtension extends Extension {
     _init(params) {
+      let initialStyles = params?.initialStyles ?? [];
+      delete params?.initialStyles;
       super._init(params);
       this.style = new Style();
       this.rgba = this.style.rgba;
       this.hex = this.style.hex;
+
+      initialStyles.forEach((style) => {
+        this.loadCssFile(style.name, style.path);
+      });
     }
 
     async enable() {

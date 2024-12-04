@@ -5,6 +5,7 @@ import Gio from 'gi://Gio';
 import GObject from 'gi://GObject';
 import { Extension } from '../../lib/extensionInterface.js';
 import { PopupMenu } from '../../lib/popupMenu.js';
+import { IconGroups } from '../../dock.js';
 
 function getOSName() {
   const prettyName = GLib.get_os_info('PRETTY_NAME');
@@ -360,8 +361,11 @@ const BarItemsExtension = GObject.registerClass(
             },
           ],
         };
-        let trash = new Main.dock.DockItem({ app: appInfo });
-        // trash.set_icon('/usr/share/fedora-logos/fedora_logo_darkbackground.svg');
+        let trash = Main.dock.add_icon_from_app(appInfo);
+        if (trash) {
+          trash.group = IconGroups.TRASH;
+        }
+
         Main.dock.center.append(trash);
         this.dockItems.push(trash);
 

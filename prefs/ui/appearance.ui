@@ -473,6 +473,7 @@
             </child>
           </object>
         </child>
+        <!--
         <child>
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Border Radius</property>
@@ -492,6 +493,7 @@
             </child>
           </object>
         </child>
+      -->
         <child>
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Border Thickness</property>

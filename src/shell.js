@@ -20,6 +20,14 @@ import {
 } from './lib/ipc.js';
 
 const ShellInterface = GObject.registerClass(
+  {
+    Signals: {
+      'windows-update': {},
+      'window-opened': {},
+      'window-focused': {},
+      'window-closed': {},
+    },
+  },
   class ShellInterface extends Extension {
     enable() {
       super.enable();
@@ -28,6 +36,12 @@ const ShellInterface = GObject.registerClass(
       // todo ... convert to signals?
       this.subscribers = [];
       this.selfSubscribe();
+
+      Main.timer.runOnce(() => {
+        this.getWindows().then((res) => {
+          this.broadcast([res]);
+        });
+      }, 100);
     }
 
     disable() {
@@ -55,6 +69,7 @@ const ShellInterface = GObject.registerClass(
             this.windows = [...this.windows, newWindow['window']];
             this.normalizeWindows();
           }
+          this.emit('windows-update');
         }
       });
       this.subscribe(this, 'window-opened', (evts) => {
@@ -65,9 +80,9 @@ const ShellInterface = GObject.registerClass(
           this.windows = [...this.windows, evt['window']];
           this.normalizeWindows();
         });
+        this.emit('windows-update');
       });
       this.subscribe(this, 'window-closed', (evts) => {
-        console.log('closing...');
         evts.forEach((evt) => {
           this.normalizeWindows([evt['window']]);
           console.log(evt);
@@ -76,6 +91,7 @@ const ShellInterface = GObject.registerClass(
           });
           // console.log(this.windows.map((w) => w['id']));
         });
+        this.emit('windows-update');
       });
     }
 
@@ -124,6 +140,7 @@ const ShellInterface = GObject.registerClass(
     }
 
     async broadcast(msg) {
+      // retire this!
       msg.forEach((m) => {
         let eventType = m.event;
         this.subscribers.forEach((sub) => {
@@ -134,7 +151,6 @@ const ShellInterface = GObject.registerClass(
             try {
               sub.callback(msg);
             } catch (err) {
-              console.log('???');
               console.log(err);
             }
           }
@@ -261,8 +277,9 @@ const NiriShell = GObject.registerClass(
       lines.forEach((l) => {
         let obj = JSON.parse(l);
 
-        if (obj['WindowChanged']) {
+        if (obj['WindowsChanged']) {
           this.windows = obj['WindowChanged']['windows'];
+          this.normalizeWindows();
           res.push({
             event: 'windows-update',
             windows: this.windows,
@@ -338,6 +355,7 @@ const NiriShell = GObject.registerClass(
           event: 'windows-update',
           windows: this.windows,
         };
+        this.emit('windows-update');
       }
       return Promise.resolve(obj);
     }

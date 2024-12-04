@@ -32,10 +32,10 @@ function dump(n, l) {
   for (let i = 0; i < l; i++) {
     s += ' ';
   }
-  if (n.get_name()) n.add_css_class(n.get_name().toLowerCase());
-  print(
-    `${s}${n.get_name()} ${n.get_css_classes()} [${n.title || n.label || n.icon_name || ''}]`,
-  );
+  if (n.get_name()) {
+    n.add_css_class(n.get_name().toLowerCase());
+  }
+  // print(`${s}${n.get_name()} ${n.get_css_classes()} [${n.title || n.label || n.icon_name || ''}]`);
   let c = n.get_first_child();
   while (c) {
     dump(c, l + 1);

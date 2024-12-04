@@ -22,6 +22,7 @@ let favoriteApps = settingsShell.get_value('favorite-apps').deepUnpack();
 
 let apps = [
   {
+    id: 'fuzzel',
     icon_name: 'view-app-grid-symbolic',
     title: 'Fuzzel',
     cmd: `fuzzel`,
@@ -65,7 +66,7 @@ globalThis.Main = {
   volume: new Volume(),
   mic: new Mic(),
   trash: new Trash(),
-  style: new Style(),
+  style: new Style({ initialStyles: [{ name: 'app', path: './style.css' }] }),
 
   // extensions
   extensions: {},
@@ -155,8 +156,12 @@ function loadExtensions(directoryPath) {
             let extension = new Extension.default();
             Main.extensions[fileName] = extension;
             extension.path = extensionPath;
-            extension.enable();
-            Main.style.loadCssFile(fileName, extensionCssFilePath);
+            try {
+              extension.enable();
+              cssSources.push({ name: fileName, path: extensionCssFilePath });
+            } catch (err) {
+              console.log(err);
+            }
           }
         })();
       }
@@ -166,9 +171,15 @@ function loadExtensions(directoryPath) {
   }
 }
 
-Main.style.loadCssFile('app', './style.css');
+let cssSources = [];
 loadExtensions('./extensions');
-Main.style.loadCssFile('user', `${GLib.getenv('HOME')}/.config/gws/style.css`);
+cssSources.push({
+  name: 'user',
+  path: `${GLib.getenv('HOME')}/.config/gws/style.css`,
+});
+cssSources.forEach((style) => {
+  Main.style.loadCssFile(style.name, style.path);
+});
 
 let loop = GLib.MainLoop.new(null, false);
 loop.run();
