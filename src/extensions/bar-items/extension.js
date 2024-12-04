@@ -344,10 +344,26 @@ const BarItemsExtension = GObject.registerClass(
 
       {
         let appInfo = {
+          id: 'fuzzel',
+          icon_name: 'view-app-grid-symbolic',
+          title: 'Fuzzel',
+          exec: `fuzzel`,
+        };
+        let apps = Main.dock.add_icon_from_app(appInfo);
+        if (apps) {
+          apps.group = IconGroups.HEAD;
+        }
+
+        Main.dock.center.append(apps);
+        this.dockItems.push(apps);
+      }
+
+      {
+        let appInfo = {
           id: 'trash',
           icon_name: 'user-trash',
           title: 'Trash',
-          cmd: `nautilus --select trash:///`,
+          exec: `nautilus --select trash:///`,
           menu: [
             {
               action: 'open',
@@ -363,7 +379,7 @@ const BarItemsExtension = GObject.registerClass(
         };
         let trash = Main.dock.add_icon_from_app(appInfo);
         if (trash) {
-          trash.group = IconGroups.TRASH;
+          trash.group = IconGroups.TAIL + 1;
         }
 
         Main.dock.center.append(trash);
@@ -383,6 +399,8 @@ const BarItemsExtension = GObject.registerClass(
         );
         Main.trash.sync();
       }
+
+      Main.dock.sort_icons();
     }
 
     detachDockItems() {

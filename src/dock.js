@@ -6,14 +6,15 @@ import GObject from 'gi://GObject';
 import LayerShell from 'gi://Gtk4LayerShell';
 import { PopupMenu } from './lib/popupMenu.js';
 import { Extension } from './lib/extensionInterface.js';
-import { getAppInfo, getAppInfoMenu } from './lib/appInfo.js';
+import { getAppInfo, getAppInfoFromFile } from './lib/appInfo.js';
 
 export const IconGroups = {
-  FAVORITE_APPS: 10,
-  RUNNING_APPS: 20,
-  VOLUMES: 30,
-  PLACES: 40,
-  TRASH: 100,
+  HEAD: 10,
+  FAVORITE_APPS: 100,
+  RUNNING_APPS: 200,
+  VOLUMES: 300,
+  PLACES: 400,
+  TAIL: 1000,
 };
 
 const dockLocation = ['bottom', 'left', 'right', 'top'];
@@ -72,6 +73,7 @@ export const DockItem = GObject.registerClass(
       }
 
       this.btn.connect('clicked', (actor) => {
+        console.log(appInfo);
         try {
           Main.shell.focusOrOpen(appInfo.id, appInfo.exec);
         } catch (err) {
@@ -340,13 +342,6 @@ const Dock = GObject.registerClass(
 
       this.window.present();
 
-      Main.hiTimer.runOnce(() => {
-        this.window.remove_css_class('startup');
-      }, 0);
-      // Main.timer.runOnce(() => {
-      //   Main.shell.getWindows();
-      // }, 1000);
-
       Main.shell.connectObject(
         'windows-update',
         this.update_running_apps.bind(this),
@@ -354,11 +349,23 @@ const Dock = GObject.registerClass(
         // 'window-closed', this.update_running_apps.bind(this),
         this,
       );
+
+      Main.mounts.connectObject(
+        'mounts-update',
+        this.update_volumes.bind(this),
+        this,
+      );
+      Main.mounts.sync();
+
+      Main.hiTimer.runOnce(() => {
+        this.window.remove_css_class('startup');
+      }, 0);
       super.enable();
     }
 
     disable() {
-      Main.shell.connectObject(this);
+      Main.shell.disconnectObject(this);
+      Main.mounts.disconnectObject(this);
       this.window.destroy();
       this.window = null;
       super.disable();
@@ -459,6 +466,40 @@ const Dock = GObject.registerClass(
       // remove closed apps
       let remove = [];
       let current = this.get_icons(IconGroups.RUNNING_APPS);
+      current.forEach((c) => {
+        if (!appIds.includes(c.id)) {
+          remove.push(c);
+        }
+      });
+
+      remove.forEach((c) => {
+        c.parent?.remove(c);
+      });
+
+      this.sort_icons();
+    }
+
+    async update_volumes() {
+      let mount_ids = Main.mounts.state?.mount_ids ?? [];
+      let appIds = [];
+      console.log(mount_ids.length);
+      mount_ids.forEach((m) => {
+        let appInfo = getAppInfo(m);
+        let appId = appInfo.id;
+        appIds.push(appId);
+        try {
+          let icon = this.add_icon_from_app(appId);
+          if (icon) {
+            icon.group = IconGroups.VOLUMES;
+          }
+        } catch (err) {
+          console.log(err);
+        }
+      });
+
+      // remove closed apps
+      let remove = [];
+      let current = this.get_icons(IconGroups.VOLUMES);
       current.forEach((c) => {
         if (!appIds.includes(c.id)) {
           remove.push(c);

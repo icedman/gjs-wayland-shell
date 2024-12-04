@@ -21,13 +21,6 @@ const settingsShell = new Gio.Settings({ schema_id: 'org.gnome.shell' });
 let favoriteApps = settingsShell.get_value('favorite-apps').deepUnpack();
 
 let apps = [
-  {
-    id: 'fuzzel',
-    icon_name: 'view-app-grid-symbolic',
-    title: 'Fuzzel',
-    cmd: `fuzzel`,
-  },
-  // ...favoriteApps
   'kitty.desktop',
   'org.gnome.Nautilus.desktop',
   'google-chrome.desktop',
@@ -89,11 +82,12 @@ Main.loTimer.initialize(750);
 [
   Main.shell,
   Main.power,
-  Main.brightness,
   Main.network,
+  Main.mounts,
   Main.volume,
   Main.mic,
   Main.trash,
+  Main.brightness,
   Main.panel,
   Main.dock,
 ].forEach(async (m) => {

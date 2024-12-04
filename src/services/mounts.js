@@ -4,6 +4,7 @@ import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
 import GObject from 'gi://GObject';
 import { Extension } from '../lib/extensionInterface.js';
+import { getAppInfo } from '../lib/appInfo.js';
 
 const MOUNT_PREFIX = 'gws-mount-';
 
@@ -33,7 +34,10 @@ const Mounts = GObject.registerClass(
         this._onMountRemoved.bind(this),
         this,
       );
-      this.checkMounts();
+
+      Main.timer.runOnce(() => {
+        this.checkMounts();
+      }, 1000);
     }
 
     disable() {
@@ -60,46 +64,61 @@ const Mounts = GObject.registerClass(
       let icon = mount.get_icon().names[0] || 'drive-harddisk-solidstate';
       let mount_exec = 'echo "not implemented"';
       let unmount_exec = `umount ${fullpath}`;
-      let mount_id = `/tmp/${appname}.desktop`;
-      let fn = Gio.File.new_for_path(mount_id);
+      let mount_id = `${appname}.desktop`;
 
-      if (!fn.query_exists(null)) {
-        // let execOpen = 'xdg-open';
-        let execOpen = 'nautilus --select';
-        let content = `[Desktop Entry]\nVersion=1.0\nTerminal=false\nType=Application\nName=${label}\nExec=${execOpen} ${fullpath}\nIcon=${icon}\nStartupWMClass=${appname}\nActions=unmount;\n\n[Desktop Action mount]\nName=Mount\nExec=${mount_exec}\n\n[Desktop Action unmount]\nName=Unmount\nExec=${unmount_exec}\n`;
-        const [, etag] = fn.replace_contents(
-          content,
-          null,
-          false,
-          Gio.FileCreateFlags.REPLACE_DESTINATION,
-          null,
-        );
-      }
+      let execOpen = 'nautilus --select';
+      // let execOpen = 'xdg-open';
+
+      // this registers the mount.desktop
+      getAppInfo({
+        id: mount_id,
+        exec: `${execOpen} ${fullpath}`,
+        name: label,
+        icon_name: icon,
+        menu: [
+          {
+            action: 'open',
+            name: 'Open Window',
+            exec: `${execOpen} ${fullpath}`,
+          },
+          {
+            action: 'unmount',
+            name: 'Unmount',
+            exec: unmount_exec,
+          },
+        ],
+      });
 
       this.state.mounts[mount_id] = mount;
     }
 
     _onMountAdded(monitor, mount) {
-      console.log('add');
-      console.log(mount);
-      this.last_mounted = mount;
-      let basename = mount.get_default_location().get_basename();
-      this._setupMountIcon(mount);
-      return true;
+      // console.log('add');
+      // console.log(mount);
+      // this.last_mounted = mount;
+      // let basename = mount.get_default_location().get_basename();
+      // this._setupMountIcon(mount);
+      // // remove mount_ids << add mount_ids
+      // this.emit('mounts-update', this);
+      this.sync();
     }
 
     _onMountRemoved(monitor, mount) {
-      console.log('remove');
-      console.log(mount);
-      let basename = mount.get_default_location().get_basename();
-      let appname = this._appName(basename);
-      let mount_id = `/tmp/${appname}.desktop`;
-      delete this.state.mounts[mount_id];
+      // console.log('remove');
+      // console.log(mount);
+      // let basename = mount.get_default_location().get_basename();
+      // let appname = this._appName(basename);
+      // let mount_id = `${appname}.desktop`;
+      // delete this.state.mounts[mount_id];
+      // remove mount_ids
+      // this.emit('mounts-update', this);
+      this.sync();
     }
 
     checkMounts() {
       let mounts = this._volumeMonitor.get_mounts();
       let mount_ids = mounts.map((mount) => {
+        this._setupMountIcon(mount);
         let basename = mount.get_default_location().get_basename();
         let appname = this._appName(basename);
         return appname + '.desktop';
@@ -109,11 +128,10 @@ const Mounts = GObject.registerClass(
         mounts,
         mount_ids,
       };
-
-      this.sync();
     }
 
     sync() {
+      this.checkMounts();
       this.emit('mounts-update', this);
     }
   },

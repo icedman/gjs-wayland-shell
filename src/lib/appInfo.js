@@ -7,6 +7,10 @@ import GObject from 'gi://GObject';
 const appRegistry = {};
 
 function getAppInfo(app) {
+  if (!app) {
+    console.log('invalid app');
+    return {};
+  }
   let appInfo = app;
   if (appInfo && typeof appInfo === 'string') {
     if (appRegistry[appInfo]) {
@@ -47,6 +51,11 @@ function getAppInfo(app) {
   return appInfo;
 }
 
+function getAppInfoFromFile(file) {
+  let desktopAppInfo = Gio.DesktopAppInfo.new_from_filename(file);
+  return getAppInfo(desktopAppInfo);
+}
+
 function getAppInfoMenu(appInfo) {
   let items = [
     {
@@ -62,13 +71,9 @@ function getAppInfoMenu(appInfo) {
     return items;
   }
 
-  // console.log('--------------');
-  // console.log(desktopAppInfo.filename);
+  console.log('--------------');
+  console.log(desktopAppInfo.filename);
 
-  // let desktopFilePath = GLib.build_filenamev([
-  //   '/usr/share/applications',
-  //   appInfo.id,
-  // ]);
   let content = null;
 
   try {
@@ -105,4 +110,4 @@ function getAppInfoMenu(appInfo) {
   return items;
 }
 
-export { getAppInfo, getAppInfoMenu };
+export { getAppInfo, getAppInfoFromFile };
