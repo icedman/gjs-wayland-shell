@@ -4,6 +4,7 @@ import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import Dock from './dock.js';
 import Panel from './panel.js';
+import Search from './search.js';
 import ShellService from './shell.js';
 
 import Power from './services/power.js';
@@ -12,7 +13,8 @@ import Network from './services/network.js';
 import Mounts from './services/mounts.js';
 import { Volume, Mic } from './services/volume.js';
 import Trash from './services/trash.js';
-import Style from './lib/style.js';
+import Style from './services/style.js';
+import DBus from './services/dbus.js';
 import Timer from './lib/timer.js';
 
 import './lib/environment.js';
@@ -49,9 +51,11 @@ globalThis.Main = {
   // ui
   dock: new Dock({ name: 'Dock', apps }),
   panel: new Panel({ name: 'Panel' }),
+  search: new Search({ name: 'Search' }),
 
   // services
   shell: new ShellService(),
+  dbus: new DBus(),
   power: new Power(),
   mounts: new Mounts(),
   brightness: new Brightness(),
@@ -81,6 +85,7 @@ Main.loTimer.initialize(750);
 // init the extension
 [
   Main.shell,
+  Main.dbus,
   Main.power,
   Main.network,
   Main.mounts,
@@ -90,6 +95,7 @@ Main.loTimer.initialize(750);
   Main.brightness,
   Main.panel,
   Main.dock,
+  Main.search,
 ].forEach(async (m) => {
   try {
     m.enable();
@@ -116,7 +122,6 @@ function loadExtensions(directoryPath) {
   try {
     // Create a Gio.File object for the directory
     let directory = Gio.File.new_for_path(directoryPath);
-    console.log(directory);
 
     // Enumerate the files
     let enumerator = directory.enumerate_children(
@@ -130,7 +135,6 @@ function loadExtensions(directoryPath) {
     while ((info = enumerator.next_file(null)) !== null) {
       let fileName = info.get_name();
       let fileType = info.get_file_type();
-
       if (fileType === Gio.FileType.DIRECTORY) {
         let extensionPath = GLib.build_filenamev([directoryPath, fileName]);
         let extensionFilePath = GLib.build_filenamev([
@@ -143,8 +147,11 @@ function loadExtensions(directoryPath) {
           'style.css',
         ]);
 
+        console.log('====================');
+        console.log(extensionFilePath);
+        console.log('====================');
+
         (async () => {
-          console.log(extensionFilePath);
           let Extension = await loadModule(extensionFilePath);
           if (Extension) {
             let extension = new Extension.default();

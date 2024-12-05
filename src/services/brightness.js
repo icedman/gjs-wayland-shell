@@ -8,13 +8,13 @@ import { Extension } from '../lib/extensionInterface.js';
 const BUS_NAME = 'org.gnome.SettingsDaemon.Power';
 const OBJECT_PATH = '/org/gnome/SettingsDaemon/Power';
 
-const BrightnessInterface =
-  '<node> \
-    <interface name="org.gnome.SettingsDaemon.Power.Screen"> \
-      <property name="Brightness" type="i" access="readwrite"/> \
-    </interface> \
-  </node> \
-  ';
+const BrightnessInterface = `
+  <node>
+    <interface name="org.gnome.SettingsDaemon.Power.Screen">
+      <property name="Brightness" type="i" access="readwrite"/>
+    </interface>
+  </node>
+  `;
 
 function isGsdPowerRunning() {
   try {

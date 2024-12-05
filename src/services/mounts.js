@@ -35,9 +35,11 @@ const Mounts = GObject.registerClass(
         this,
       );
 
-      Main.timer.runOnce(() => {
-        this.checkMounts();
-      }, 1000);
+      if (Main?.timer) {
+        Main.timer.runOnce(() => {
+          this.checkMounts();
+        }, 1000);
+      }
     }
 
     disable() {

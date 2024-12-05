@@ -305,17 +305,14 @@ export const DockPanel = GObject.registerClass(
 const Dock = GObject.registerClass(
   class Dock extends Extension {
     _init(params) {
-      this.name = params.name ?? 'Dock';
+      this.name = params?.name ?? 'Dock';
       this.favorite_apps = params?.apps ?? [];
 
       delete params?.apps;
       delete params?.name;
       super._init({
-        ...params,
+        ...(params ?? {}),
       });
-
-      // export the DockItem
-      this.DockItem = DockItem;
     }
 
     enable() {
@@ -422,7 +419,7 @@ const Dock = GObject.registerClass(
       // console.log(currentIcons.map((i) => i.id));
 
       currentIcons.forEach((c) => {
-        c.parent.remove(c);
+        this.center.remove(c);
       });
 
       currentIcons.forEach((c) => {
@@ -514,5 +511,8 @@ const Dock = GObject.registerClass(
     }
   },
 );
+
+Dock.prototype.DockItem = DockItem;
+Dock.prototype.DockPanel = DockPanel;
 
 export default Dock;

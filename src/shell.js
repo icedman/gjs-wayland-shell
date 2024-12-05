@@ -68,6 +68,7 @@ const ShellInterface = GObject.registerClass(
         }
         this.emit('windows-update');
       }
+      this.emit('window-focused');
     }
 
     onWindowOpened(evt) {
@@ -77,6 +78,7 @@ const ShellInterface = GObject.registerClass(
       this.windows = [...this.windows, evt['window']];
       this.normalizeWindows();
       this.emit('windows-update');
+      this.emit('window-opened');
     }
 
     onWindowClosed(evt) {
@@ -85,66 +87,8 @@ const ShellInterface = GObject.registerClass(
       });
       // this.normalizeWindows();
       this.emit('windows-update');
+      this.emit('window-closed');
     }
-
-    // selfSubscribe() {
-    //   this.subscribe(this, 'window-focused', (evts) => {
-    //     let newWindow = false;
-    //     evts.forEach((evt) => {
-    //       let oldWindow = !this.windows.find((w) => {
-    //         return w.id == evt['window']['id'];
-    //       });
-    //       if (!oldWindow) {
-    //         newWindow = evt;
-    //       }
-    //     });
-    //     if (newWindow) {
-    //       // if data is bare... fetch all windows
-    //       if (!newWindow['window']['app_id']) {
-    //         this.getWindows().then((res) => {
-    //           // new windows
-    //         });
-    //       } else {
-    //         this.windows = [...this.windows, newWindow['window']];
-    //         this.normalizeWindows();
-    //       }
-    //       this.emit('windows-update');
-    //     }
-    //   });
-    //   this.subscribe(this, 'window-opened', (evts) => {
-    //     evts.forEach((evt) => {
-    //       this.windows = this.windows.filter((w) => {
-    //         return w.id != evt['window']['id'];
-    //       });
-    //       this.windows = [...this.windows, evt['window']];
-    //       this.normalizeWindows();
-    //     });
-    //     this.emit('windows-update');
-    //   });
-    //   this.subscribe(this, 'window-closed', (evts) => {
-    //     evts.forEach((evt) => {
-    //       this.normalizeWindows([evt['window']]);
-    //       console.log(evt);
-    //       this.windows = this.windows.filter((w) => {
-    //         return w.id != evt['window']['id'];
-    //       });
-    //       // console.log(this.windows.map((w) => w['id']));
-    //     });
-    //     this.emit('windows-update');
-    //   });
-    // }
-
-    // subscribe(sub, event, func) {
-    //   this.subscribers.push({ subscriber: sub, event: event, callback: func });
-    // }
-
-    // unsubscribe(sub) {
-    //   this.subscribers = this.subscribers.filter((s) => s.subscriber != sub);
-    // }
-
-    // unsubscribeAll() {
-    //   this.subscribers = [];
-    // }
 
     normalizeWindows(target = null) {
       // fragmentation at its best (this will become unmanagable! .. find a better way)

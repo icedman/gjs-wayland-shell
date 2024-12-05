@@ -8,12 +8,12 @@ import { Extension } from './lib/extensionInterface.js';
 
 import { DockPanel } from './dock.js';
 
-export const PanelItem = GObject.registerClass(
+const PanelItem = GObject.registerClass(
   class PanelItem extends Gtk.Box {
     _init(params) {
       super._init({
         name: 'PanelItem',
-        ...params,
+        ...(params ?? {}),
       });
 
       this.icon = new Gtk.Image();
@@ -45,15 +45,12 @@ export const PanelItem = GObject.registerClass(
 const Panel = GObject.registerClass(
   class Panel extends Extension {
     _init(params) {
-      this.name = params.name ?? 'Panel';
+      this.name = params?.name ?? 'Panel';
       delete params?.name;
 
       super._init({
         ...params,
       });
-
-      // export the PanelItem
-      this.PanelItem = PanelItem;
     }
 
     enable() {
@@ -94,5 +91,7 @@ const Panel = GObject.registerClass(
     load_settings() {}
   },
 );
+
+Panel.prototype.PanelItem = PanelItem;
 
 export default Panel;

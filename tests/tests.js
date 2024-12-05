@@ -9,18 +9,8 @@ import Brightness from '../src/services/brightness.js';
 import Mounts from '../src/services/mounts.js';
 import { Volume, Mic } from '../src/services/volume.js';
 import Trash from '../src/services/trash.js';
-// import {
-//   connectToSocket,
-//   connectToNiriSocket,
-//   connectToHyprSocket,
-//   connectToSwaySocket,
-//   disconnectSocket,
-//   sendMessage,
-//   receiveMessage,
-//   sendI3Message,
-//   receiveI3Message,
-// } from '../src/lib/ipc.js';
 import ShellService from '../src/shell.js';
+import Search from '../src/search.js';
 import '../src/lib/environment.js';
 import Console from '../src/extensions/console/extension.js';
 
@@ -47,12 +37,12 @@ function test_shell() {
 
 function test_bar_items() {
   Main = {
+    trash: new Trash(),
     power: new Power(),
     mounts: new Mounts(),
     brightness: new Brightness(),
     volume: new Volume(),
     mic: new Mic(),
-    trash: new Trash(),
   };
   Object.keys(Main).forEach((k) => {
     let service = Main[k];
@@ -81,6 +71,14 @@ test_bar_items();
 try {
   let c = new Console();
   c.enable();
+} catch (err) {
+  console.log(err);
+}
+
+try {
+  let s = new Search();
+  s.enable();
+  Main.search = s;
 } catch (err) {
   console.log(err);
 }

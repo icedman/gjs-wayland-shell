@@ -71,9 +71,6 @@ function getAppInfoMenu(appInfo) {
     return items;
   }
 
-  console.log('--------------');
-  console.log(desktopAppInfo.filename);
-
   let content = null;
 
   try {

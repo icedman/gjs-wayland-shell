@@ -12,9 +12,8 @@ const ConsoleExtension = GObject.registerClass(
   class ConsoleExtension extends Extension {
     enable() {
       super.enable();
-      if (!GLib.getenv('DEBUG_CONSOLE')) {
-        return;
-      }
+
+      Main.console = this;
 
       // Command history array and index
       this.commandHistory = [];
@@ -140,9 +139,31 @@ const ConsoleExtension = GObject.registerClass(
       entry.add_controller(event);
 
       // Show all widgets and run the application
-      window.present();
+      // window.present();
 
       this.window = window;
+
+      if (GLib.getenv('DEBUG_CONSOLE')) {
+        this.show();
+      }
+
+      if (Main?.dbus) {
+        Main.dbus.connectObject(
+          'request-console',
+          () => {
+            this.show();
+          },
+          this,
+        );
+      }
+    }
+
+    show() {
+      this.window.present();
+    }
+
+    hide() {
+      this.window.hide();
     }
 
     clear() {
@@ -152,6 +173,9 @@ const ConsoleExtension = GObject.registerClass(
 
     disable() {
       super.disable();
+      if (Main?.dbus) {
+        Main.dbus.disconnectObject(this);
+      }
       this.window.hide();
       this.window = null;
     }
