@@ -34,8 +34,8 @@ const ShellInterface = GObject.registerClass(
       this.windows = [];
 
       // todo ... convert to signals?
-      this.subscribers = [];
-      this.selfSubscribe();
+      // this.subscribers = [];
+      // this.selfSubscribe();
 
       Main.timer.runOnce(() => {
         this.getWindows().then((res) => {
@@ -48,64 +48,103 @@ const ShellInterface = GObject.registerClass(
       super.disable();
     }
 
-    selfSubscribe() {
-      this.subscribe(this, 'window-focused', (evts) => {
-        let newWindow = false;
-        evts.forEach((evt) => {
-          let oldWindow = !this.windows.find((w) => {
-            return w.id == evt['window']['id'];
-          });
-          if (!oldWindow) {
-            newWindow = evt;
-          }
-        });
-        if (newWindow) {
-          // if data is bare... fetch all windows
-          if (!newWindow['window']['app_id']) {
-            this.getWindows().then((res) => {
-              // new windows
-            });
-          } else {
-            this.windows = [...this.windows, newWindow['window']];
-            this.normalizeWindows();
-          }
-          this.emit('windows-update');
-        }
+    onWindowFocused(evt) {
+      let newWindow = false;
+      let oldWindow = !this.windows.find((w) => {
+        return w.id == evt['window']['id'];
       });
-      this.subscribe(this, 'window-opened', (evts) => {
-        evts.forEach((evt) => {
-          this.windows = this.windows.filter((w) => {
-            return w.id != evt['window']['id'];
+      if (!oldWindow) {
+        newWindow = evt;
+      }
+      if (newWindow) {
+        // if data is bare... fetch all windows
+        if (!newWindow['window']['app_id']) {
+          this.getWindows().then((res) => {
+            // new windows
           });
-          this.windows = [...this.windows, evt['window']];
+        } else {
+          this.windows = [...this.windows, newWindow['window']];
           this.normalizeWindows();
-        });
+        }
         this.emit('windows-update');
+      }
+    }
+
+    onWindowOpened(evt) {
+      this.windows = this.windows.filter((w) => {
+        return w.id != evt['window']['id'];
       });
-      this.subscribe(this, 'window-closed', (evts) => {
-        evts.forEach((evt) => {
-          this.normalizeWindows([evt['window']]);
-          console.log(evt);
-          this.windows = this.windows.filter((w) => {
-            return w.id != evt['window']['id'];
-          });
-          // console.log(this.windows.map((w) => w['id']));
-        });
-        this.emit('windows-update');
+      this.windows = [...this.windows, evt['window']];
+      this.normalizeWindows();
+      this.emit('windows-update');
+    }
+
+    onWindowClosed(evt) {
+      this.windows = this.windows.filter((w) => {
+        return w.id != evt['window']['id'];
       });
+      // this.normalizeWindows();
+      this.emit('windows-update');
     }
 
-    subscribe(sub, event, func) {
-      this.subscribers.push({ subscriber: sub, event: event, callback: func });
-    }
+    // selfSubscribe() {
+    //   this.subscribe(this, 'window-focused', (evts) => {
+    //     let newWindow = false;
+    //     evts.forEach((evt) => {
+    //       let oldWindow = !this.windows.find((w) => {
+    //         return w.id == evt['window']['id'];
+    //       });
+    //       if (!oldWindow) {
+    //         newWindow = evt;
+    //       }
+    //     });
+    //     if (newWindow) {
+    //       // if data is bare... fetch all windows
+    //       if (!newWindow['window']['app_id']) {
+    //         this.getWindows().then((res) => {
+    //           // new windows
+    //         });
+    //       } else {
+    //         this.windows = [...this.windows, newWindow['window']];
+    //         this.normalizeWindows();
+    //       }
+    //       this.emit('windows-update');
+    //     }
+    //   });
+    //   this.subscribe(this, 'window-opened', (evts) => {
+    //     evts.forEach((evt) => {
+    //       this.windows = this.windows.filter((w) => {
+    //         return w.id != evt['window']['id'];
+    //       });
+    //       this.windows = [...this.windows, evt['window']];
+    //       this.normalizeWindows();
+    //     });
+    //     this.emit('windows-update');
+    //   });
+    //   this.subscribe(this, 'window-closed', (evts) => {
+    //     evts.forEach((evt) => {
+    //       this.normalizeWindows([evt['window']]);
+    //       console.log(evt);
+    //       this.windows = this.windows.filter((w) => {
+    //         return w.id != evt['window']['id'];
+    //       });
+    //       // console.log(this.windows.map((w) => w['id']));
+    //     });
+    //     this.emit('windows-update');
+    //   });
+    // }
 
-    unsubscribe(sub) {
-      this.subscribers = this.subscribers.filter((s) => s.subscriber != sub);
-    }
+    // subscribe(sub, event, func) {
+    //   this.subscribers.push({ subscriber: sub, event: event, callback: func });
+    // }
 
-    unsubscribeAll() {
-      this.subscribers = [];
-    }
+    // unsubscribe(sub) {
+    //   this.subscribers = this.subscribers.filter((s) => s.subscriber != sub);
+    // }
+
+    // unsubscribeAll() {
+    //   this.subscribers = [];
+    // }
 
     normalizeWindows(target = null) {
       // fragmentation at its best (this will become unmanagable! .. find a better way)
@@ -140,21 +179,21 @@ const ShellInterface = GObject.registerClass(
     }
 
     async broadcast(msg) {
-      // retire this!
       msg.forEach((m) => {
         let eventType = m.event;
-        this.subscribers.forEach((sub) => {
-          if (
-            (sub.event.endsWith('*') && sub.event.startsWith(eventType)) ||
-            sub.event == eventType
-          ) {
-            try {
-              sub.callback(msg);
-            } catch (err) {
-              console.log(err);
-            }
-          }
-        });
+        switch (eventType) {
+          case 'window-opened':
+            this.onWindowOpened(m);
+            break;
+          case 'window-close':
+            this.onWindowClosed(m);
+            break;
+          case 'window-focused':
+            this.onWindowFocused(m);
+            break;
+          default:
+            break;
+        }
       });
     }
 

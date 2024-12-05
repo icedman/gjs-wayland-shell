@@ -29,10 +29,10 @@ globalThis.Main = {};
 function test_shell() {
   let s = ShellService();
   s.enable();
-  s.subscribe(null, 'window*', (event) => {
-    console.log(event);
-    console.log(s.windows.length);
+  s.connectObject('windows-update', () => {
+    console.log('update...');
   });
+
   s.listen();
   s.getWindows()
     .then((res) => {
