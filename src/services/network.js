@@ -2756,6 +2756,7 @@ const Network = GObject.registerClass(
           'network-wired-no-route-symbolic',
         visible: this.indicator._primaryIndicator.visible,
         address: null,
+        id: null,
       };
 
       try {
@@ -2767,6 +2768,7 @@ const Network = GObject.registerClass(
           let ip = address.deep_unpack();
           this.state.address = ip;
         }
+        state.id = this.indicator._mainConnection?.get_id();
       } catch (err) {
         // console.log(err);
       }

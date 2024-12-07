@@ -137,7 +137,7 @@ const BarItemsExtension = GObject.registerClass(
           let state = Main.network.state;
           let source = Main.network.indicator._primaryIndicatorBinding.source;
           if (source) {
-            w.set_label(`${source.title} ${source.subtitle}`);
+            w.set_label(`${source.title} ${state.id ?? source.subtitle}`);
             menu.popup();
             return;
           }
@@ -192,7 +192,7 @@ const BarItemsExtension = GObject.registerClass(
           if (Main.power.state?.fillLevel) {
             let timeTo = '';
             if (Main.power.state.timeToFull) {
-              timeTo = `${formatTimeToString(Main.power.state.timeToFull)} to eull`;
+              timeTo = `${formatTimeToString(Main.power.state.timeToFull)} to full`;
             } else if (Main.power.state.timeToEmpty) {
               timeTo = `${formatTimeToString(Main.power.state.timeToEmpty)} to empty`;
             }
