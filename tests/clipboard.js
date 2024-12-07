@@ -7,14 +7,12 @@ import GObject from 'gi://GObject';
 
 Gtk.init();
 
-
-
 let clipboard = Gdk.Display.get_default().get_clipboard();
 // let contentProvider = Gdk.ContentProvider.new_for_value(new GLib.Variant('s', 'hello world'));
 // clipboard.set_content(contentProvider);
 // clipboard.set_text('hi');
 
-let string = "Hello World!"
+let string = 'Hello World!';
 // const data = Uint8Array.from(string.split("").map(x => x.charCodeAt()))
 const data = new TextEncoder().encode(string);
 
@@ -24,7 +22,5 @@ console.log(provider.formats);
 
 // let cc = clipboard.get_content();
 // let val = cc.get_value();
-
-
 
 console.log(clipboard);

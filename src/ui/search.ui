@@ -8,19 +8,36 @@
         <property name="orientation">vertical</property>
         <property name="hexpand">true</property>
         <child>
-          <object class="GtkEntry" id="entry">
-            <property name="hexpand">false</property>
+          <object class="GtkBox" id="entry-container">
+            <property name="hexpand">true</property>
+            <child>
+              <object class="GtkEntry" id="entry">
+                <property name="hexpand">true</property>
+              </object>
+            </child>
           </object>
         </child>
         <child>
           <object class="GtkScrolledWindow" id="scrolled-window">
             <property name="hexpand">true</property>
             <property name="vexpand">true</property>
-            <!-- Makes it expand vertically -->
             <child>
-              <object class="GtkBox" id="results-view">
-                <property name="hexpand">true</property>
+              <object class="GtkBox">
                 <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkBox" id="results-apps">
+                    <property name="hexpand">false</property>
+                    <property name="vexpand">false</property>
+                    <property name="halign">center</property>
+                    <property name="orientation">horizontal</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox" id="results-view">
+                    <property name="hexpand">false</property>
+                    <property name="orientation">vertical</property>
+                  </object>
+                </child>
               </object>
             </child>
           </object>

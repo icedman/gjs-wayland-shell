@@ -21,11 +21,7 @@ function getAppInfo(app) {
       let id = desktopAppInfo.get_id();
       let icon_name = desktopAppInfo.get_string('Icon');
       let title = desktopAppInfo.get_string('Name');
-      let exec = desktopAppInfo
-        .get_string('Exec')
-        .replace('%U', '')
-        .replace('%u', '')
-        .trim();
+      let exec = desktopAppInfo.get_string('Exec').trim();
       appInfo = {
         id,
         title,

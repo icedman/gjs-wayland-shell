@@ -15,6 +15,7 @@ import { Volume, Mic } from './services/volume.js';
 import Trash from './services/trash.js';
 import Style from './services/style.js';
 import DBus from './services/dbus.js';
+import SystemApps from './services/systemApps.js';
 import Timer from './lib/timer.js';
 
 import './lib/environment.js';
@@ -55,6 +56,7 @@ globalThis.Main = {
 
   // services
   shell: new ShellService(),
+  apps: new SystemApps(),
   dbus: new DBus(),
   power: new Power(),
   mounts: new Mounts(),
@@ -95,6 +97,7 @@ Main.loTimer.initialize(750);
   Main.brightness,
   Main.panel,
   Main.dock,
+  Main.apps,
   Main.search,
 ].forEach(async (m) => {
   try {

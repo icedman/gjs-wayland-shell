@@ -43,6 +43,39 @@ export function* collectFromDatadirs(subdir, includeUserDir) {
 }
 
 /**
+ * @param {string} subdir the subdirectory to search within the data directories
+ * @param {boolean} includeUserDir whether the user's data directory should also be searched in addition
+ *                                 to the system data directories
+ * @returns {Generator<SubdirInfo, void, void>} a generator which yields file info for subdirectories named
+ *                                              `subdir` within data directories
+ */
+export function* collectFromDatadirs2(subdir, includeUserDir) {
+  let dataDirs = GLib.get_system_data_dirs();
+  if (includeUserDir) dataDirs.unshift(GLib.get_user_data_dir());
+
+  for (let i = 0; i < dataDirs.length; i++) {
+    let path = GLib.build_filenamev([dataDirs[i], subdir]);
+    let dir = Gio.File.new_for_path(path);
+
+    let fileEnum;
+    try {
+      fileEnum = dir.enumerate_children(
+        'standard::name,standard::type',
+        Gio.FileQueryInfoFlags.NONE,
+        null,
+      );
+    } catch (e) {
+      fileEnum = null;
+    }
+    if (fileEnum != null) {
+      let info;
+      while ((info = fileEnum.next_file(null)))
+        yield { dir: fileEnum.get_child(info), info };
+    }
+  }
+}
+
+/**
  * @param {Gio.File} dir
  * @param {boolean} deleteParent
  */

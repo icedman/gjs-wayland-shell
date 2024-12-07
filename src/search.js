@@ -5,7 +5,7 @@ import Gio from 'gi://Gio';
 import GObject from 'gi://GObject';
 import LayerShell from 'gi://Gtk4LayerShell';
 import { Extension } from './lib/extensionInterface.js';
-import { getAppInfo, getAppInfoFromFile } from './lib/appInfo.js';
+import { getAppInfo } from './lib/appInfo.js';
 import { loadRemoteSearchProviders } from './services/remoteSearch.js';
 
 const SEARCH_PROVIDERS_SCHEMA = 'org.gnome.desktop.search-providers';
@@ -18,7 +18,7 @@ function getTermsForSearchString(searchString) {
 
 const Search = GObject.registerClass(
   {
-    Signals: { 'terms-changed': {} },
+    Signals: { 'search-updated': {} },
   },
   class Search extends Extension {
     _init(params) {
@@ -38,6 +38,9 @@ const Search = GObject.registerClass(
       this.results = {};
       this.previousResults = {};
 
+      this.matchedApps = [];
+      this.matchedSearch = [];
+
       this.window = new Gtk.Window({
         title: this.name,
         name: this.name,
@@ -52,6 +55,9 @@ const Search = GObject.registerClass(
       let widget = builder.get_object('search-window');
       let entry = builder.get_object('entry');
       this.resultsView = builder.get_object('results-view');
+      this.resultsView.add_css_class('results-view');
+      this.resultsApps = builder.get_object('results-apps');
+      this.resultsApps.add_css_class('results-apps');
 
       let searchOnKeyPress = () => {
         this._debounceSearchOnKeypress = Main.loTimer.debounce(
@@ -69,8 +75,7 @@ const Search = GObject.registerClass(
         );
       };
 
-
-      entry.connect('activate', () => { 
+      entry.connect('activate', () => {
         if (this._debounceSearchOnKeypress) {
           Main.loTimer.cancel(this._debounceSearchOnKeypress);
           this._debounceSearchOnKeypress = null;
@@ -82,8 +87,13 @@ const Search = GObject.registerClass(
           console.log(err);
         }
       });
-      entry.connect('changed', () => { searchOnKeyPress(); });
+      entry.connect('changed', () => {
+        searchOnKeyPress();
+      });
       this.entry = entry;
+
+      this.entryContainer = builder.get_object('entry-container');
+      this.entryContainer.add_css_class('entry-container');
 
       let event = new Gtk.EventControllerKey();
       event.connect('key-pressed', (w, key, keycode) => {
@@ -185,6 +195,15 @@ const Search = GObject.registerClass(
         );
         this.updateResults();
       });
+
+      Main.apps
+        .search(terms)
+        .then((res) => {
+          this.updateApps(res);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     }
 
     getCurrentRows() {
@@ -215,12 +234,20 @@ const Search = GObject.registerClass(
       let rows = this.getCurrentRows();
       let row_ids = rows.map((r) => r.id);
 
+      this.window.remove_css_class('has-results');
+      this.matchedSearch = res;
+      if (this.matchedSearch || this.matchedApps.length) {
+        this.window.add_css_class('has-results');
+      }
+
       res.forEach((item) => {
         // too inefficient?
         let row = null; // check if already in the results-view
         if (row_ids.includes(item.id)) {
           return;
         }
+
+        let appInfo = getAppInfo(item.provider.id);
 
         let builder = new Gtk.Builder();
         builder.add_from_file(`./ui/result-row.ui`);
@@ -230,6 +257,14 @@ const Search = GObject.registerClass(
         name.add_css_class('result-name');
         let desc = builder.get_object('result-description');
         desc.add_css_class('result-description');
+        let icon = builder.get_object('result-icon');
+        icon.add_css_class('result-icon');
+
+        if (appInfo.icon_name) {
+          icon.set_from_icon_name(appInfo.icon_name);
+        } else {
+          // icon.set_visible
+        }
 
         row.connect('activate', () => {
           this.activateSearchItem(item);
@@ -240,6 +275,10 @@ const Search = GObject.registerClass(
 
         name.set_label(item.name);
         desc.set_label(item.description);
+
+        desc.set_ellipsize(3);
+        desc.set_max_width_chars(40);
+
         row.id = item.id;
         this.resultsView.append(row);
       });
@@ -252,10 +291,67 @@ const Search = GObject.registerClass(
           }
         }
       });
+
+      // this.emit('search-updated');
+    }
+
+    getCurrentApps() {
+      let res = [];
+      let n = this.resultsApps.get_first_child();
+      while (n) {
+        res.push(n);
+        n = n.get_next_sibling();
+      }
+      return res;
+    }
+
+    updateApps(apps) {
+      let currentApps = this.getCurrentApps();
+      let currentApp_ids = currentApps.map((r) => r.id);
+
+      let ids = [];
+      this.matchedApps = apps;
+      apps.forEach((app) => {
+        ids.push(app.id);
+        if (currentApp_ids.includes(app.id)) {
+          return;
+        }
+        let btn = new Gtk.Button({
+          icon_name: app.icon_name ?? 'user-trash',
+        });
+        try {
+          this.resultsApps.append(btn);
+          btn.child.set_pixel_size(64);
+          btn.add_css_class('button');
+          btn.id = app.id;
+          btn.item = app;
+          btn.connect('activate', () => {
+            Main.shell.spawn(app.exec);
+            this.hide();
+          });
+        } catch (err) {
+          console.log(err);
+        }
+      });
+
+      this.window.remove_css_class('has-results');
+      if (this.matchedSearch.length || this.matchedApps.length) {
+        this.window.add_css_class('has-results');
+      }
+
+      // remove
+      currentApps.forEach((row) => {
+        if (!ids.includes(row.id)) {
+          if (row.parent) {
+            row.parent.remove(row);
+          }
+        }
+      });
     }
 
     clear() {
       this.cancellable.cancel();
+      this.matchedApps = [];
       this.results = {};
       if (this._debounceSearchOnKeypress) {
         Main.loTimer.cancel(this._debounceSearchOnKeypress);
@@ -272,9 +368,16 @@ const Search = GObject.registerClass(
           let provider = Gdk.ContentProvider.new_for_bytes('text/plain', data);
           clipboard.set_content(provider);
         }
-        this.clear();
         this.hide();
         return;
+      }
+
+      if (item.provider) {
+        let appInfo = getAppInfo(item.provider.id);
+        Main.shell.spawn(appInfo.exec, item.id);
+        this.hide();
+        // console.log(item);
+        // console.log(appInfo);
       }
     }
 
@@ -285,6 +388,7 @@ const Search = GObject.registerClass(
     }
 
     hide() {
+      this.clear();
       this.window.hide();
     }
   },

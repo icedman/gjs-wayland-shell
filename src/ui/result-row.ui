@@ -3,15 +3,29 @@
   <object class="GtkButton" id="result-row">
     <child>
       <object class="GtkBox">
-        <property name="orientation">vertical</property>
+        <property name="orientation">horizontal</property>
+        <property name="hexpand">false</property>
         <child>
-          <object class="GtkLabel" id="result-name">
-            <property name="halign">start</property>
+          <object class="GtkImage" id="result-icon">
+            <property name="hexpand">false</property>
+            <property name="vexpand">false</property>
+            <property name="pixel-size">24</property>
           </object>
         </child>
         <child>
-          <object class="GtkLabel" id="result-description">
-            <property name="halign">start</property>
+          <object class="GtkBox">
+            <property name="hexpand">true</property>
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkLabel" id="result-name">
+                <property name="halign">start</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel" id="result-description">
+                <property name="halign">start</property>
+              </object>
+            </child>
           </object>
         </child>
       </object>

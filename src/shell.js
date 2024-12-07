@@ -49,6 +49,8 @@ const ShellInterface = GObject.registerClass(
     }
 
     onWindowFocused(evt) {
+      // console.log('onWindowFocused');
+      // console.log(evt);
       let newWindow = false;
       let oldWindow = !this.windows.find((w) => {
         return w.id == evt['window']['id'];
@@ -72,6 +74,8 @@ const ShellInterface = GObject.registerClass(
     }
 
     onWindowOpened(evt) {
+      // console.log('onWindowOpened');
+      // console.log(evt);
       this.windows = this.windows.filter((w) => {
         return w.id != evt['window']['id'];
       });
@@ -82,9 +86,13 @@ const ShellInterface = GObject.registerClass(
     }
 
     onWindowClosed(evt) {
+      console.log('onWindowClosed');
+      console.log(evt);
+      console.log(this.windows.length);
       this.windows = this.windows.filter((w) => {
         return w.id != evt['window']['id'];
       });
+      console.log(this.windows.length);
       // this.normalizeWindows();
       this.emit('windows-update');
       this.emit('window-closed');
@@ -129,13 +137,17 @@ const ShellInterface = GObject.registerClass(
           case 'window-opened':
             this.onWindowOpened(m);
             break;
-          case 'window-close':
+          case 'window-closed':
             this.onWindowClosed(m);
             break;
           case 'window-focused':
             this.onWindowFocused(m);
             break;
+          case 'windows-update':
+            this.emit('windows-update');
+            break;
           default:
+            console.log('unhandled ' + eventType);
             break;
         }
       });
@@ -163,7 +175,7 @@ const ShellInterface = GObject.registerClass(
             GLib.PRIORITY_DEFAULT,
             null,
             (source, result) => {
-              console.log('incoming...');
+              // console.log('incoming...');
 
               let bytes = source.read_bytes_finish(result);
               let response = String.fromCharCode.apply(null, bytes.get_data());
@@ -199,18 +211,21 @@ const ShellInterface = GObject.registerClass(
     getWindows() {}
     focusWindow(id) {}
 
-    focusOrOpen(className, exec) {
+    async focusOrOpen(className, exec, arg = '') {
       let openedWindow = (this.windows ?? []).find((w) => {
         return w['class'] + '.desktop' == className;
       });
+
       if (openedWindow) {
         this.focusWindow(openedWindow);
       } else {
-        this.spawn(exec);
+        this.spawn(exec, arg);
       }
     }
 
-    spawn(cmd) {
+    async spawn(cmd, arg = '') {
+      cmd = cmd.replace('%U', arg);
+      cmd = cmd.replace('%u', arg);
       try {
         // Get the full environment from the current process
         const environment = GLib.get_environ().filter((e) => {
@@ -363,7 +378,10 @@ const NiriShell = GObject.registerClass(
       return Promise.resolve(obj);
     }
 
-    async spawn(cmd) {
+    async spawn(cmd, arg = '') {
+      cmd = cmd.replace('%U', arg);
+      cmd = cmd.replace('%u', arg);
+
       let connection = this.connect();
       if (!connection) {
         return;
@@ -441,7 +459,6 @@ const HyprShell = GObject.registerClass(
       let obj = JSON.parse(response);
       this.windows = obj;
       this.normalizeWindows();
-      console.log('normalize!');
       obj = {
         event: 'windows-update',
         windows: obj,
@@ -465,7 +482,10 @@ const HyprShell = GObject.registerClass(
       return Promise.resolve(obj);
     }
 
-    async spawn(cmd) {
+    async spawn(cmd, arg = '') {
+      cmd = cmd.replace('%U', arg);
+      cmd = cmd.replace('%u', arg);
+
       let connection = this.connect();
       if (!connection) {
         return;
@@ -501,6 +521,7 @@ const SwayShell = GObject.registerClass(
           obj['container'] = {};
           this.normalizeWindows([obj['window']]);
         }
+
         if (obj['change'] == 'new') {
           return [
             {
@@ -555,7 +576,7 @@ const SwayShell = GObject.registerClass(
             GLib.PRIORITY_DEFAULT,
             null,
             (source, result) => {
-              console.log('incoming..');
+              // console.log('incoming..');
 
               let inputBytes = source.read_bytes_finish(result);
               let headerBytes = new Uint8Array(inputBytes.get_data());
@@ -643,7 +664,10 @@ const SwayShell = GObject.registerClass(
       return Promise.resolve(obj);
     }
 
-    async spawn(cmd) {
+    async spawn(cmd, arg = '') {
+      cmd = cmd.replace('%U', arg);
+      cmd = cmd.replace('%u', arg);
+
       let connection = this.connect();
       if (!connection) {
         return;

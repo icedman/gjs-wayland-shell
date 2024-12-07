@@ -86,28 +86,63 @@
 /* search */
 #Search {
     border-radius: 16px;
-    padding: 8px;
-    background: rgba(10,10,10,0.95);
+    background: transparent;
 }
 #Search * {
     color: white;
 }
+#Search .entry-container {
+    padding: 2px;
+    border-radius: 16px;
+    background: rgba(10,10,10,0.95);
+}
+#Search scrolledwindow {
+    padding: 4px;
+}
+
+#Search.has-results {
+    background: rgba(10,10,10,0.95);
+}
+#Search.has-results .entry-container {
+    background: transparent;
+}
+
 #Search entry {
+    font-size: 20pt;
+    padding: 8px;
+    border: 0px;
+    border-radius: 16px;
     background: transparent;
     margin: 4px;
 }
+#Search entry:focus {
+    border: 1px;
+}
+#Search .results-view {
+}
+#Search .results-apps {
+/*    border: 2px solid red;*/
+}
+
+#Search .results-apps .button {
+    border: none;
+    background: transparent;
+}
+
 #Search .result-row {
     padding: 8px;
     background: transparent;
     border: 0px;
 }
-#Search .result-row:focus,
-#Search .result-row:hover {
+#Search .result-row:focus {
     background: rgba(50,50,50,0.8);
 }
 #Search .result-name {
-    border: 2px solid blue;
+    font-weight: bold;
 }
+#Search .result-icon,
+#Search .result-name,
 #Search .result-description {
-    border: 2px solid red;
+    padding-left: 4px;
+    padding-right: 4px;
 }
