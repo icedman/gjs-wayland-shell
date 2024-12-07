@@ -82,3 +82,32 @@
     padding: 0px;
     background: transparent;
 }
+
+/* search */
+#Search {
+    border-radius: 16px;
+    padding: 8px;
+    background: rgba(10,10,10,0.95);
+}
+#Search * {
+    color: white;
+}
+#Search entry {
+    background: transparent;
+    margin: 4px;
+}
+#Search .result-row {
+    padding: 8px;
+    background: transparent;
+    border: 0px;
+}
+#Search .result-row:focus,
+#Search .result-row:hover {
+    background: rgba(50,50,50,0.8);
+}
+#Search .result-name {
+    border: 2px solid blue;
+}
+#Search .result-description {
+    border: 2px solid red;
+}

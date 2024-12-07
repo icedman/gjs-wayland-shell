@@ -53,9 +53,37 @@ const Search = GObject.registerClass(
       let entry = builder.get_object('entry');
       this.resultsView = builder.get_object('results-view');
 
-      entry.connect('activate', () => {
-        this.search(entry.text);
+      let searchOnKeyPress = () => {
+        this._debounceSearchOnKeypress = Main.loTimer.debounce(
+          Main.loTimer,
+          () => {
+            try {
+              this.search(entry.get_text());
+            } catch (err) {
+              // oops!?
+              console.log(err);
+            }
+          },
+          1200,
+          this._debounceSearchOnKeypress,
+        );
+      };
+
+
+      entry.connect('activate', () => { 
+        if (this._debounceSearchOnKeypress) {
+          Main.loTimer.cancel(this._debounceSearchOnKeypress);
+          this._debounceSearchOnKeypress = null;
+        }
+        try {
+          this.search(entry.get_text());
+        } catch (err) {
+          // oops!?
+          console.log(err);
+        }
       });
+      entry.connect('changed', () => { searchOnKeyPress(); });
+      this.entry = entry;
 
       let event = new Gtk.EventControllerKey();
       event.connect('key-pressed', (w, key, keycode) => {
@@ -65,6 +93,7 @@ const Search = GObject.registerClass(
             break;
           }
           default:
+            // searchOnKeyPress();
             break;
         }
       });
@@ -90,6 +119,10 @@ const Search = GObject.registerClass(
     disable() {
       if (Main?.dbus) {
         Main.dbus.disconnectObject(this);
+      }
+      if (this._debounceSearchOnKeypress) {
+        Main.loTimer.cancel(this._debounceSearchOnKeypress);
+        this._debounceSearchOnKeypress = null;
       }
       this.window.destroy();
       this.window = null;
@@ -123,15 +156,17 @@ const Search = GObject.registerClass(
               results,
               this.cancellable,
             );
+            this.results[provider.id] = resultsMetas;
+            provider.searchInProgress = false;
           }
-          this.results[provider.id] = resultsMetas;
           // console.log(results);
           // console.log(resultsMetas);
-          // return Promise.resolve(results);
+          return Promise.resolve(results);
         }
       } catch (err) {
         console.log(err);
-        // return Promise.reject(err);
+        provider.searchInProgress = false;
+        return Promise.reject(err);
       }
     }
 
@@ -165,22 +200,44 @@ const Search = GObject.registerClass(
     updateResults() {
       let res = [];
       this.providers.forEach(async (provider) => {
-        let results = this.results[provider.id];
+        let results = this.results[provider.id]?.map((r) => {
+          return {
+            ...r,
+            provider,
+          };
+        });
         if (results) {
-          res = [...results];
+          res = [...res, ...results];
         }
       });
 
       let ids = res.map((r) => r.id);
-      console.log(ids);
+      let rows = this.getCurrentRows();
+      let row_ids = rows.map((r) => r.id);
 
       res.forEach((item) => {
-        // too inefficient
+        // too inefficient?
+        let row = null; // check if already in the results-view
+        if (row_ids.includes(item.id)) {
+          return;
+        }
+
         let builder = new Gtk.Builder();
         builder.add_from_file(`./ui/result-row.ui`);
-        let row = builder.get_object('result-row');
+        row = builder.get_object('result-row');
+        row.add_css_class('result-row');
         let name = builder.get_object('result-name');
+        name.add_css_class('result-name');
         let desc = builder.get_object('result-description');
+        desc.add_css_class('result-description');
+
+        row.connect('activate', () => {
+          this.activateSearchItem(item);
+        });
+        row.connect('clicked', () => {
+          this.activateSearchItem(item);
+        });
+
         name.set_label(item.name);
         desc.set_label(item.description);
         row.id = item.id;
@@ -188,7 +245,6 @@ const Search = GObject.registerClass(
       });
 
       // remove
-      let rows = this.getCurrentRows();
       rows.forEach((row) => {
         if (!ids.includes(row.id)) {
           if (row.parent) {
@@ -200,10 +256,31 @@ const Search = GObject.registerClass(
 
     clear() {
       this.cancellable.cancel();
+      this.results = {};
+      if (this._debounceSearchOnKeypress) {
+        Main.loTimer.cancel(this._debounceSearchOnKeypress);
+        this._debounceSearchOnKeypress = null;
+      }
+    }
+
+    activateSearchItem(item) {
+      if (item.clipboardText && item.clipboardText.length > 0) {
+        let text = item.clipboardText;
+        let clipboard = Gdk.Display.get_default().get_clipboard();
+        if (clipboard) {
+          const data = new TextEncoder().encode(text);
+          let provider = Gdk.ContentProvider.new_for_bytes('text/plain', data);
+          clipboard.set_content(provider);
+        }
+        this.clear();
+        this.hide();
+        return;
+      }
     }
 
     show() {
       this.window.present();
+      this.entry.grab_focus();
       // this.window.show();
     }
 
