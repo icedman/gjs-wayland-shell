@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <object class="GtkButton" id="panel-row">
+    <child>
+      <object class="GtkBox" id="panel-box">
+        <property name="hexpand">true</property>
+        <property name="orientation">horizontal</property>
+        <style>
+          <class name="panel-row"/>
+        </style>
+        <child>
+          <object class="GtkImage" id="panel-image">
+            <property name="icon-name">extension-symbolic</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel" id="panel-name">
+            <property name="halign">start</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel" id="panel-description">
+            <property name="halign">start</property>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

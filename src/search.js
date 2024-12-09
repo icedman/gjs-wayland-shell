@@ -9,6 +9,7 @@ import { getAppInfo } from './lib/appInfo.js';
 import { loadRemoteSearchProviders } from './services/remoteSearch.js';
 
 const SEARCH_PROVIDERS_SCHEMA = 'org.gnome.desktop.search-providers';
+const SEARCH_ONKEY_DELAY = 750;
 
 function getTermsForSearchString(searchString) {
   searchString = searchString.replace(/^\s+/g, '').replace(/\s+$/g, '');
@@ -35,9 +36,9 @@ const Search = GObject.registerClass(
       });
       this.providers = loadRemoteSearchProviders(_searchSettings);
       this.cancellable = new Gio.Cancellable();
+
       this.results = {};
       this.previousResults = {};
-
       this.matchedApps = [];
       this.matchedSearch = [];
 
@@ -50,10 +51,47 @@ const Search = GObject.registerClass(
         default_height: 400,
       });
 
+      let prefix = 'search';
+      this.stylePrefix = this.name.toLowerCase();
+
+      this.settings = Main.settings;
+      this.settingsMap = {
+        // [`${prefix}-padding`]: this.update_style.bind(this),
+        // [`${prefix}-icon-shadow`]: this.update_style.bind(this),
+        // [`${prefix}-icon-size`]: this.update_icon_size.bind(this),
+        // [`${prefix}-icon-scale`]: this.update_icon_size.bind(this),
+        [`${prefix}-border-radius`]: this.update_style.bind(this),
+        [`${prefix}-border-color`]: this.update_style.bind(this),
+        [`${prefix}-border-thickness`]: this.update_style.bind(this),
+        [`${prefix}-background-color`]: this.update_style.bind(this),
+        [`${prefix}-text-color`]: this.update_style.bind(this),
+        [`${prefix}-entry-text-color`]: this.update_style.bind(this),
+        [`${prefix}-font-size`]: this.update_style.bind(this),
+        [`${prefix}-entry-font-size`]: this.update_style.bind(this),
+      };
+
+      this.style = Main.style;
+
       let builder = new Gtk.Builder();
       builder.add_from_file(`./ui/search.ui`);
       let widget = builder.get_object('search-window');
       let entry = builder.get_object('entry');
+      // entry.set_icon_from_icon_name('system-search-symbolic');
+
+      let searchIcon = Gio.ThemedIcon.new('system-search-symbolic');
+      // Set the icon to the primary position
+      entry.set_icon_from_gicon(Gtk.EntryIconPosition.PRIMARY, searchIcon);
+      entry.set_placeholder_text('Type to search...');
+
+      let clearIcon = Gio.ThemedIcon.new('edit-clear-symbolic');
+      entry.set_icon_from_gicon(Gtk.EntryIconPosition.SECONDARY, clearIcon);
+      entry.connect('icon-press', (widget, icon_position, event) => {
+        if (icon_position === Gtk.EntryIconPosition.SECONDARY) {
+          widget.set_text(''); // Clear the entry text
+          this.clear();
+        }
+      });
+
       this.resultsView = builder.get_object('results-view');
       this.resultsView.add_css_class('results-view');
       this.resultsApps = builder.get_object('results-apps');
@@ -70,7 +108,7 @@ const Search = GObject.registerClass(
               console.log(err);
             }
           },
-          1200,
+          SEARCH_ONKEY_DELAY,
           this._debounceSearchOnKeypress,
         );
       };
@@ -123,10 +161,33 @@ const Search = GObject.registerClass(
       }
 
       super.enable();
-      // this.show();
+
+      this.load_settings();
+      this.update_layout();
+      this.update_style();
+    }
+
+    load_settings() {
+      this.ICON_SIZE = 48;
+      Object.keys(this.settingsMap).forEach((k) => {
+        let _key = k
+          .replace(`${this.name.toLowerCase()}-`, '')
+          .replaceAll('-', '_')
+          .toUpperCase();
+        this[_key] = this.settings.getSetting(k);
+        this.settings.connectObject(
+          `changed::${k}`,
+          () => {
+            this[_key] = this.settings.getSetting(k);
+            this.settingsMap[k]();
+          },
+          this,
+        );
+      });
     }
 
     disable() {
+      Main.settings.disconnectObject(this);
       if (Main?.dbus) {
         Main.dbus.disconnectObject(this);
       }
@@ -204,6 +265,100 @@ const Search = GObject.registerClass(
         .catch((err) => {
           console.log(err);
         });
+    }
+
+    async update_layout() {}
+
+    async update_style() {
+      let fontSizes = [18, 16, 18, 20, 22, 24];
+      let rads = [0, 8, 16, 20, 24, 28, 32, 36, 40, 42];
+
+      let styles = [];
+
+      let border = this.BORDER_THICKNESS;
+      let borderRadius = rads[Math.floor(this.BORDER_RADIUS)];
+      let borderColor = this.style.rgba(this.BORDER_COLOR);
+      let foregroundColor = this.style.rgba(this.TEXT_COLOR);
+      let backgroundColor = this.style.rgba(this.BACKGROUND_COLOR);
+      let entryColor = this.style.rgba(this.ENTRY_TEXT_COLOR);
+      let windowName = this.name;
+
+      // text in general
+      {
+        let ss = [];
+        if (foregroundColor[3] > 0) {
+          ss.push(`color: rgba(${foregroundColor.join(',')});`);
+        }
+        styles.push(`#${windowName} * { ${ss.join(' ')}}`);
+      }
+
+      // entry text
+      {
+        let ss = [];
+        if (entryColor[3] > 0) {
+          ss.push(`color: rgba(${entryColor.join(',')});`);
+        }
+        let fontSize = fontSizes[this.ENTRY_FONT_SIZE] ?? 22;
+        ss.push(`font-size: ${fontSizes}pt`);
+        styles.push(`#${windowName} entry * { ${ss.join(' ')}}`);
+      }
+
+      // {
+      //   let ss = [];
+      //   let pad = Math.floor(this.PADDING * 10);
+      //   ss.push(`padding: ${pad}px;`);
+      //   styles.push(`#${windowName} #center { ${ss.join(' ')}}`);
+      // }
+
+      // border-radius
+      {
+        let ss = [];
+        ss.push(`border-radius: ${borderRadius}px;`);
+        styles.push(`#${windowName} { ${ss.join(' ')}}`);
+        styles.push(`#${windowName} entry { ${ss.join(' ')}}`);
+        styles.push(`#${windowName} .entry-container { ${ss.join(' ')}}`);
+        styles.push(`#${windowName} .result-row:focus { ${ss.join(' ')}}`);
+        styles.push(`#${windowName} button { ${ss.join(' ')}}`);
+      }
+
+      // background
+      {
+        let ss = [];
+        if (backgroundColor[3] > 0) {
+          ss.push(`background: rgba(${backgroundColor.join(',')});`);
+        }
+        styles.push(`#${windowName} .entry-container { ${ss.join(' ')}}`);
+        styles.push(`#${windowName}.has-results{ ${ss.join(' ')}}`);
+      }
+
+      // {
+      //   let ss = [];
+      //   ss.push(`border-radius: ${borderRadius}px;`);
+      //   styles.push(`#${windowName} #center { ${ss.join(' ')}}`);
+      //   styles.push(`#${windowName} #container { ${ss.join(' ')}}`);
+      // }
+
+      // {
+      //   let ss = [];
+      //   ss.push(`border-radius: ${Math.floor(borderRadius * 0.6)}px;`);
+      //   styles.push(`#${windowName} .entry-container { ${ss.join(' ')}}`);
+      // }
+
+      // if (this.ICON_SHADOW) {
+      //   styles.push(
+      //     `#${windowName} button { -gtk-icon-shadow: rgba(0, 0, 0, 0.6) 0 6px 6px; }`,
+      //   );
+      // }
+
+      try {
+        console.log('???/');
+        console.log(JSON.stringify(styles, null, 4));
+        this.style.buildCss(`${this.stylePrefix}-style`, styles);
+      } catch (err) {
+        console.log(err);
+      }
+
+      // this.window.queue_resize();
     }
 
     getCurrentRows() {
@@ -357,6 +512,8 @@ const Search = GObject.registerClass(
         Main.loTimer.cancel(this._debounceSearchOnKeypress);
         this._debounceSearchOnKeypress = null;
       }
+      this.updateApps([]);
+      this.updateResults();
     }
 
     activateSearchItem(item) {
@@ -382,6 +539,7 @@ const Search = GObject.registerClass(
     }
 
     show() {
+      this.window.remove_css_class('has-results');
       this.window.present();
       this.entry.grab_focus();
       // this.window.show();

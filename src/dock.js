@@ -41,7 +41,7 @@ export const DockItem = GObject.registerClass(
   class DockItem extends Gtk.Box {
     _init(params) {
       let appInfo = getAppInfo(params.app);
-
+      let iconSize = 48;
       super._init({
         name: 'DockItem',
         hexpand: true,
@@ -80,7 +80,7 @@ export const DockItem = GObject.registerClass(
           console.log(err);
         }
       });
-      this.btn.child.set_pixel_size(48);
+      this.btn.child.set_pixel_size(iconSize);
       this.append(this.btn);
     }
 
@@ -159,6 +159,8 @@ export const DockPanel = GObject.registerClass(
         [`${prefix}-edge-distance`]: this.update_layout.bind(this),
         [`${prefix}-padding`]: this.update_style.bind(this),
         [`${prefix}-icon-shadow`]: this.update_style.bind(this),
+        [`${prefix}-icon-size`]: this.update_icon_size.bind(this),
+        [`${prefix}-icon-scale`]: this.update_icon_size.bind(this),
         [`${prefix}-border-radius`]: this.update_style.bind(this),
         [`${prefix}-border-color`]: this.update_style.bind(this),
         [`${prefix}-border-thickness`]: this.update_style.bind(this),
@@ -299,6 +301,43 @@ export const DockPanel = GObject.registerClass(
 
       this.queue_resize();
     }
+
+    _get_icons(target, group = null) {
+      let res = [];
+      let n = target.get_first_child();
+      while (n) {
+        res.push(n);
+        n = n.get_next_sibling();
+      }
+      if (group) {
+        res = res.filter((icon) => icon.group == group);
+      }
+      return res;
+    }
+
+    get_icons(group = null) {
+      return [
+        ...this._get_icons(this.center, group),
+        ...this._get_icons(this.lead, group),
+        ...this._get_icons(this.trail, group),
+      ];
+    }
+
+    async update_icon_size() {
+      const baseIconSizes = [16, 22, 24, 32, 48, 64];
+      let iconSize =
+        (baseIconSizes[this.ICON_SIZE] ?? 48) *
+        (1 + 2 * (this.ICON_SCALE ?? 0));
+      let currentIcons = this.get_icons();
+      currentIcons.forEach((c) => {
+        // docks have buttons
+        c.btn?.child?.set_pixel_size(iconSize);
+        // panels have icons
+        c.icon?.set_pixel_size(iconSize);
+      });
+
+      this.queue_resize();
+    }
   },
 );
 
@@ -407,6 +446,7 @@ const Dock = GObject.registerClass(
     }
 
     async sort_icons() {
+      this.window.update_icon_size();
       let currentIcons = this.get_icons();
       currentIcons.sort((a, b) => {
         let ap = a.group ?? 0;

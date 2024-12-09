@@ -26,11 +26,6 @@
         <summary>Dock padding</summary>
         <description>Dock padding.</description>
     </key>
-    <key type="d" name="dock-icon-spacing">
-        <default>0.5</default>
-        <summary>Icon spacing</summary>
-        <description>Icon spacing.</description>
-    </key>
     <key type="d" name="dock-border-radius">
         <default>3</default>
         <summary>Border radius</summary>
@@ -46,11 +41,6 @@
         <summary>Border thickness</summary>
         <description>Border thickness.</description>
     </key>
-    <key type="b" name="dock-icon-shadow">
-        <default>true</default>
-        <summary>Icon shadow</summary>
-        <description>Add the icon shadow effect.</description>
-    </key>
     <key type="(dddd)" name="dock-background-color">
         <default>(0.,0.,0.,0.25)</default>
         <summary>Background color</summary>
@@ -60,6 +50,26 @@
         <default>false</default>
         <summary>Panel mode</summary>
         <description>Dock the dash on a full-width panel.</description>
+    </key>
+    <key type="i" name="dock-icon-size">
+        <default>4</default>
+        <summary>Icon size</summary>
+        <description>Set icon size.</description>
+    </key>
+    <key type="d" name="dock-icon-scale">
+        <default>0</default>
+        <summary>Icon scale</summary>
+        <description>Adjust icon scale.</description>
+    </key>
+    <key type="d" name="dock-icon-spacing">
+        <default>0.5</default>
+        <summary>Icon spacing</summary>
+        <description>Icon spacing.</description>
+    </key>
+    <key type="b" name="dock-icon-shadow">
+        <default>true</default>
+        <summary>Icon shadow</summary>
+        <description>Add the icon shadow effect.</description>
     </key>
     <!-- PANEL -->
     <key type="i" name="bar-location">
@@ -82,11 +92,6 @@
         <summary>Bar padding</summary>
         <description>Bar padding.</description>
     </key>
-    <key type="d" name="bar-icon-spacing">
-        <default>0.5</default>
-        <summary>Icon spacing</summary>
-        <description>Icon spacing.</description>
-    </key>
     <key type="d" name="bar-border-radius">
         <default>3</default>
         <summary>Border radius</summary>
@@ -102,11 +107,6 @@
         <summary>Border thickness</summary>
         <description>Border thickness.</description>
     </key>
-    <key type="b" name="bar-icon-shadow">
-        <default>true</default>
-        <summary>Icon shadow</summary>
-        <description>Add the icon shadow effect.</description>
-    </key>
     <key type="(dddd)" name="bar-background-color">
         <default>(0.,0.,0.,0.25)</default>
         <summary>Background color</summary>
@@ -116,6 +116,80 @@
         <default>true</default>
         <summary>Panel mode</summary>
         <description>Bar the dash on a full-width panel.</description>
+    </key>
+    <key type="i" name="bar-icon-size">
+        <default>0</default>
+        <summary>Icon size</summary>
+        <description>Set icon size.</description>
+    </key>
+    <key type="d" name="bar-icon-scale">
+        <default>0</default>
+        <summary>Icon scale</summary>
+        <description>Adjust icon scale.</description>
+    </key>
+    <key type="d" name="bar-icon-spacing">
+        <default>0.5</default>
+        <summary>Icon spacing</summary>
+        <description>Icon spacing.</description>
+    </key>
+    <key type="b" name="bar-icon-shadow">
+        <default>true</default>
+        <summary>Icon shadow</summary>
+        <description>Add the icon shadow effect.</description>
+    </key>
+    <!-- SEARCH -->
+    <key type="d" name="search-border-radius">
+        <default>0</default>
+        <summary>Border radius</summary>
+        <description>Set dash background border radius.</description>
+    </key>
+    <key type="(dddd)" name="search-border-color">
+        <default>(1.,1.,1.,1.)</default>
+        <summary>border color</summary>
+        <description>Set border color.</description>
+    </key>
+    <key type="i" name="search-border-thickness">
+        <default>0</default>
+        <summary>Border thickness</summary>
+        <description>Border thickness.</description>
+    </key>
+    <key type="(dddd)" name="search-background-color">
+        <default>(0.,0.,0.,0.25)</default>
+        <summary>Background color</summary>
+        <description>Set window background color.</description>
+    </key>
+    <key type="d" name="search-scale-width">
+        <default>0.1</default>
+        <summary>Scale width</summary>
+        <description>Rescale width/</description>
+    </key>
+    <key type="d" name="search-scale-height">
+        <default>0.1</default>
+        <summary>Scale height</summary>
+        <description>Rescale height/</description>
+    </key>
+    <key type="i" name="search-font-size">
+        <default>0</default>
+        <summary>Text size</summary>
+    </key>
+    <key type="i" name="search-entry-font-size">
+        <default>1</default>
+        <summary>Entry text size</summary>
+    </key>
+    <key type="(dddd)" name="search-text-color">
+        <default>(1.,1.,1.,1.)</default>
+        <summary>text color</summary>
+        <description>Set text color.</description>
+    </key>
+    <key type="(dddd)" name="search-entry-text-color">
+        <default>(1.,1.,1.,1.)</default>
+        <summary>entry text color</summary>
+        <description>Set entry text color.</description>
+    </key>
+    <key type="b" name="search-show-panel-icon">
+        <default>false</default>
+        <summary>Show panel icon</summary>
+        <description></description>
     </key>
   </schema>
 </schemalist>

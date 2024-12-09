@@ -44,20 +44,12 @@ const BarItemsExtension = GObject.registerClass(
     enable() {
       super.enable();
       this.attachPanelItems();
-      this.attachDockItems();
 
       Main.panel.connect('notify::enabled', () => {
         if (Main.panel.enabled) {
           this.attachPanelItems();
         } else {
           this.panelItems = null;
-        }
-      });
-      Main.dock.connect('notify::enabled', () => {
-        if (Main.dock.enabled) {
-          this.attachDockItems();
-        } else {
-          this.dockItems = null;
         }
       });
     }
@@ -347,91 +339,9 @@ const BarItemsExtension = GObject.registerClass(
       this.panelItems = null;
     }
 
-    createAppsItem() {
-      let appInfo = {
-        id: 'fuzzel',
-        icon_name: 'view-app-grid-symbolic',
-        title: 'Fuzzel',
-        exec: `fuzzel`,
-      };
-      let apps = Main.dock.add_icon_from_app(appInfo);
-      if (apps) {
-        apps.group = IconGroups.HEAD;
-      }
-      return apps;
-    }
-
-    createTrashItem() {
-      let appInfo = {
-        id: 'trash',
-        icon_name: 'user-trash',
-        title: 'Trash',
-        exec: `nautilus --select trash:///`,
-        menu: [
-          {
-            action: 'open',
-            name: 'Open Window',
-            exec: 'nautilus --select trash:///',
-          },
-          {
-            action: 'empty',
-            name: 'Empty Trash',
-            exec: `gio trash --empty`,
-          },
-        ],
-      };
-      let trash = Main.dock.add_icon_from_app(appInfo);
-      if (trash) {
-        trash.group = IconGroups.TAIL + 1;
-      }
-
-      Main.trash.connectObject(
-        'trash-update',
-        () => {
-          let state = Main.trash.state;
-          if (state.full) {
-            trash.set_icon('user-trash-full');
-          } else {
-            trash.set_icon('user-trash');
-          }
-        },
-        this,
-      );
-      Main.trash.sync();
-      return trash;
-    }
-
-    attachDockItems() {
-      if (!Main.dock.enabled || this.dockItems) return;
-
-      this.dockItems = [];
-
-      {
-        let item = this.createAppsItem();
-        Main.dock.lead.append(item);
-        this.dockItems.push(item);
-      }
-
-      {
-        let item = this.createTrashItem();
-        Main.dock.center.append(item);
-        this.dockItems.push(item);
-      }
-
-      Main.dock.sort_icons();
-    }
-
-    detachDockItems() {
-      (this.dockItems || []).forEach((item) => {
-        item.parent?.remove(item);
-      });
-      this.dockItems = null;
-    }
-
     disable() {
       super.disable();
       this.detachPanelItems();
-      this.detachDockItems();
       Main.power.disconnectObject(this);
       Main.volume.disconnectObject(this);
       Main.mic.disconnectObject(this);

@@ -8,6 +8,14 @@ import '../src/lib/environment.js';
 
 Gtk.init();
 
+let provider = new Gtk.CssProvider();
+provider.load_from_path('style.css');
+Gtk.StyleContext.add_provider_for_display(
+  Gdk.Display.get_default(),
+  provider,
+  Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION,
+);
+
 const settings = new Gio.Settings({ schema: 'com.github.icedman.gws' });
 const settingsGtk = Gtk.Settings.get_default();
 settingsGtk.gtk_application_prefer_dark_theme = true;
@@ -32,10 +40,12 @@ function dump(n, l) {
   for (let i = 0; i < l; i++) {
     s += ' ';
   }
-  if (n.get_name()) {
-    n.add_css_class(n.get_name().toLowerCase());
-  }
-  // print(`${s}${n.get_name()} ${n.get_css_classes()} [${n.title || n.label || n.icon_name || ''}]`);
+  // if (n.get_name()) {
+  //   n.add_css_class(n.get_name().toLowerCase());
+  // }
+  print(
+    `${s}${n.get_name()} ${n.get_css_classes()} [${n.title || n.label || n.icon_name || ''}]`,
+  );
   let c = n.get_first_child();
   while (c) {
     dump(c, l + 1);
@@ -50,90 +60,12 @@ const AdwPreferencesPage = Adw.PreferencesPage;
 // you must create it yourself, see gtk-application.js example
 let loop = GLib.MainLoop.new(null, false);
 
-// Construct a window
-// let win = new Gtk.Window({
-let win = new Adw.PreferencesWindow({
-  name: 'Preferences',
-  title: 'Preferences',
-  default_width: 600,
-  default_height: 650,
-});
-
-win.add_css_class(
-  settingsGtk.gtk_application_prefer_dark_theme ? 'dark' : 'light',
-);
-
-let iconTheme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default());
-let UIFolderPath = `./ui`;
-iconTheme.add_search_path(`${UIFolderPath}/icons`);
-
-// This is a callback function
-function onCloseRequest() {
-  log('close-request emitted');
-  loop.quit();
-}
-
-win.connect('close-request', onCloseRequest);
-
 // win.set_decorated(false);
+builder.add_from_file('./ui/window.ui');
 builder.add_from_file('./ui/general.ui');
-builder.add_from_file('./ui/appearance.ui');
-builder.add_from_file('./ui/tweaks.ui');
-builder.add_from_file('./ui/others.ui');
-builder.add_from_file('./ui/menu.ui');
-
-win.add(builder.get_object('general'));
-win.add(builder.get_object('appearance'));
-// win.add(builder.get_object('tweaks'));
-// win.add(builder.get_object('others'));
-
-let headerbar = find(win, 'AdwHeaderBar');
-if (headerbar) {
-  headerbar.pack_start(builder.get_object('info_menu'));
-}
-
-// setup menu actions
-const actionGroup = new Gio.SimpleActionGroup();
-win.insert_action_group('prefs', actionGroup);
-
-// a list of actions with their associated link
-const actions = [
-  {
-    name: 'open-bug-report',
-    link: 'https://github.com/icedman/gjs-wayland-shell/issues',
-  },
-  {
-    name: 'open-readme',
-    link: 'https://github.com/icedman/gjs-wayland-shell',
-  },
-  {
-    name: 'open-buy-coffee',
-    link: 'https://www.buymeacoffee.com/icedman',
-  },
-  {
-    name: 'open-license',
-    link: 'https://github.com/icedman/gjs-wayland-shell/blob/master/LICENSE',
-  },
-];
-
-actions.forEach((action) => {
-  let act = new Gio.SimpleAction({ name: action.name });
-  act.connect('activate', (_) => {
-    Gtk.show_uri(win, action.link, Gdk.CURRENT_TIME);
-  });
-  actionGroup.add_action(act);
-});
-
-// required for now ... to setup classNames
-dump(win, 0);
-
-let provider = new Gtk.CssProvider();
-provider.load_from_path('style.css');
-Gtk.StyleContext.add_provider_for_display(
-  Gdk.Display.get_default(),
-  provider,
-  Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION,
-);
+builder.add_from_file('./ui/dock.ui');
+builder.add_from_file('./ui/panel.ui');
+builder.add_from_file('./ui/search.ui');
 
 function show_preference_group(widget) {
   widget.set_visible(true);
@@ -154,7 +86,7 @@ function show_preference_group(widget) {
       return;
     }
 
-    show_preference_group(widget);
+    // show_preference_group(widget);
 
     let value = settings.getSetting(k);
     let widgetType = widget.get_name();
@@ -206,6 +138,143 @@ function show_preference_group(widget) {
     }
   });
 }
+
+let win = builder.get_object('main_window');
+
+win.add_css_class(
+  settingsGtk.gtk_application_prefer_dark_theme ? 'dark' : 'light',
+);
+
+let iconTheme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default());
+let UIFolderPath = `./ui`;
+iconTheme.add_search_path(`${UIFolderPath}/icons`);
+
+// This is a callback function
+function onCloseRequest() {
+  log('close-request emitted');
+  loop.quit();
+}
+
+win.connect('close-request', onCloseRequest);
+
+let sidebar = builder.get_object('side_bar');
+sidebar.add_css_class('background');
+let header = builder.get_object('header_bar');
+header.parent.add_css_class('header_bar');
+let content = builder.get_object('content');
+content.add_css_class('view');
+
+class Panel {
+  constructor(params) {
+    this.icon = params.icon;
+    this.title = params.title;
+  }
+
+  get_all_items(parent) {
+    let res = [];
+    let n = parent.get_first_child();
+    while (n) {
+      res.push(n);
+      n = n.get_next_sibling();
+    }
+    return res;
+  }
+
+  build() {
+    let builder = new Gtk.Builder();
+    builder.add_from_file('./ui/panel-row.ui');
+    let row = builder.get_object('panel-row');
+    let name = builder.get_object('panel-name');
+    let image = builder.get_object('panel-image');
+    let box = builder.get_object('panel-box');
+    let description = builder.get_object('panel-description');
+    name.set_label(this.title);
+    image.set_from_icon_name(this.icon);
+    box.add_css_class('panel-box');
+    row.add_css_class('panel-row');
+    row.connect('clicked', () => {
+      this.open();
+    });
+
+    this.row = row;
+    return row;
+  }
+
+  open() {
+    let items = this.get_all_items(this.row.parent);
+    items.forEach((i) => {
+      i.remove_css_class('active');
+    });
+    this.row.add_css_class('active');
+
+    if (this.content) {
+      content.set_child(null);
+      content.set_child(this.content);
+    }
+  }
+}
+
+class GeneralPanel extends Panel {
+  constructor() {
+    super({
+      title: 'General',
+      icon: 'general-symbolic',
+    });
+
+    this.content = builder.get_object('general');
+  }
+}
+
+class DockPanel extends Panel {
+  constructor() {
+    super({
+      title: 'Dock',
+      icon: 'dash-symbolic',
+    });
+
+    this.content = builder.get_object('dock');
+  }
+}
+
+class BarPanel extends Panel {
+  constructor() {
+    super({
+      title: 'Panel',
+      icon: 'bottom-panel-symbolic',
+    });
+    this.content = builder.get_object('panel');
+  }
+}
+
+class SearchPanel extends Panel {
+  constructor() {
+    super({
+      title: 'Search',
+      icon: 'search-symbolic',
+    });
+    this.content = builder.get_object('search');
+  }
+}
+
+class ExtensionPanel extends Panel {
+  constructor() {
+    super({
+      title: 'Extension',
+      icon: 'extension-symbolic',
+    });
+  }
+}
+
+// populate
+let items = builder.get_object('panel-items');
+// let panelItems = [new GeneralPanel(), new DockPanel(), new BarPanel(), new ExtensionPanel()]
+let panelItems = [new DockPanel(), new BarPanel(), new SearchPanel()];
+panelItems.forEach((item) => {
+  items.append(item.build());
+});
+panelItems[0].open();
+
+dump(win, 0);
 
 // Show the window
 win.present();

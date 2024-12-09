@@ -83,45 +83,35 @@
     background: transparent;
 }
 
-/* search */
+/* Search */
 #Search {
-    border-radius: 16px;
     background: transparent;
 }
 #Search * {
-    color: white;
 }
 #Search .entry-container {
     padding: 2px;
-    border-radius: 16px;
     background: rgba(10,10,10,0.95);
 }
-#Search scrolledwindow {
-    padding: 4px;
-}
-
 #Search.has-results {
     background: rgba(10,10,10,0.95);
 }
 #Search.has-results .entry-container {
     background: transparent;
 }
-
+#Search scrolledwindow {
+    padding: 4px;
+}
 #Search entry {
     font-size: 20pt;
     padding: 8px;
     border: 0px;
-    border-radius: 16px;
     background: transparent;
     margin: 4px;
-}
-#Search entry:focus {
-    border: 1px;
 }
 #Search .results-view {
 }
 #Search .results-apps {
-/*    border: 2px solid red;*/
 }
 
 #Search .results-apps .button {
@@ -135,7 +125,7 @@
     border: 0px;
 }
 #Search .result-row:focus {
-    background: rgba(50,50,50,0.8);
+    background: rgba(50,50,50,0.6);
 }
 #Search .result-name {
     font-weight: bold;

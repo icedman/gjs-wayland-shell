@@ -8,21 +8,40 @@
 	color: rgba(50,50,50,1);
 }
 
-.adwpreferencesgroup {
+preferencesgroup {
 	margin: 10px;
 }
 
-.adwpreferencesgroup .heading {
+preferencesgroup .header {
 	padding: 12px;
 }
 
-.adwpreferencesgroup .dim-label {
+preferencesgroup .dim-label {
 	padding: 0px 12px 12px 12px;
 }
 
-.adwactionrow {
-	padding: 8px;
+.panel-row image * {
+/*	fill: white;*/
 }
+.panel-row image {
+	margin-top: 4px;
+	margin-bottom: 4px;
+	margin-left: 8px;
+	margin-right: 8px;
+}
+
+.panel-row {
+	padding: 4px;
+	border-radius: 4px;
+}
+.panel-row.active .panel-box,
+.panel-row:hover .panel-box {
+	background: rgba(100, 100, 100, 0.5);
+}
+
+/*.header {*/
+/*	border: 2px solid red;*/
+/*}*/
 
 /*.adwviewswitcherbutton {
 	border-width: 1px;
@@ -83,5 +102,33 @@
 }
 
 .adwheaderbar .gtktogglebutton {
+	border: 0px;
+}
+/*
+.header_bar * {
+	border: 0px;
+	background: transparent;
+}
+*/
+/*theme_view_bg_color*/
+/*theme_sidebar_bg_color*/
+
+.sidebar-pane .background {
+	background-color: @theme_sidebar_bg_color;
+}
+
+.sidebar-pane button {
+	border: 0px;
+}
+.sidebar-pane button {
+	background: transparent;
+}
+
+.content-pane .view {
+	background-color: shade(@theme_base_color, 0.6); /* 0.8 makes it darker */
+}
+
+headerbar {
+	background: transparent;
 	border: 0px;
 }
