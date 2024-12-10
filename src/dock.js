@@ -175,8 +175,6 @@ export const DockPanel = GObject.registerClass(
     }
 
     load_settings() {
-      this.ICON_SIZE = 48;
-
       Object.keys(this.settingsMap).forEach((k) => {
         let _key = k
           .replace(`${this.name.toLowerCase()}-`, '')
@@ -345,9 +343,6 @@ const Dock = GObject.registerClass(
   class Dock extends Extension {
     _init(params) {
       this.name = params?.name ?? 'Dock';
-      this.favorite_apps = params?.apps ?? [];
-
-      delete params?.apps;
       delete params?.name;
       super._init({
         ...(params ?? {}),
@@ -372,26 +367,7 @@ const Dock = GObject.registerClass(
       this.center = this.window.center;
 
       this.window.add_css_class('startup');
-
-      // apply settings before presenting
-      this.update_favorite_apps();
-
       this.window.present();
-
-      Main.shell.connectObject(
-        'windows-update',
-        this.update_running_apps.bind(this),
-        // 'window-opened', this.update_running_apps.bind(this),
-        // 'window-closed', this.update_running_apps.bind(this),
-        this,
-      );
-
-      Main.mounts.connectObject(
-        'mounts-update',
-        this.update_volumes.bind(this),
-        this,
-      );
-      Main.mounts.sync();
 
       Main.hiTimer.runOnce(() => {
         this.window.remove_css_class('startup');
@@ -400,8 +376,6 @@ const Dock = GObject.registerClass(
     }
 
     disable() {
-      Main.shell.disconnectObject(this);
-      Main.mounts.disconnectObject(this);
       this.window.destroy();
       this.window = null;
       super.disable();
@@ -422,17 +396,15 @@ const Dock = GObject.registerClass(
       return res;
     }
 
-    add_icon_from_app(app) {
+    create_desktop_app_item(app) {
       let appInfo = getAppInfo(app);
       if (!appInfo) return;
       let currentIcons = this.get_icons();
       let existing = currentIcons.find((icon) => icon.id == appInfo.id);
       if (existing) return null;
-      let box = this.center;
       let btn = new DockItem({
         app: appInfo,
       });
-      box.append(btn);
       return btn;
     }
 
@@ -465,89 +437,6 @@ const Dock = GObject.registerClass(
       currentIcons.forEach((c) => {
         this.center.append(c);
       });
-    }
-
-    async update_favorite_apps() {
-      let bg = this.container;
-
-      for (let i = 0; i < this.favorite_apps.length; i++) {
-        let app = this.favorite_apps[i];
-        let btn = this.add_icon_from_app(app);
-        if (btn) {
-          btn.group = IconGroups.FAVORITE_APPS;
-        }
-      }
-
-      this.sort_icons();
-
-      this.window.queue_resize();
-      this.container.queue_resize();
-    }
-
-    async update_running_apps() {
-      let windows = Main.shell.windows ?? [];
-      let appIds = [];
-      windows.forEach((w) => {
-        let appId = w.app_id + '.desktop';
-        appIds.push(appId);
-        try {
-          let icon = this.add_icon_from_app(appId);
-          if (icon) {
-            icon.group = IconGroups.RUNNING_APPS;
-          }
-        } catch (err) {
-          console.log(err);
-        }
-      });
-
-      // remove closed apps
-      let remove = [];
-      let current = this.get_icons(IconGroups.RUNNING_APPS);
-      current.forEach((c) => {
-        if (!appIds.includes(c.id)) {
-          remove.push(c);
-        }
-      });
-
-      remove.forEach((c) => {
-        c.parent?.remove(c);
-      });
-
-      this.sort_icons();
-    }
-
-    async update_volumes() {
-      let mount_ids = Main.mounts.state?.mount_ids ?? [];
-      let appIds = [];
-      console.log(mount_ids.length);
-      mount_ids.forEach((m) => {
-        let appInfo = getAppInfo(m);
-        let appId = appInfo.id;
-        appIds.push(appId);
-        try {
-          let icon = this.add_icon_from_app(appId);
-          if (icon) {
-            icon.group = IconGroups.VOLUMES;
-          }
-        } catch (err) {
-          console.log(err);
-        }
-      });
-
-      // remove closed apps
-      let remove = [];
-      let current = this.get_icons(IconGroups.VOLUMES);
-      current.forEach((c) => {
-        if (!appIds.includes(c.id)) {
-          remove.push(c);
-        }
-      });
-
-      remove.forEach((c) => {
-        c.parent?.remove(c);
-      });
-
-      this.sort_icons();
     }
   },
 );

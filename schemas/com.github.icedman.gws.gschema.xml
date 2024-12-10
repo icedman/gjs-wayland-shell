@@ -191,5 +191,51 @@
         <summary>Show panel icon</summary>
         <description></description>
     </key>
+    <!-- DOCK-ITEMS -->
+    <key type="as" name="dockitems-favorite-apps">
+        <default>[]</default>
+        <summary>DockItems favorite apps</summary>
+        <description></description>
+    </key>
+    <key type="b" name="dockitems-show-favorite-apps">
+        <default>true</default>
+        <summary>Show icons of favorite apps</summary>
+        <description></description>
+    </key>
+    <key type="b" name="dockitems-show-running-apps">
+        <default>false</default>
+        <summary>Show icons of running apps</summary>
+        <description></description>
+    </key>
+    <key type="b" name="dockitems-show-trash">
+        <default>false</default>
+        <summary>Show trash</summary>
+        <description></description>
+    </key>
+    <key type="b" name="dockitems-show-mounted-volumes">
+        <default>false</default>
+        <summary>Show mounted volumes</summary>
+        <description></description>
+    </key>
+    <key type="b" name="dockitems-show-apps">
+        <default>false</default>
+        <summary>Show apps icons</summary>
+        <description></description>
+    </key>
+    <key type="as" name="baritems-lead-items">
+        <default>['logo']</default>
+        <summary>Items at lead area</summary>
+        <description></description>
+    </key>
+    <key type="as" name="baritems-center-items">
+        <default>['clock', 'hello']</default>
+        <summary>Items at center area</summary>
+        <description></description>
+    </key>
+    <key type="as" name="baritems-trail-items">
+        <default>['network', 'power', 'volume', 'mic']</default>
+        <summary>Items at trail area</summary>
+        <description></description>
+    </key>
   </schema>
 </schemalist>

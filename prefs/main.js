@@ -64,6 +64,7 @@ let loop = GLib.MainLoop.new(null, false);
 builder.add_from_file('./ui/window.ui');
 builder.add_from_file('./ui/general.ui');
 builder.add_from_file('./ui/dock.ui');
+builder.add_from_file('./ui/dock-items.ui');
 builder.add_from_file('./ui/panel.ui');
 builder.add_from_file('./ui/search.ui');
 
@@ -228,7 +229,7 @@ class GeneralPanel extends Panel {
 class DockPanel extends Panel {
   constructor() {
     super({
-      title: 'Dock',
+      title: 'Dash',
       icon: 'dash-symbolic',
     });
 
@@ -250,9 +251,19 @@ class SearchPanel extends Panel {
   constructor() {
     super({
       title: 'Search',
-      icon: 'search-symbolic',
+      icon: 'pageview-symbolic',
     });
     this.content = builder.get_object('search');
+  }
+}
+
+class DockItemsPanel extends Panel {
+  constructor() {
+    super({
+      title: 'Dash Items',
+      icon: 'extension-symbolic',
+    });
+    this.content = builder.get_object('dock-items');
   }
 }
 
@@ -268,7 +279,12 @@ class ExtensionPanel extends Panel {
 // populate
 let items = builder.get_object('panel-items');
 // let panelItems = [new GeneralPanel(), new DockPanel(), new BarPanel(), new ExtensionPanel()]
-let panelItems = [new DockPanel(), new BarPanel(), new SearchPanel()];
+let panelItems = [
+  new DockPanel(),
+  new DockItemsPanel(),
+  new BarPanel(),
+  new SearchPanel(),
+];
 panelItems.forEach((item) => {
   items.append(item.build());
 });

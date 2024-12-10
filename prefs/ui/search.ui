@@ -10,6 +10,18 @@
         <property name="description" translatable="yes"/>
         <child>
           <object class="AdwActionRow">
+            <property name="title" translatable="yes">Show Icon in Panel </property>
+            <property name="subtitle" translatable="yes">Show an clickable icon to toggle the search window visibility.</property>
+            <property name="activatable-widget">search-show-panel-icon</property>
+            <child>
+              <object class="GtkSwitch" id="search-show-panel-icon">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow">
             <property name="title" translatable="yes">Width</property>
             <property name="subtitle" translatable="yes">Set window width rescale.</property>
             <property name="activatable-widget">search-scale-width</property>
@@ -206,20 +218,28 @@
   <object class="GtkStringList" id="search-font-size-model">
     <items>
       <item translatable="yes">Default</item>
+      <item>8pt</item>
+      <item>12pt</item>
       <item>16pt</item>
       <item>18pt</item>
       <item>20pt</item>
       <item>22pt</item>
+      <item>36pt</item>
+      <item>48pt</item>
     </items>
   </object>
   <object class="GtkStringList" id="search-entry-font-size-model">
     <items>
       <item translatable="yes">Default</item>
+      <item>8pt</item>
+      <item>12pt</item>
       <item>16pt</item>
       <item>18pt</item>
       <item>20pt</item>
       <item>22pt</item>
       <item>24pt</item>
+      <item>36pt</item>
+      <item>48pt</item>
     </items>
   </object>
 </interface>

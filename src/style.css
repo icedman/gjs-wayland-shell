@@ -103,12 +103,15 @@
     padding: 4px;
 }
 #Search entry {
-    font-size: 20pt;
+    outline: none;
+}
+#Search entry {
     padding: 8px;
     border: 0px;
     background: transparent;
     margin: 4px;
 }
+
 #Search .results-view {
 }
 #Search .results-apps {

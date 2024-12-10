@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <object class="AdwPreferencesPage" id="dock-items">
+    <property name="name">appearance</property>
+    <property name="title" translatable="yes">Style</property>
+    <property name="icon-name">dash-symbolic</property>
+    <child>
+      <object class="AdwPreferencesGroup">
+        <property name="title" translatable="yes">Dash Items</property>
+        <property name="description" translatable="yes"/>
+        <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="yes">Favorite Apps</property>
+            <property name="subtitle" translatable="yes">Show favorite apps icon.</property>
+            <property name="activatable-widget">dockitems-show-favorite-apps</property>
+            <child>
+              <object class="GtkSwitch" id="dockitems-show-favorite-apps">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="yes">Running Apps</property>
+            <property name="subtitle" translatable="yes">Show running a[[s icon.</property>
+            <property name="activatable-widget">dockitems-show-running-apps</property>
+            <child>
+              <object class="GtkSwitch" id="dockitems-show-running-apps">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="yes">Trash Icon</property>
+            <property name="subtitle" translatable="yes">Show a dynamic trash icon.</property>
+            <property name="activatable-widget">dockitems-show-trash</property>
+            <child>
+              <object class="GtkSwitch" id="dockitems-show-trash">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="yes">Mounted Volumes</property>
+            <property name="subtitle" translatable="yes">Show mounted volumes.</property>
+            <property name="activatable-widget">dockitems-show-mounted-volumes</property>
+            <child>
+              <object class="GtkSwitch" id="dockitems-show-mounted-volumes">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="yes">Show Apps Icon</property>
+            <property name="subtitle" translatable="yes">Show apps icon.</property>
+            <property name="activatable-widget">dockitems-show-apps</property>
+            <child>
+              <object class="GtkSwitch" id="dockitems-show-apps">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

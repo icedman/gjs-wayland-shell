@@ -60,6 +60,7 @@ const Search = GObject.registerClass(
         // [`${prefix}-icon-shadow`]: this.update_style.bind(this),
         // [`${prefix}-icon-size`]: this.update_icon_size.bind(this),
         // [`${prefix}-icon-scale`]: this.update_icon_size.bind(this),
+        [`${prefix}-show-panel-icon`]: this.update_icons.bind(this),
         [`${prefix}-border-radius`]: this.update_style.bind(this),
         [`${prefix}-border-color`]: this.update_style.bind(this),
         [`${prefix}-border-thickness`]: this.update_style.bind(this),
@@ -165,10 +166,61 @@ const Search = GObject.registerClass(
       this.load_settings();
       this.update_layout();
       this.update_style();
+
+      this.attachPanelItems();
+
+      Main.panel.connect('notify::enabled', () => {
+        if (Main.panel.enabled) {
+          this.attachPanelItems();
+        } else {
+          this.panelItems = null;
+        }
+      });
+    }
+
+    createHello() {
+      let item = new Main.panel.PanelItem();
+      item.set_label('');
+      item.set_icon('system-search-symbolic');
+
+      let evt = new Gtk.GestureClick();
+      evt.connect('pressed', (actor, count) => {
+        this.show();
+      });
+      item.add_controller(evt);
+      return item;
+    }
+
+    attachPanelItems() {
+      if (!Main.panel.enabled || this.panelItems) return;
+      if (!this.SHOW_PANEL_ICON) return;
+
+      this.panelItems = [];
+      {
+        let item = this.createHello();
+        Main.panel.trail.append(item);
+        this.panelItems.push(item);
+      }
+    }
+
+    detachPanelItems() {
+      if (!this.panelItems) return;
+
+      (this.panelItems || []).forEach((item) => {
+        item.parent?.remove(item);
+      });
+      this.panelItems = null;
+    }
+
+    update_icons() {
+      if (this.SHOW_PANEL_ICON) {
+        this.attachPanelItems();
+      } else {
+        this.detachPanelItems();
+      }
     }
 
     load_settings() {
-      this.ICON_SIZE = 48;
       Object.keys(this.settingsMap).forEach((k) => {
         let _key = k
           .replace(`${this.name.toLowerCase()}-`, '')
@@ -197,6 +249,8 @@ const Search = GObject.registerClass(
       }
       this.window.destroy();
       this.window = null;
+
+      this.detachPanelItems();
 
       this.providers = null;
       this.cancellable = null;
@@ -270,7 +324,7 @@ const Search = GObject.registerClass(
     async update_layout() {}
 
     async update_style() {
-      let fontSizes = [18, 16, 18, 20, 22, 24];
+      let fontSizes = [18, 8, 12, 16, 18, 20, 22, 24, 36, 48];
       let rads = [0, 8, 16, 20, 24, 28, 32, 36, 40, 42];
 
       let styles = [];
@@ -281,6 +335,8 @@ const Search = GObject.registerClass(
       let foregroundColor = this.style.rgba(this.TEXT_COLOR);
       let backgroundColor = this.style.rgba(this.BACKGROUND_COLOR);
       let entryColor = this.style.rgba(this.ENTRY_TEXT_COLOR);
+      let fontSize = fontSizes[this.FONT_SIZE] ?? 22;
+      let entryFontSize = fontSizes[this.ENTRY_FONT_SIZE] ?? 22;
       let windowName = this.name;
 
       // text in general
@@ -289,6 +345,7 @@ const Search = GObject.registerClass(
         if (foregroundColor[3] > 0) {
           ss.push(`color: rgba(${foregroundColor.join(',')});`);
         }
+        ss.push(`font-size: ${fontSize}pt;`);
         styles.push(`#${windowName} * { ${ss.join(' ')}}`);
       }
 
@@ -298,8 +355,7 @@ const Search = GObject.registerClass(
         if (entryColor[3] > 0) {
           ss.push(`color: rgba(${entryColor.join(',')});`);
         }
-        let fontSize = fontSizes[this.ENTRY_FONT_SIZE] ?? 22;
-        ss.push(`font-size: ${fontSizes}pt`);
+        ss.push(`font-size: ${entryFontSize}pt;`);
         styles.push(`#${windowName} entry * { ${ss.join(' ')}}`);
       }
 
@@ -321,28 +377,20 @@ const Search = GObject.registerClass(
         styles.push(`#${windowName} button { ${ss.join(' ')}}`);
       }
 
-      // background
+      // border
+      // background & border
       {
         let ss = [];
+        ss.push(`border: ${border}px solid rgba(${borderColor.join(',')});`);
         if (backgroundColor[3] > 0) {
           ss.push(`background: rgba(${backgroundColor.join(',')});`);
         }
         styles.push(`#${windowName} .entry-container { ${ss.join(' ')}}`);
         styles.push(`#${windowName}.has-results{ ${ss.join(' ')}}`);
+        styles.push(
+          `#${windowName}.has-results .entry-container { background: transparent; border-color: transparent; }`,
+        );
       }
-
-      // {
-      //   let ss = [];
-      //   ss.push(`border-radius: ${borderRadius}px;`);
-      //   styles.push(`#${windowName} #center { ${ss.join(' ')}}`);
-      //   styles.push(`#${windowName} #container { ${ss.join(' ')}}`);
-      // }
-
-      // {
-      //   let ss = [];
-      //   ss.push(`border-radius: ${Math.floor(borderRadius * 0.6)}px;`);
-      //   styles.push(`#${windowName} .entry-container { ${ss.join(' ')}}`);
-      // }
 
       // if (this.ICON_SHADOW) {
       //   styles.push(

@@ -20,20 +20,6 @@ import Timer from './lib/timer.js';
 
 import './lib/environment.js';
 
-const settingsShell = new Gio.Settings({ schema_id: 'org.gnome.shell' });
-let favoriteApps = settingsShell.get_value('favorite-apps').deepUnpack();
-
-let apps = [
-  'kitty.desktop',
-  'org.gnome.Nautilus.desktop',
-  'google-chrome.desktop',
-  'org.mozilla.firefox.desktop',
-  'org.gnome.Calendar.desktop',
-  'org.gnome.clocks.desktop',
-  'org.gnome.Software.desktop',
-  'org.gnome.TextEditor.desktop',
-];
-
 // Initialize Gtk before you start calling anything from the import
 Gtk.init();
 
@@ -50,7 +36,7 @@ globalThis.Main = {
   hiTimer: new Timer('hi-res timer'),
 
   // ui
-  dock: new Dock({ name: 'Dock', apps }),
+  dock: new Dock({ name: 'Dock' }),
   panel: new Panel({ name: 'Panel' }),
   search: new Search({ name: 'Search' }),
 

@@ -43,14 +43,43 @@ const BarItemsExtension = GObject.registerClass(
   class BarItemsExtension extends Extension {
     enable() {
       super.enable();
-      this.attachPanelItems();
 
+      this.name = 'baritems';
+
+      let prefix = this.name.toLowerCase();
+      this.settings = Main.settings;
+      this.settingsMap = {
+        [`${prefix}-lead-items`]: this.retachPanelItems.bind(this),
+        [`${prefix}-center-items`]: this.retachPanelItems.bind(this),
+        [`${prefix}-trail-items`]: this.retachPanelItems.bind(this),
+      };
+      this.load_settings();
+
+      this.attachPanelItems();
       Main.panel.connect('notify::enabled', () => {
         if (Main.panel.enabled) {
           this.attachPanelItems();
         } else {
           this.panelItems = null;
         }
+      });
+    }
+
+    load_settings() {
+      Object.keys(this.settingsMap).forEach((k) => {
+        let _key = k
+          .replace(`${this.name.toLowerCase()}-`, '')
+          .replaceAll('-', '_')
+          .toUpperCase();
+        this[_key] = this.settings.getSetting(k);
+        this.settings.connectObject(
+          `changed::${k}`,
+          () => {
+            this[_key] = this.settings.getSetting(k);
+            this.settingsMap[k]();
+          },
+          this,
+        );
       });
     }
 
@@ -172,7 +201,7 @@ const BarItemsExtension = GObject.registerClass(
             timeTo = `${formatTimeToString(Main.power.state.timeToEmpty)} to empty`;
           }
           w.set_label(
-            `${Main.power.state.fillLevel}% ${Main.power.state.chargingState}${timeTo}`,
+            `${Main.power.state.fillLevel}% ${Main.power.state.chargingState} ${timeTo}`,
           );
         }
         menu.popup();
@@ -287,46 +316,39 @@ const BarItemsExtension = GObject.registerClass(
 
       this.panelItems = [];
 
-      {
-        let item = this.createLogo();
-        Main.panel.lead.append(item);
-        this.panelItems.push(item);
-      }
+      const itemsMap = {
+        logo: this.createLogo.bind(this),
+        hello: this.createHello.bind(this),
+        clock: this.createClock.bind(this),
+        network: this.createNetworkIndicator.bind(this),
+        power: this.createPowerIndicator.bind(this),
+        volume: this.createVolumeIndicator.bind(this),
+        mic: this.createMicIndicator.bind(this),
+      };
 
-      {
-        let item = this.createHello();
-        Main.panel.trail.append(item);
-        this.panelItems.push(item);
-      }
+      const areaMap = {
+        lead: 'LEAD_ITEMS',
+        center: 'CENTER_ITEMS',
+        trail: 'TRAIL_ITEMS',
+      };
 
-      {
-        let item = this.createClock();
-        Main.panel.center.append(item);
-        this.panelItems.push(item);
-      }
-
-      {
-        let item = this.createNetworkIndicator();
-        Main.panel.trail.append(item);
-        this.panelItems.push(item);
-      }
-
-      {
-        let item = this.createPowerIndicator();
-        Main.panel.trail.append(item);
-        this.panelItems.push(item);
-      }
-
-      {
-        let item = this.createVolumeIndicator();
-        Main.panel.trail.append(item);
-        this.panelItems.push(item);
-      }
-
-      {
-        let item = this.createMicIndicator();
-        Main.panel.trail.append(item);
-        this.panelItems.push(item);
+      try {
+        console.log(this.LEAD_ITEMS);
+        Object.keys(areaMap).forEach((k) => {
+          let source = this[areaMap[k]] ?? [];
+          source.forEach((item) => {
+            let create = itemsMap[item];
+            if (create) {
+              let item = create();
+              if (item) {
+                Main.panel[k].append(item);
+                this.panelItems.push(item);
+              }
+            }
+          });
+        });
+      } catch (err) {
+        console.log(err);
       }
     }
 
@@ -339,12 +361,18 @@ const BarItemsExtension = GObject.registerClass(
       this.panelItems = null;
     }
 
+    retachPanelItems() {
+      this.detachPanelItems();
+      this.attachPanelItems();
+    }
+
     disable() {
       super.disable();
       this.detachPanelItems();
       Main.power.disconnectObject(this);
       Main.volume.disconnectObject(this);
       Main.mic.disconnectObject(this);
+      Main.settings.disconnectObject(this);
 
       // cleanup timers
       if (this.clockTimer) {
