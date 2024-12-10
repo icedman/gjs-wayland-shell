@@ -17,8 +17,11 @@ import Style from './services/style.js';
 import DBus from './services/dbus.js';
 import SystemApps from './services/systemApps.js';
 import Timer from './lib/timer.js';
+import { Extension } from './lib/extensionInterface.js';
 
 import './lib/environment.js';
+
+const myExtensions = `${GLib.getenv('HOME')}/.config/gws/extensions/`;
 
 // Initialize Gtk before you start calling anything from the import
 Gtk.init();
@@ -58,6 +61,11 @@ globalThis.Main = {
 
   // settings
   settings: new Gio.Settings({ schema: 'com.github.icedman.gws' }),
+
+  // imports
+  imports: {
+    Extension,
+  },
 };
 
 // init timers
@@ -99,6 +107,7 @@ Main.shell.listen();
 // load and init extensions
 async function loadModule(moduleName) {
   try {
+    console.log(moduleName);
     const module = await import(moduleName);
     console.log(`Successfully loaded ${moduleName}`);
     return module;
@@ -138,7 +147,6 @@ function loadExtensions(directoryPath) {
 
         console.log('====================');
         console.log(extensionFilePath);
-        console.log('====================');
 
         (async () => {
           let Extension = await loadModule(extensionFilePath);
@@ -163,6 +171,8 @@ function loadExtensions(directoryPath) {
 
 let cssSources = [];
 loadExtensions('./extensions');
+loadExtensions('./user-extensions');
+
 cssSources.push({
   name: 'user',
   path: `${GLib.getenv('HOME')}/.config/gws/style.css`,

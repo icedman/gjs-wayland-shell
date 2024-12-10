@@ -51,26 +51,6 @@ const DockItemsExtension = GObject.registerClass(
       });
     }
 
-    load_settings() {
-      this.ICON_SIZE = 48;
-
-      Object.keys(this.settingsMap).forEach((k) => {
-        let _key = k
-          .replace(`${this.name.toLowerCase()}-`, '')
-          .replaceAll('-', '_')
-          .toUpperCase();
-        this[_key] = this.settings.getSetting(k);
-        this.settings.connectObject(
-          `changed::${k}`,
-          () => {
-            this[_key] = this.settings.getSetting(k);
-            this.settingsMap[k]();
-          },
-          this,
-        );
-      });
-    }
-
     createAppsItem() {
       let appInfo = {
         id: 'fuzzel',
@@ -130,7 +110,7 @@ const DockItemsExtension = GObject.registerClass(
     createFavoritesItem() {
       let item = new Gtk.Box({ visible: false }); // placeholder
       item.items = [];
-      Main.dock.center.append(item);
+      // Main.dock.center.append(item);
 
       for (let i = 0; i < this.favorite_apps.length; i++) {
         let app = this.favorite_apps[i];
@@ -157,7 +137,7 @@ const DockItemsExtension = GObject.registerClass(
     createRunningApps() {
       let item = new Gtk.Box({ visible: false }); // placeholder
       item.items = [];
-      Main.dock.center.append(item);
+      // Main.dock.center.append(item);
 
       function update_running_apps() {
         let windows = Main.shell.windows ?? [];
@@ -217,7 +197,7 @@ const DockItemsExtension = GObject.registerClass(
     createMountedVolumes() {
       let item = new Gtk.Box({ visible: false }); // placeholder
       item.items = [];
-      Main.dock.center.append(item);
+      // Main.dock.center.append(item);
 
       function update_mounted_volumes() {
         let mount_ids = Main.mounts.state?.mount_ids ?? [];

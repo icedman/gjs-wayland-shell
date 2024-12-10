@@ -97,6 +97,9 @@ export const DockItem = GObject.registerClass(
 export const DockPanel = GObject.registerClass(
   class DockPanel extends Gtk.Window {
     _init(params) {
+      this.customSettings = params.customSettings ?? {};
+      delete params.customSettings;
+
       super._init({
         name: params.name,
         title: params.name,
@@ -125,6 +128,7 @@ export const DockPanel = GObject.registerClass(
         hexpand: false,
         vexpand: false,
       });
+      this.center.add_css_class('icons-container');
       this.lead = new Gtk.Box({ name: 'lead', hexpand: false, vexpand: false });
       this.trail = new Gtk.Box({
         name: 'trail',
@@ -137,15 +141,20 @@ export const DockPanel = GObject.registerClass(
       this.lead.halign = Gtk.Align.START;
       this.center.halign = Gtk.Align.CENTER;
       this.trail.halign = Gtk.Align.END;
-
+      this.leadSpacer = new Gtk.Box({
+        name: 'spacer',
+        hexpand: true,
+        vexpand: true,
+      });
+      this.trailSpacer = new Gtk.Box({
+        name: 'spacer',
+        hexpand: true,
+        vexpand: true,
+      });
       this.container.append(this.lead);
-      this.container.append(
-        new Gtk.Box({ name: 'spacer', hexpand: true, vexpand: true }),
-      );
+      this.container.append(this.leadSpacer);
       this.container.append(this.center);
-      this.container.append(
-        new Gtk.Box({ name: 'spacer', hexpand: true, vexpand: true }),
-      );
+      this.container.append(this.trailSpacer);
       this.container.append(this.trail);
 
       this.set_child(this.container);
@@ -172,24 +181,6 @@ export const DockPanel = GObject.registerClass(
       this.load_settings();
       this.update_layout();
       this.update_style();
-    }
-
-    load_settings() {
-      Object.keys(this.settingsMap).forEach((k) => {
-        let _key = k
-          .replace(`${this.name.toLowerCase()}-`, '')
-          .replaceAll('-', '_')
-          .toUpperCase();
-        this[_key] = this.settings.getSetting(k);
-        this.settings.connectObject(
-          `changed::${k}`,
-          () => {
-            this[_key] = this.settings.getSetting(k);
-            this.settingsMap[k]();
-          },
-          this,
-        );
-      });
     }
 
     destroy() {
@@ -264,17 +255,24 @@ export const DockPanel = GObject.registerClass(
           let pad = Math.floor(this.PADDING * 10);
           ss.push(`padding: ${pad}px;`);
           ss.push(`border: ${border}px solid rgba(${borderColor.join(',')});`);
+          // ss.push(`border: 2px solid red;`);
           if (backgroundColor[3] > 0) {
             ss.push(`background: rgba(${backgroundColor.join(',')});`);
           }
-          styles.push(`#${windowName} #center { ${ss.join(' ')}}`);
+          styles.push(`#${windowName} .icons-container { ${ss.join(' ')}}`);
         }
 
         {
           let ss = [];
           ss.push(`border-radius: ${borderRadius}px;`);
-          styles.push(`#${windowName} #center { ${ss.join(' ')}}`);
+          styles.push(`#${windowName} .icons-container { ${ss.join(' ')}}`);
           styles.push(`#${windowName} #container { ${ss.join(' ')}}`);
+          // if (this.lead.get_first_child()) {
+          //   styles.push(`#${windowName} #lead { ${ss.join(' ')}}`);
+          // }
+          // if (this.trail.get_first_child()) {
+          //   styles.push(`#${windowName} #trail { ${ss.join(' ')}}`);
+          // }
         }
       }
 
@@ -381,21 +379,6 @@ const Dock = GObject.registerClass(
       super.disable();
     }
 
-    load_settings() {}
-
-    get_icons(group = null) {
-      let res = [];
-      let n = this.center.get_first_child();
-      while (n) {
-        res.push(n);
-        n = n.get_next_sibling();
-      }
-      if (group) {
-        res = res.filter((icon) => icon.group == group);
-      }
-      return res;
-    }
-
     create_desktop_app_item(app) {
       let appInfo = getAppInfo(app);
       if (!appInfo) return;
@@ -417,25 +400,38 @@ const Dock = GObject.registerClass(
       return dockItem;
     }
 
+    get_icons(group = null) {
+      let res = [];
+      let n = this.center.get_first_child();
+      while (n) {
+        res.push(n);
+        n = n.get_next_sibling();
+      }
+      if (group) {
+        res = res.filter((icon) => icon.group == group);
+      }
+      return res;
+    }
+
     async sort_icons() {
       this.window.update_icon_size();
       let currentIcons = this.get_icons();
       currentIcons.sort((a, b) => {
-        let ap = a.group ?? 0;
-        let bp = b.group ?? 0;
+        let ap = a.group ?? a.sort_order ?? 0;
+        let bp = b.group ?? b.sort_order ?? 0;
         if (ap == bp) return 0;
         if (ap < bp) return -1;
         return 1;
       });
 
-      // console.log(currentIcons.map((i) => i.id));
-
       currentIcons.forEach((c) => {
-        this.center.remove(c);
+        c._parent = c.parent;
+        c.parent?.remove(c);
       });
 
       currentIcons.forEach((c) => {
-        this.center.append(c);
+        c._parent?.append(c);
+        delete c._parent;
       });
     }
   },

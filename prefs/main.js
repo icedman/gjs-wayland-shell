@@ -64,7 +64,6 @@ let loop = GLib.MainLoop.new(null, false);
 builder.add_from_file('./ui/window.ui');
 builder.add_from_file('./ui/general.ui');
 builder.add_from_file('./ui/dock.ui');
-builder.add_from_file('./ui/dock-items.ui');
 builder.add_from_file('./ui/panel.ui');
 builder.add_from_file('./ui/search.ui');
 
@@ -82,8 +81,10 @@ function show_preference_group(widget) {
 {
   let keys = settings.list_keys();
   keys.forEach((k) => {
+    console.log(k);
     let widget = builder.get_object(k);
     if (!widget) {
+      console.log('----no widget');
       return;
     }
 
@@ -281,7 +282,7 @@ let items = builder.get_object('panel-items');
 // let panelItems = [new GeneralPanel(), new DockPanel(), new BarPanel(), new ExtensionPanel()]
 let panelItems = [
   new DockPanel(),
-  new DockItemsPanel(),
+  // new DockItemsPanel(),
   new BarPanel(),
   new SearchPanel(),
 ];
@@ -290,7 +291,7 @@ panelItems.forEach((item) => {
 });
 panelItems[0].open();
 
-dump(win, 0);
+// dump(win, 0);
 
 // Show the window
 win.present();

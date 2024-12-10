@@ -65,24 +65,6 @@ const BarItemsExtension = GObject.registerClass(
       });
     }
 
-    load_settings() {
-      Object.keys(this.settingsMap).forEach((k) => {
-        let _key = k
-          .replace(`${this.name.toLowerCase()}-`, '')
-          .replaceAll('-', '_')
-          .toUpperCase();
-        this[_key] = this.settings.getSetting(k);
-        this.settings.connectObject(
-          `changed::${k}`,
-          () => {
-            this[_key] = this.settings.getSetting(k);
-            this.settingsMap[k]();
-          },
-          this,
-        );
-      });
-    }
-
     createLogo() {
       let logo = new Main.panel.PanelItem();
       logo.add_css_class('logo');
@@ -320,7 +302,7 @@ const BarItemsExtension = GObject.registerClass(
         logo: this.createLogo.bind(this),
         hello: this.createHello.bind(this),
         clock: this.createClock.bind(this),
-        network: this.createNetworkIndicator.bind(this),
+        // network: this.createNetworkIndicator.bind(this),
         power: this.createPowerIndicator.bind(this),
         volume: this.createVolumeIndicator.bind(this),
         mic: this.createMicIndicator.bind(this),
@@ -333,13 +315,13 @@ const BarItemsExtension = GObject.registerClass(
       };
 
       try {
-        console.log(this.LEAD_ITEMS);
         Object.keys(areaMap).forEach((k) => {
           let source = this[areaMap[k]] ?? [];
-          source.forEach((item) => {
+          source.forEach((item, idx) => {
             let create = itemsMap[item];
             if (create) {
               let item = create();
+              item.sort_order = idx;
               if (item) {
                 Main.panel[k].append(item);
                 this.panelItems.push(item);
@@ -350,6 +332,8 @@ const BarItemsExtension = GObject.registerClass(
       } catch (err) {
         console.log(err);
       }
+
+      Main.panel.sort_icons();
     }
 
     detachPanelItems() {

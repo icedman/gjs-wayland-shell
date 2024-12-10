@@ -31,8 +31,6 @@ const Extension = GObject.registerClass(
     disable() {
       this.enabled = false;
     }
-
-    openPreferences() {}
   },
 );
 

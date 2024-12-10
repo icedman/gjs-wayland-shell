@@ -178,10 +178,11 @@ const Search = GObject.registerClass(
       });
     }
 
-    createHello() {
+    createSearchIcon() {
       let item = new Main.panel.PanelItem();
       item.set_label('');
       item.set_icon('system-search-symbolic');
+      item.sort_order = -1;
 
       let evt = new Gtk.GestureClick();
       evt.connect('pressed', (actor, count) => {
@@ -197,10 +198,12 @@ const Search = GObject.registerClass(
 
       this.panelItems = [];
       {
-        let item = this.createHello();
+        let item = this.createSearchIcon();
         Main.panel.trail.append(item);
         this.panelItems.push(item);
       }
+
+      Main.panel.sort_icons();
     }
 
     detachPanelItems() {
@@ -218,24 +221,6 @@ const Search = GObject.registerClass(
       } else {
         this.detachPanelItems();
       }
-    }
-
-    load_settings() {
-      Object.keys(this.settingsMap).forEach((k) => {
-        let _key = k
-          .replace(`${this.name.toLowerCase()}-`, '')
-          .replaceAll('-', '_')
-          .toUpperCase();
-        this[_key] = this.settings.getSetting(k);
-        this.settings.connectObject(
-          `changed::${k}`,
-          () => {
-            this[_key] = this.settings.getSetting(k);
-            this.settingsMap[k]();
-          },
-          this,
-        );
-      });
     }
 
     disable() {
@@ -399,7 +384,6 @@ const Search = GObject.registerClass(
       // }
 
       try {
-        console.log('???/');
         console.log(JSON.stringify(styles, null, 4));
         this.style.buildCss(`${this.stylePrefix}-style`, styles);
       } catch (err) {

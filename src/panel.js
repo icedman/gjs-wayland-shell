@@ -11,6 +11,9 @@ import { DockPanel } from './dock.js';
 const PanelItem = GObject.registerClass(
   class PanelItem extends Gtk.Box {
     _init(params) {
+      this.sort_order = params?.sort_order ?? 0;
+      delete params?.sort_order;
+
       super._init({
         name: 'PanelItem',
         ...(params ?? {}),
@@ -88,7 +91,27 @@ const Panel = GObject.registerClass(
       super.disable();
     }
 
-    load_settings() {}
+    async sort_icons() {
+      this.window.update_icon_size();
+      let currentIcons = this.window.get_icons();
+      currentIcons.sort((a, b) => {
+        let ap = a.sort_order ?? 0;
+        let bp = b.sort_order ?? 0;
+        if (ap == bp) return 0;
+        if (ap < bp) return -1;
+        return 1;
+      });
+
+      currentIcons.forEach((c) => {
+        c._parent = c.parent;
+        c.parent?.remove(c);
+      });
+
+      currentIcons.forEach((c) => {
+        c._parent?.append(c);
+        delete c._parent;
+      });
+    }
   },
 );
 

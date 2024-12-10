@@ -55,3 +55,28 @@ Gio.Settings.prototype.getSetting = function (k) {
   }
   return null;
 };
+
+GObject.Object.prototype.load_settings = function () {
+  this.settingsMap = this.settingsMap ?? {};
+  Object.keys(this.settingsMap).forEach((k) => {
+    let _key = k
+      .replace(`${this.name.toLowerCase()}-`, '')
+      .replaceAll('-', '_')
+      .toUpperCase();
+    this[_key] = this.settings.getSetting(k);
+    if (this.customSettings && this.customSettings[k]) {
+      this[_key] = this.customSettings[k];
+    }
+    this.settings.connectObject(
+      `changed::${k}`,
+      () => {
+        this[_key] = this.settings.getSetting(k);
+        if (this.customSettings && this.customSettings[k]) {
+          this[_key] = this.customSettings[k];
+        }
+        this.settingsMap[k]();
+      },
+      this,
+    );
+  });
+};
