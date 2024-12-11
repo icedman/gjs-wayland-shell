@@ -11,17 +11,6 @@ import { getAppInfo, getAppInfoFromFile } from '../../lib/appInfo.js';
 const settingsShell = new Gio.Settings({ schema_id: 'org.gnome.shell' });
 let favorite_apps = settingsShell.get_value('favorite-apps').deepUnpack();
 
-// let favorite_apps = [
-//   'kitty.desktop',
-//   'org.gnome.Nautilus.desktop',
-//   'google-chrome.desktop',
-//   'org.mozilla.firefox.desktop',
-//   'org.gnome.Calendar.desktop',
-//   'org.gnome.clocks.desktop',
-//   'org.gnome.Software.desktop',
-//   'org.gnome.TextEditor.desktop',
-// ];
-
 const DockItemsExtension = GObject.registerClass(
   class DockItemsExtension extends Extension {
     enable() {
@@ -33,11 +22,11 @@ const DockItemsExtension = GObject.registerClass(
       let prefix = this.name.toLowerCase();
       this.settings = Main.settings;
       this.settingsMap = {
-        [`${prefix}-show-trash`]: this.retachDockItems.bind(this),
-        [`${prefix}-show-mounted-volumes`]: this.retachDockItems.bind(this),
-        [`${prefix}-show-apps`]: this.retachDockItems.bind(this),
-        [`${prefix}-show-favorite-apps`]: this.retachDockItems.bind(this),
-        [`${prefix}-show-running-apps`]: this.retachDockItems.bind(this),
+        [`${prefix}-show-trash`]: this.reattachDockItems.bind(this),
+        [`${prefix}-show-mounted-volumes`]: this.reattachDockItems.bind(this),
+        [`${prefix}-show-apps`]: this.reattachDockItems.bind(this),
+        [`${prefix}-show-favorite-apps`]: this.reattachDockItems.bind(this),
+        [`${prefix}-show-running-apps`]: this.reattachDockItems.bind(this),
       };
       this.load_settings();
 
@@ -309,7 +298,7 @@ const DockItemsExtension = GObject.registerClass(
       this.dockItems = null;
     }
 
-    retachDockItems() {
+    reattachDockItems() {
       this.detachDockItems();
       this.attachDockItems();
     }
