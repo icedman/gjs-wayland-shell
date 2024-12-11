@@ -7,6 +7,27 @@ import { Extension } from '../../lib/extensionInterface.js';
 import { PopupMenu } from '../../lib/popupMenu.js';
 import { IconGroups } from '../../dock.js';
 
+function getOSIcon() {
+  let icons = [
+    'archlinux',
+    'fedora',
+    'linuxmint',
+    'ubuntu',
+    'debian',
+    'kalilinux',
+    'manjaro',
+    'zorin'
+  ];
+  let os = getShorterOSName().toLowerCase();
+  for(let i=0; i<icons.length; i++) {
+    let icon = icons[i];
+    if (os.includes(icon)) {
+      return icon;
+    }
+  }
+  return 'archlinux';
+}
+
 function getOSName() {
   const prettyName = GLib.get_os_info('PRETTY_NAME');
   if (prettyName) return prettyName;
@@ -68,7 +89,9 @@ const BarItemsExtension = GObject.registerClass(
     createLogo() {
       let logo = new Main.panel.PanelItem();
       logo.add_css_class('logo');
-      logo.set_label(getOSName());
+      // logo.set_label(getOSName());
+      // logo.set_label(getShorterOSName());
+      logo.set_icon(getOSIcon());
       return logo;
     }
 

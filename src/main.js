@@ -206,6 +206,9 @@ function loadCustomSettings() {
 
 loadCustomSettings();
 
+let iconTheme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default());
+iconTheme.add_search_path(`./ui/icons`);
+
 let cssSources = [];
 Promise.all(loadExtensions('./extensions')).then((res) => {
   Promise.all(loadExtensions('./user-extensions')).then((res) => {
