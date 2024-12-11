@@ -225,7 +225,7 @@ const DockItemsExtension = GObject.registerClass(
             let icon = Main.dock.create_desktop_app_item(appId);
             if (icon) {
               Main.dock.add_dock_item(icon, target);
-              items.push(icon);
+              item.items.push(icon);
               icon.group = IconGroups.VOLUMES;
             }
           } catch (err) {
