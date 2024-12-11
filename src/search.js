@@ -203,7 +203,7 @@ const Search = GObject.registerClass(
         this.panelItems.push(item);
       }
 
-      Main.panel.sort_icons();
+      Main.panel.window.sort_icons();
     }
 
     detachPanelItems() {

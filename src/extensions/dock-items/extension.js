@@ -51,7 +51,9 @@ const DockItemsExtension = GObject.registerClass(
       });
     }
 
-    createAppsItem() {
+    createAppsItem(target) {
+      target = target ?? Main.dock.center;
+
       let appInfo = {
         id: 'fuzzel',
         icon_name: 'view-app-grid-symbolic',
@@ -60,13 +62,15 @@ const DockItemsExtension = GObject.registerClass(
       };
       let apps = Main.dock.create_desktop_app_item(appInfo);
       if (apps) {
-        Main.dock.add_dock_item(apps);
+        Main.dock.add_dock_item(apps, target);
         apps.group = IconGroups.HEAD;
       }
       return apps;
     }
 
-    createTrashItem() {
+    createTrashItem(target = null) {
+      target = target ?? Main.dock.center;
+
       let appInfo = {
         id: 'trash',
         icon_name: 'user-trash',
@@ -87,7 +91,7 @@ const DockItemsExtension = GObject.registerClass(
       };
       let trash = Main.dock.create_desktop_app_item(appInfo);
       if (trash) {
-        Main.dock.add_dock_item(trash);
+        Main.dock.add_dock_item(trash, target);
         trash.group = IconGroups.TAIL + 1;
       }
 
@@ -107,7 +111,9 @@ const DockItemsExtension = GObject.registerClass(
       return trash;
     }
 
-    createFavoritesItem() {
+    createFavoritesItem(target = null) {
+      target = target ?? Main.dock.center;
+
       let item = new Gtk.Box({ visible: false }); // placeholder
       item.items = [];
       // Main.dock.center.append(item);
@@ -116,13 +122,13 @@ const DockItemsExtension = GObject.registerClass(
         let app = this.favorite_apps[i];
         let btn = Main.dock.create_desktop_app_item(app);
         if (btn) {
-          Main.dock.add_dock_item(btn);
+          Main.dock.add_dock_item(btn, target);
           item.items.push(btn);
           btn.group = IconGroups.FAVORITE_APPS;
         }
       }
 
-      Main.dock.sort_icons();
+      Main.dock.window.sort_icons();
       Main.dock.window.queue_resize();
       Main.dock.container.queue_resize();
 
@@ -134,7 +140,9 @@ const DockItemsExtension = GObject.registerClass(
       return item;
     }
 
-    createRunningApps() {
+    createRunningApps(target = null) {
+      target = target ?? Main.dock.center;
+
       let item = new Gtk.Box({ visible: false }); // placeholder
       item.items = [];
       // Main.dock.center.append(item);
@@ -148,7 +156,7 @@ const DockItemsExtension = GObject.registerClass(
           try {
             let icon = Main.dock.create_desktop_app_item(appId);
             if (icon) {
-              Main.dock.add_dock_item(icon);
+              Main.dock.add_dock_item(icon, target);
               item.items.push(icon);
               icon.group = IconGroups.RUNNING_APPS;
             }
@@ -159,7 +167,10 @@ const DockItemsExtension = GObject.registerClass(
 
         // remove closed apps
         let remove = [];
-        let current = Main.dock.get_icons(IconGroups.RUNNING_APPS);
+        let current = Main.dock.window.get_icons(
+          IconGroups.RUNNING_APPS,
+          target,
+        );
         current.forEach((c) => {
           if (!appIds.includes(c.id)) {
             remove.push(c);
@@ -170,7 +181,7 @@ const DockItemsExtension = GObject.registerClass(
           c.parent?.remove(c);
         });
 
-        Main.dock.sort_icons();
+        Main.dock.window.sort_icons();
       }
 
       Main.shell.connectObject(
@@ -194,7 +205,9 @@ const DockItemsExtension = GObject.registerClass(
       return item;
     }
 
-    createMountedVolumes() {
+    createMountedVolumes(target) {
+      target = target ?? Main.dock.center;
+
       let item = new Gtk.Box({ visible: false }); // placeholder
       item.items = [];
       // Main.dock.center.append(item);
@@ -209,7 +222,7 @@ const DockItemsExtension = GObject.registerClass(
           try {
             let icon = Main.dock.create_desktop_app_item(appId);
             if (icon) {
-              Main.dock.add_dock_item(icon);
+              Main.dock.add_dock_item(icon, target);
               items.push(icon);
               icon.group = IconGroups.VOLUMES;
             }
@@ -220,7 +233,7 @@ const DockItemsExtension = GObject.registerClass(
 
         // remove closed apps
         let remove = [];
-        let current = Main.dock.get_icons(IconGroups.VOLUMES);
+        let current = Main.dock.window.get_icons(IconGroups.VOLUMES, target);
         current.forEach((c) => {
           if (!appIds.includes(c.id)) {
             remove.push(c);
@@ -231,7 +244,7 @@ const DockItemsExtension = GObject.registerClass(
           c.parent?.remove(c);
         });
 
-        Main.dock.sort_icons();
+        Main.dock.window.sort_icons();
       }
       update_mounted_volumes();
 
@@ -278,7 +291,7 @@ const DockItemsExtension = GObject.registerClass(
         this.dockItems.push(item);
       }
 
-      Main.dock.sort_icons();
+      Main.dock.window.sort_icons();
     }
 
     detachDockItems() {

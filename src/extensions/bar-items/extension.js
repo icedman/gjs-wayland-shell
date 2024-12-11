@@ -302,7 +302,7 @@ const BarItemsExtension = GObject.registerClass(
         logo: this.createLogo.bind(this),
         hello: this.createHello.bind(this),
         clock: this.createClock.bind(this),
-        // network: this.createNetworkIndicator.bind(this),
+        network: this.createNetworkIndicator.bind(this),
         power: this.createPowerIndicator.bind(this),
         volume: this.createVolumeIndicator.bind(this),
         mic: this.createMicIndicator.bind(this),
@@ -333,7 +333,7 @@ const BarItemsExtension = GObject.registerClass(
         console.log(err);
       }
 
-      Main.panel.sort_icons();
+      Main.panel.window.sort_icons();
     }
 
     detachPanelItems() {

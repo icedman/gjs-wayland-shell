@@ -1,29 +1,63 @@
-# gnome based shell over wayland
+<br/>
+<p align="center">
+  <h3 align="center">GJS Wayland Shell (GWS)</h3>
 
-# requirements
+  <p align="center">
+	A Gnome-based shell over wayland
+    <br/>
+    <br/>
+  </p>
+</p>
+
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/icedman)
+
+![Screen Shot](https://raw.githubusercontent.com/icedman/gjs-wayland-shell/main/screenshots/screenshot-2024-12-11-01.png)
+
+# Requirements
 1. wayland window manager/compositor
 	* niri (recommended)
 	* sway
 	* hyprland
-2. sudo dnf install gtk4-layer-shell-devel
-3. sudo dnf gnome-shell
+2. gtk4-layer-shell-devel
+	* sudo dnf install gtk4-layer-shell-devel
+3. gnome-shell
+	* sudo dnf gnome-shell
 
-# installation
+# Installation
 
 ```git clone https://github.com/icedman/gjs-wayland-shell```
 
-# run
+# Run
 
-Run from terminal or from niri, sway, hyprland
+Run from terminal or from niri, sway, hyprland autostart config
+
 ```sh
 $ gws
 ```
 
-# customize
+# Search menu
+
+Map the search app to your hotkey with your window manager. Or run the app from terminal.
+
+```sh
+$ gws-search
+```
+
+# Customize
+
+Open the preferences app
 
 ```sh
 $ gws-prefs
 ```
+
+# Config directory
+
+copy ```gws`` from in ```docs/sample-config``` to the ```~/.config``` directory
+
+# Extension/Rice
+
+The sample extension show how to add custom dock. (Requires coding)
 
 Add custom css at ```~/.config/gws/style.css```
 

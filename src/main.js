@@ -21,8 +21,6 @@ import { Extension } from './lib/extensionInterface.js';
 
 import './lib/environment.js';
 
-const myExtensions = `${GLib.getenv('HOME')}/.config/gws/extensions/`;
-
 // Initialize Gtk before you start calling anything from the import
 Gtk.init();
 
@@ -117,6 +115,7 @@ async function loadModule(moduleName) {
 }
 
 function loadExtensions(directoryPath) {
+  let promises = [];
   try {
     // Create a Gio.File object for the directory
     let directory = Gio.File.new_for_path(directoryPath);
@@ -148,37 +147,46 @@ function loadExtensions(directoryPath) {
         console.log('====================');
         console.log(extensionFilePath);
 
-        (async () => {
-          let Extension = await loadModule(extensionFilePath);
-          if (Extension) {
-            let extension = new Extension.default();
-            Main.extensions[fileName] = extension;
-            extension.path = extensionPath;
-            try {
-              extension.enable();
-              cssSources.push({ name: fileName, path: extensionCssFilePath });
-            } catch (err) {
-              console.log(err);
+        let p = new Promise((resolve, reject) => {
+          (async () => {
+            let Extension = await loadModule(extensionFilePath);
+            if (Extension) {
+              let extension = new Extension.default();
+              Main.extensions[fileName] = extension;
+              extension.path = extensionPath;
+              try {
+                extension.enable();
+                cssSources.push({ name: fileName, path: extensionCssFilePath });
+                resolve(extension);
+              } catch (err) {
+                reject(err);
+                console.log(err);
+              }
             }
-          }
-        })();
+            return Extension;
+          })();
+        });
+        promises.push(p);
       }
     }
   } catch (error) {
     print(`Error enumerating files: ${error.message}`);
   }
+
+  return promises;
 }
 
 let cssSources = [];
-loadExtensions('./extensions');
-loadExtensions('./user-extensions');
-
-cssSources.push({
-  name: 'user',
-  path: `${GLib.getenv('HOME')}/.config/gws/style.css`,
-});
-cssSources.forEach((style) => {
-  Main.style.loadCssFile(style.name, style.path);
+Promise.all(loadExtensions('./extensions')).then((res) => {
+  Promise.all(loadExtensions('./user-extensions')).then((res) => {
+    cssSources.push({
+      name: 'user',
+      path: `${GLib.getenv('HOME')}/.config/gws/style.css`,
+    });
+    cssSources.forEach((style) => {
+      Main.style.loadCssFile(style.name, style.path);
+    });
+  });
 });
 
 let loop = GLib.MainLoop.new(null, false);

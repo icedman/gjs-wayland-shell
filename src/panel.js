@@ -80,7 +80,7 @@ const Panel = GObject.registerClass(
 
       Main.hiTimer.runOnce(() => {
         this.window.remove_css_class('startup');
-      }, 50);
+      }, 0);
 
       super.enable();
     }
@@ -89,28 +89,6 @@ const Panel = GObject.registerClass(
       this.window.destroy();
       this.window = null;
       super.disable();
-    }
-
-    async sort_icons() {
-      this.window.update_icon_size();
-      let currentIcons = this.window.get_icons();
-      currentIcons.sort((a, b) => {
-        let ap = a.sort_order ?? 0;
-        let bp = b.sort_order ?? 0;
-        if (ap == bp) return 0;
-        if (ap < bp) return -1;
-        return 1;
-      });
-
-      currentIcons.forEach((c) => {
-        c._parent = c.parent;
-        c.parent?.remove(c);
-      });
-
-      currentIcons.forEach((c) => {
-        c._parent?.append(c);
-        delete c._parent;
-      });
     }
   },
 );

@@ -33,15 +33,13 @@ const ShellInterface = GObject.registerClass(
       super.enable();
       this.windows = [];
 
-      // todo ... convert to signals?
-      // this.subscribers = [];
-      // this.selfSubscribe();
-
       Main.timer.runOnce(() => {
         this.getWindows().then((res) => {
           this.broadcast([res]);
         });
       }, 100);
+
+      this.focusIndex = 0;
     }
 
     disable() {
@@ -212,9 +210,18 @@ const ShellInterface = GObject.registerClass(
     focusWindow(id) {}
 
     async focusOrOpen(className, exec, arg = '') {
-      let openedWindow = (this.windows ?? []).find((w) => {
-        return w['class'] + '.desktop' == className;
-      });
+      let openedWindow = null;
+      try {
+        let openedWindows = (this.windows ?? []).filter((w) => {
+          return w['class'] + '.desktop' == className;
+        });
+        if (openedWindows && openedWindows.length) {
+          this.focusIndex = this.focusIndex % openedWindows.length;
+          openedWindow = openedWindows[this.focusIndex++];
+        }
+      } catch (err) {
+        console.log(err);
+      }
 
       if (openedWindow) {
         this.focusWindow(openedWindow);

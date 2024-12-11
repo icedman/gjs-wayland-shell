@@ -298,7 +298,7 @@ export const DockPanel = GObject.registerClass(
       this.queue_resize();
     }
 
-    _get_icons(target, group = null) {
+    _get_icons(group = null, target = null) {
       let res = [];
       let n = target.get_first_child();
       while (n) {
@@ -311,12 +311,37 @@ export const DockPanel = GObject.registerClass(
       return res;
     }
 
-    get_icons(group = null) {
+    get_icons(group = null, target = null) {
+      if (target) {
+        return this._get_icons(group, target);
+      }
       return [
-        ...this._get_icons(this.center, group),
-        ...this._get_icons(this.lead, group),
-        ...this._get_icons(this.trail, group),
+        ...this._get_icons(group, this.center),
+        ...this._get_icons(group, this.lead),
+        ...this._get_icons(group, this.trail),
       ];
+    }
+
+    async sort_icons() {
+      this.update_icon_size();
+      let currentIcons = this.get_icons();
+      currentIcons.sort((a, b) => {
+        let ap = a.group ?? a.sort_order ?? 0;
+        let bp = b.group ?? b.sort_order ?? 0;
+        if (ap == bp) return 0;
+        if (ap < bp) return -1;
+        return 1;
+      });
+
+      currentIcons.forEach((c) => {
+        c._parent = c.parent;
+        c.parent?.remove(c);
+      });
+
+      currentIcons.forEach((c) => {
+        c._parent?.append(c);
+        delete c._parent;
+      });
     }
 
     async update_icon_size() {
@@ -382,57 +407,21 @@ const Dock = GObject.registerClass(
     create_desktop_app_item(app) {
       let appInfo = getAppInfo(app);
       if (!appInfo) return;
-      let currentIcons = this.get_icons();
-      let existing = currentIcons.find((icon) => icon.id == appInfo.id);
-      if (existing) return null;
       let btn = new DockItem({
         app: appInfo,
       });
       return btn;
     }
 
-    add_dock_item(dockItem) {
-      let currentIcons = this.get_icons();
+    add_dock_item(dockItem, target = null) {
+      target = target ?? this.center;
+      let currentIcons = this.window.get_icons(null, target);
       let existing = currentIcons.find((icon) => icon.id == dockItem.id);
-      if (existing) return null;
-      let box = this.center;
-      box.append(dockItem);
+      if (existing) {
+        return null;
+      }
+      target.append(dockItem);
       return dockItem;
-    }
-
-    get_icons(group = null) {
-      let res = [];
-      let n = this.center.get_first_child();
-      while (n) {
-        res.push(n);
-        n = n.get_next_sibling();
-      }
-      if (group) {
-        res = res.filter((icon) => icon.group == group);
-      }
-      return res;
-    }
-
-    async sort_icons() {
-      this.window.update_icon_size();
-      let currentIcons = this.get_icons();
-      currentIcons.sort((a, b) => {
-        let ap = a.group ?? a.sort_order ?? 0;
-        let bp = b.group ?? b.sort_order ?? 0;
-        if (ap == bp) return 0;
-        if (ap < bp) return -1;
-        return 1;
-      });
-
-      currentIcons.forEach((c) => {
-        c._parent = c.parent;
-        c.parent?.remove(c);
-      });
-
-      currentIcons.forEach((c) => {
-        c._parent?.append(c);
-        delete c._parent;
-      });
     }
   },
 );
