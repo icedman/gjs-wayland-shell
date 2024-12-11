@@ -1,0 +1,15 @@
+{
+  "favorite_apps": [
+    "kitty.desktop",
+    "org.gnome.Nautilus.desktop",
+    "google-chrome.desktop",
+    "org.mozilla.firefox.desktop",
+    "org.gnome.Calendar.desktop",
+    "org.gnome.clocks.desktop",
+    "org.gnome.Software.desktop",
+    "org.gnome.TextEditor.desktop"
+  ],
+  "baritems-lead-items": ["logo"],
+  "baritems-center-items": ["clock"],
+  "baritems-trail-items": ["network", "power", "volume", "mic"]
+}
