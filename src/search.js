@@ -42,13 +42,16 @@ const Search = GObject.registerClass(
       this.matchedApps = [];
       this.matchedSearch = [];
 
+      this.default_width = 600;
+      this.default_height = 400;
+
       this.window = new Gtk.Window({
         title: this.name,
         name: this.name,
         hexpand: true,
         vexpand: true,
-        default_width: 600,
-        default_height: 400,
+        default_width: this.default_width,
+        default_height: this.default_height,
       });
 
       let prefix = 'search';
@@ -60,6 +63,8 @@ const Search = GObject.registerClass(
         // [`${prefix}-icon-shadow`]: this.update_style.bind(this),
         // [`${prefix}-icon-size`]: this.update_icon_size.bind(this),
         // [`${prefix}-icon-scale`]: this.update_icon_size.bind(this),
+        [`${prefix}-scale-width`]: this.update_layout.bind(this),
+        [`${prefix}-scale-height`]: this.update_layout.bind(this),
         [`${prefix}-show-panel-icon`]: this.update_icons.bind(this),
         [`${prefix}-border-radius`]: this.update_style.bind(this),
         [`${prefix}-border-color`]: this.update_style.bind(this),
@@ -306,7 +311,11 @@ const Search = GObject.registerClass(
         });
     }
 
-    async update_layout() {}
+    async update_layout() {
+      let w = this.default_width * (1 + this.SCALE_WIDTH ?? 0);
+      let h = this.default_height * (1 + this.SCALE_HEIGHT ?? 0);
+      this.window.set_size_request(w, h);
+    }
 
     async update_style() {
       let fontSizes = [18, 8, 12, 16, 18, 20, 22, 24, 36, 48];
