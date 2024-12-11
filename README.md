@@ -54,12 +54,32 @@ $ gws-prefs
 # Config directory
 
 copy ```gws``` from in ```docs/sample-config``` to the ```~/.config``` directory
+edit custom css at ```~/.config/gws/style.css```
+edit custom settings at ```~/.config/gws/settings.json```
+
+sample config:
+
+```json
+{
+  "favorite_apps": [
+    "kitty.desktop",
+    "org.gnome.Nautilus.desktop",
+    "google-chrome.desktop",
+    "org.mozilla.firefox.desktop",
+    "org.gnome.Calendar.desktop",
+    "org.gnome.clocks.desktop",
+    "org.gnome.Software.desktop",
+    "org.gnome.TextEditor.desktop"
+  ],
+  "baritems-lead-items": ["logo"],
+  "baritems-center-items": ["clock"],
+  "baritems-trail-items": ["network", "power", "volume", "mic"]
+}
+```
 
 # Extension/Rice
 
 The sample extension show how to add custom dock. (Requires coding)
-
-Add custom css at ```~/.config/gws/style.css```
 
 ```css
 

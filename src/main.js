@@ -2,6 +2,7 @@ import Gdk from 'gi://Gdk?version=4.0';
 import Gtk from 'gi://Gtk?version=4.0';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
+import GObject from 'gi://GObject';
 import Dock from './dock.js';
 import Panel from './panel.js';
 import Search from './search.js';
@@ -24,12 +25,21 @@ import './lib/environment.js';
 // Initialize Gtk before you start calling anything from the import
 Gtk.init();
 
-globalThis.Main = {
-  app: {
-    quit: () => {
-      loop.quit();
+const App = GObject.registerClass(
+  {
+    Signals: {
+      ready: {},
     },
   },
+  class App extends Extension {
+    quit() {
+      loop.quit();
+    }
+  },
+);
+
+globalThis.Main = {
+  app: new App(),
 
   // timers
   timer: new Timer('loop timer'),
@@ -59,6 +69,7 @@ globalThis.Main = {
 
   // settings
   settings: new Gio.Settings({ schema: 'com.github.icedman.gws' }),
+  userSettings: {},
 
   // imports
   imports: {
@@ -176,6 +187,25 @@ function loadExtensions(directoryPath) {
   return promises;
 }
 
+function loadCustomSettings() {
+  try {
+    let file_path = `${GLib.getenv('HOME')}/.config/gws/settings.json`;
+    let fn = Gio.File.new_for_path(file_path);
+    if (fn.query_exists(null)) {
+      const [success, contents] = fn.load_contents(null);
+      const decoder = new TextDecoder();
+      let contentsString = decoder.decode(contents);
+      let json = JSON.parse(contentsString);
+      Main.userSettings = json;
+      console.log(Main.userSettings);
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+loadCustomSettings();
+
 let cssSources = [];
 Promise.all(loadExtensions('./extensions')).then((res) => {
   Promise.all(loadExtensions('./user-extensions')).then((res) => {
@@ -186,6 +216,7 @@ Promise.all(loadExtensions('./extensions')).then((res) => {
     cssSources.forEach((style) => {
       Main.style.loadCssFile(style.name, style.path);
     });
+    Main.app.emit('ready');
   });
 });
 

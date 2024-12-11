@@ -38,10 +38,6 @@ function callGetInitialResultSet(query) {
   }
 }
 
-function logError(message) {
-  print(message); // Optionally print to the console for debugging
-}
-
 function getTermsForSearchString(searchString) {
   searchString = searchString.replace(/^\s+/g, '').replace(/\s+$/g, '');
   if (searchString === '') return [];

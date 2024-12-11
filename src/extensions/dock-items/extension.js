@@ -8,16 +8,22 @@ import { PopupMenu } from '../../lib/popupMenu.js';
 import { IconGroups } from '../../dock.js';
 import { getAppInfo, getAppInfoFromFile } from '../../lib/appInfo.js';
 
-const settingsShell = new Gio.Settings({ schema_id: 'org.gnome.shell' });
-let favorite_apps = settingsShell.get_value('favorite-apps').deepUnpack();
-
 const DockItemsExtension = GObject.registerClass(
   class DockItemsExtension extends Extension {
     enable() {
       super.enable();
 
       this.name = 'dockitems';
-      this.favorite_apps = favorite_apps;
+      this.favorite_apps = Main.userSettings.favorite_apps;
+
+      if (!this.favorite_apps) {
+        const settingsShell = new Gio.Settings({
+          schema_id: 'org.gnome.shell',
+        });
+        this.favorite_apps = settingsShell
+          .get_value('favorite-apps')
+          .deepUnpack();
+      }
 
       let prefix = this.name.toLowerCase();
       this.settings = Main.settings;

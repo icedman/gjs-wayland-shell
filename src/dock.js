@@ -398,10 +398,16 @@ const Dock = GObject.registerClass(
       Main.hiTimer.runOnce(() => {
         this.window.remove_css_class('startup');
       }, 0);
+
+      // hack to allow extensions to load
+      // Main.app.connectObject('ready', () => {
+      // }, this);
+
       super.enable();
     }
 
     disable() {
+      Main.app.disconnectObject(this);
       this.window.destroy();
       this.window = null;
       super.disable();

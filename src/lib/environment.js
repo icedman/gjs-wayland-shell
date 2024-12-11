@@ -64,6 +64,9 @@ GObject.Object.prototype.load_settings = function () {
       .replaceAll('-', '_')
       .toUpperCase();
     this[_key] = this.settings.getSetting(k);
+    if (Main.userSettings && Main.userSettings[k]) {
+      this[_key] = Main.userSettings[k];
+    }
     if (this.customSettings && this.customSettings[k]) {
       this[_key] = this.customSettings[k];
     }
@@ -71,6 +74,9 @@ GObject.Object.prototype.load_settings = function () {
       `changed::${k}`,
       () => {
         this[_key] = this.settings.getSetting(k);
+        if (Main.userSettings && Main.userSettings[k]) {
+          this[_key] = Main.userSettings[k];
+        }
         if (this.customSettings && this.customSettings[k]) {
           this[_key] = this.customSettings[k];
         }
