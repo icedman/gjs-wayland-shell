@@ -6,6 +6,11 @@
       <description>Application theme (dark, light, or auto)</description>
     </key>
     <!-- DOCK -->
+    <key type="b" name="dock-show">
+        <default>true</default>
+        <summary>Show the dock</summary>
+        <description>Show or hide the dock (it still runs in the background).</description>
+    </key>
     <key type="i" name="dock-location">
         <default>0</default>
         <summary>Dock location</summary>
@@ -72,6 +77,11 @@
         <description>Add the icon shadow effect.</description>
     </key>
     <!-- PANEL -->
+    <key type="b" name="bar-show">
+        <default>true</default>
+        <summary>Show the topbar</summary>
+        <description>Show or hide the topbar (it still runs in the background).</description>
+    </key>
     <key type="i" name="bar-location">
         <default>3</default>
         <summary>Bar location</summary>

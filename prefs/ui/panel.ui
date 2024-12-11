@@ -9,6 +9,18 @@
         <property name="title" translatable="yes">Topbar</property>
         <property name="description" translatable="yes"/>
         <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="yes">Enable</property>
+            <property name="subtitle" translatable="yes">Show or hide the topbar.</property>
+            <property name="activatable-widget">bar-show</property>
+            <child>
+              <object class="GtkSwitch" id="bar-show">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
           <object class="AdwActionRow" id="bar-location-row">
             <property name="visible">true</property>
             <property name="title" translatable="yes">Bar Location</property>

@@ -164,6 +164,7 @@ export const DockPanel = GObject.registerClass(
 
       this.settings = Main.settings;
       this.settingsMap = {
+        [`${prefix}-show`]: this.update_layout.bind(this),
         [`${prefix}-location`]: this.update_layout.bind(this),
         [`${prefix}-edge-distance`]: this.update_layout.bind(this),
         [`${prefix}-padding`]: this.update_style.bind(this),
@@ -215,6 +216,7 @@ export const DockPanel = GObject.registerClass(
       );
 
       this.queue_resize();
+      this.set_visible(this.SHOW);
     }
 
     async update_style() {
@@ -391,6 +393,7 @@ const Dock = GObject.registerClass(
 
       this.window.add_css_class('startup');
       this.window.present();
+      this.window.update_layout();
 
       Main.hiTimer.runOnce(() => {
         this.window.remove_css_class('startup');

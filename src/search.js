@@ -583,7 +583,6 @@ const Search = GObject.registerClass(
       this.window.remove_css_class('has-results');
       this.window.present();
       this.entry.grab_focus();
-      // this.window.show();
     }
 
     hide() {

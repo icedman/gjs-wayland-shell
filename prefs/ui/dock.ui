@@ -9,6 +9,18 @@
         <property name="title" translatable="yes">Dash</property>
         <property name="description" translatable="yes"/>
         <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="yes">Enable</property>
+            <property name="subtitle" translatable="yes">Show or hide the dash.</property>
+            <property name="activatable-widget">dock-show</property>
+            <child>
+              <object class="GtkSwitch" id="dock-show">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
           <object class="AdwActionRow" id="dock-location-row">
             <property name="visible">true</property>
             <property name="title" translatable="yes">Dock Location</property>

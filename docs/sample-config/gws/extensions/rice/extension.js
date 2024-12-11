@@ -14,7 +14,8 @@ let favorite_apps = [
   'org.gnome.TextEditor.desktop',
 ];
 
-const Rice = GObject.registerClass({},
+const Rice = GObject.registerClass(
+  {},
   class Rice extends Extension {
     enable() {
       super.enable();
@@ -26,12 +27,15 @@ const Rice = GObject.registerClass({},
     _enable() {
       super.enable();
 
-      this.dock = new Main.dock.DockPanel({name: 'Dock', customSettings: {
-        'dock-location': 1,
-        'edge-distance': 0,
-      }});
+      this.dock = new Main.dock.DockPanel({
+        name: 'Dock',
+        customSettings: {
+          'dock-location': 1,
+          'edge-distance': 0,
+        },
+      });
       {
-        this.dockItem = new Main.dock.DockItem({app:'kitty.desktop'});
+        this.dockItem = new Main.dock.DockItem({ app: 'kitty.desktop' });
         // this.dock.trail.append(this.dockItem);
         this.dock.center.append(this.dockItem);
         Main.extensions['dock-items'].createTrashItem(this.dock.center);
@@ -51,25 +55,24 @@ const Rice = GObject.registerClass({},
       // Main.dock.window.leadSpacer.visible = false;
 
       {
-        this.dockItem = new Main.dock.DockItem({app:'kitty.desktop'});
+        this.dockItem = new Main.dock.DockItem({ app: 'kitty.desktop' });
         Main.dock.trail.append(this.dockItem);
         Main.dock.trail.add_css_class('icons-container');
       }
       // for(let i=0;i<8;i++)
       {
         Main.extensions['dock-items'].createRunningApps(Main.dock.lead);
-        this.dockItem = new Main.dock.DockItem({app:'kitty.desktop'});
+        this.dockItem = new Main.dock.DockItem({ app: 'kitty.desktop' });
         Main.dock.lead.append(this.dockItem);
         Main.dock.lead.add_css_class('icons-container');
       }
 
       Main.dock.window.queue_resize();
-
     }
     disable() {
       super.disable();
     }
-  }
+  },
 );
 
 export default Rice;

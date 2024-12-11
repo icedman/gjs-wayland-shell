@@ -77,6 +77,7 @@ const Panel = GObject.registerClass(
 
       this.window.add_css_class('startup');
       this.window.present();
+      this.window.update_layout();
 
       Main.hiTimer.runOnce(() => {
         this.window.remove_css_class('startup');
