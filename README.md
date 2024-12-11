@@ -53,7 +53,7 @@ $ gws-prefs
 
 # Config directory
 
-copy ```gws`` from in ```docs/sample-config``` to the ```~/.config``` directory
+copy ```gws``` from in ```docs/sample-config``` to the ```~/.config``` directory
 
 # Extension/Rice
 
