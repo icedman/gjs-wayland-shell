@@ -162,7 +162,11 @@ const StyleExtension = GObject.registerClass(
       this.hex = this.style.hex;
 
       initialStyles.forEach((style) => {
-        this.loadCssFile(style.name, style.path);
+        try {
+          this.loadCssFile(style.name, style.path);
+        } catch (err) {
+          // todo .. check for file exists
+        }
       });
     }
 

@@ -6,20 +6,21 @@ import GObject from 'gi://GObject';
 import { Extension } from '../../lib/extensionInterface.js';
 import { PopupMenu } from '../../lib/popupMenu.js';
 import { IconGroups } from '../../dock.js';
+import { getAppInfo, getAppInfoFromFile } from '../../lib/appInfo.js';
 
 const settingsShell = new Gio.Settings({ schema_id: 'org.gnome.shell' });
-// let favoriteApps = settingsShell.get_value('favorite-apps').deepUnpack();
+let favorite_apps = settingsShell.get_value('favorite-apps').deepUnpack();
 
-let favorite_apps = [
-  'kitty.desktop',
-  'org.gnome.Nautilus.desktop',
-  'google-chrome.desktop',
-  'org.mozilla.firefox.desktop',
-  'org.gnome.Calendar.desktop',
-  'org.gnome.clocks.desktop',
-  'org.gnome.Software.desktop',
-  'org.gnome.TextEditor.desktop',
-];
+// let favorite_apps = [
+//   'kitty.desktop',
+//   'org.gnome.Nautilus.desktop',
+//   'google-chrome.desktop',
+//   'org.mozilla.firefox.desktop',
+//   'org.gnome.Calendar.desktop',
+//   'org.gnome.clocks.desktop',
+//   'org.gnome.Software.desktop',
+//   'org.gnome.TextEditor.desktop',
+// ];
 
 const DockItemsExtension = GObject.registerClass(
   class DockItemsExtension extends Extension {
@@ -213,6 +214,7 @@ const DockItemsExtension = GObject.registerClass(
       // Main.dock.center.append(item);
 
       function update_mounted_volumes() {
+        console.log('UPDATE MOUNTS');
         let mount_ids = Main.mounts.state?.mount_ids ?? [];
         let appIds = [];
         mount_ids.forEach((m) => {
@@ -288,6 +290,11 @@ const DockItemsExtension = GObject.registerClass(
 
       if (this.SHOW_TRASH) {
         let item = this.createTrashItem();
+        this.dockItems.push(item);
+      }
+
+      if (this.SHOW_MOUNTED_VOLUMES) {
+        let item = this.createMountedVolumes();
         this.dockItems.push(item);
       }
 
