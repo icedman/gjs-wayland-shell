@@ -94,6 +94,11 @@ const Style = class {
       );
     }
 
+    let fn = Gio.File.new_for_path(file_path);
+    if (!fn.query_exists(null)) {
+      return;
+    }
+
     provider = new Gtk.CssProvider();
 
     try {

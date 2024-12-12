@@ -316,6 +316,30 @@ const BarItemsExtension = GObject.registerClass(
       return mic;
     }
 
+    createInhibitorIndicator() {
+      let inhibitor = new Main.panel.PanelItem();
+      inhibitor.add_css_class('inhibitor');
+      inhibitor.set_label('inhibitor');
+
+      Main.inhibitor.connectObject(
+        'inhibitor-update',
+        () => {
+          let state = Main.inhibitor.state;
+          inhibitor.set_label(``);
+          inhibitor.set_icon(state.icon);
+        },
+        this,
+      );
+      Main.inhibitor.sync();
+
+      let evt = new Gtk.GestureClick();
+      evt.connect('pressed', (actor, count) => {
+        Main.inhibitor.toggle();
+      });
+      inhibitor.add_controller(evt);
+      return inhibitor;
+    }
+
     attachPanelItems() {
       if (!Main.panel.enabled || this.panelItems) return;
 
@@ -329,6 +353,7 @@ const BarItemsExtension = GObject.registerClass(
         power: this.createPowerIndicator.bind(this),
         volume: this.createVolumeIndicator.bind(this),
         mic: this.createMicIndicator.bind(this),
+        inhibitor: this.createInhibitorIndicator.bind(this),
       };
 
       const areaMap = {
