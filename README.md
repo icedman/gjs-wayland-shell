@@ -3,7 +3,7 @@
   <h3 align="center">GJS Wayland Shell (GWS)</h3>
 
   <p align="center">
-	A Gnome-based shell over wayland
+	A Gnome-based shell over wayland - with macOS-like dash Animation
     <br/>
     <br/>
   </p>
@@ -19,9 +19,11 @@
 	* sway
 	* hyprland
 2. gtk4-layer-shell-devel
-	* sudo dnf install gtk4-layer-shell-devel
+	```sudo dnf install gtk4-layer-shell-devel```
 3. gnome-shell
-	* sudo dnf gnome-shell
+	```sudo dnf install gnome-shell```
+4. udiskie - for volume mount monitor
+  ```sudo dnf install udiskie```
 
 # Installation
 
@@ -42,6 +44,24 @@ Map the search app to your hotkey with your window manager. Or run the app from 
 ```sh
 $ gws-search
 ```
+
+# Panel Items
+
+* logo
+* clock
+* inhibitor
+* network
+* power
+* volume
+* mic
+
+# Dock Items
+
+* favorite apps
+* running apps
+* trash
+* separator
+* volumes mounted
 
 # Customize
 
