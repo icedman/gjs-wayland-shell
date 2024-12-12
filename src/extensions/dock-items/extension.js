@@ -209,7 +209,6 @@ const DockItemsExtension = GObject.registerClass(
       // Main.dock.center.append(item);
 
       function update_mounted_volumes() {
-        console.log('UPDATE MOUNTS');
         let mount_ids = Main.mounts.state?.mount_ids ?? [];
         let appIds = [];
         mount_ids.forEach((m) => {

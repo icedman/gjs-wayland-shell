@@ -16,10 +16,10 @@ function getOSIcon() {
     'debian',
     'kalilinux',
     'manjaro',
-    'zorin'
+    'zorin',
   ];
   let os = getShorterOSName().toLowerCase();
-  for(let i=0; i<icons.length; i++) {
+  for (let i = 0; i < icons.length; i++) {
     let icon = icons[i];
     if (os.includes(icon)) {
       return icon;

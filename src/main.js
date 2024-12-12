@@ -3,6 +3,8 @@ import Gtk from 'gi://Gtk?version=4.0';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
+import LayerShell from 'gi://Gtk4LayerShell';
+
 import Dock from './dock.js';
 import Panel from './panel.js';
 import Search from './search.js';
@@ -118,7 +120,7 @@ async function loadModule(moduleName) {
   try {
     console.log(moduleName);
     const module = await import(moduleName);
-    console.log(`Successfully loaded ${moduleName}`);
+    console.log(`loaded ${moduleName}`);
     return module;
   } catch (error) {
     console.error(`Error loading module ${moduleName}:`, error);
@@ -210,17 +212,19 @@ let iconTheme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default());
 iconTheme.add_search_path(`./ui/icons`);
 
 let cssSources = [];
-Promise.all(loadExtensions('./extensions')).then((res) => {
-  Promise.all(loadExtensions('./user-extensions')).then((res) => {
-    cssSources.push({
-      name: 'user',
-      path: `${GLib.getenv('HOME')}/.config/gws/style.css`,
-    });
-    cssSources.forEach((style) => {
-      Main.style.loadCssFile(style.name, style.path);
-    });
-    Main.app.emit('ready');
+let promisedExtensions = [
+  ...loadExtensions('./extensions'),
+  ...loadExtensions('./user-extensions'),
+];
+Promise.all().then((res) => {
+  cssSources.push({
+    name: 'user',
+    path: `${GLib.getenv('HOME')}/.config/gws/style.css`,
   });
+  cssSources.forEach((style) => {
+    Main.style.loadCssFile(style.name, style.path);
+  });
+  Main.app.emit('ready');
 });
 
 let loop = GLib.MainLoop.new(null, false);

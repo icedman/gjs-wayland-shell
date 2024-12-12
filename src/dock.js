@@ -1,5 +1,6 @@
 import Gdk from 'gi://Gdk?version=4.0';
 import Gtk from 'gi://Gtk?version=4.0';
+import Gsk from 'gi://Gsk';
 import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
 import GObject from 'gi://GObject';
@@ -47,6 +48,7 @@ export const DockItem = GObject.registerClass(
         hexpand: true,
         vexpand: true,
       });
+      this.add_css_class('dock-item');
 
       this.id = appInfo.id;
       this.appInfo = appInfo;
@@ -56,6 +58,12 @@ export const DockItem = GObject.registerClass(
         // tooltip_text: appInfo.title,
       });
       this.btn.add_css_class('button');
+
+      const motionController = new Gtk.EventControllerMotion();
+      motionController.connect('motion', (controller, x, y) => {
+        this.on_enter();
+      });
+      this.add_controller(motionController);
 
       // right click
       if (appInfo.menu?.length > 0) {
@@ -91,6 +99,10 @@ export const DockItem = GObject.registerClass(
         this.btn.child.set_from_icon_name(icon);
       }
     }
+
+    on_enter() {}
+
+    on_leave() {}
   },
 );
 
@@ -167,6 +179,7 @@ export const DockPanel = GObject.registerClass(
         [`${prefix}-show`]: this.update_layout.bind(this),
         [`${prefix}-location`]: this.update_layout.bind(this),
         [`${prefix}-edge-distance`]: this.update_layout.bind(this),
+        [`${prefix}-enable-animation`]: this.update_style.bind(this),
         [`${prefix}-padding`]: this.update_style.bind(this),
         [`${prefix}-icon-shadow`]: this.update_style.bind(this),
         [`${prefix}-icon-size`]: this.update_icon_size.bind(this),
@@ -182,6 +195,30 @@ export const DockPanel = GObject.registerClass(
       this.load_settings();
       this.update_layout();
       this.update_style();
+
+      //
+      const motionController = new Gtk.EventControllerMotion();
+      motionController.connect('motion', (controller, x, y) => {
+        this._leaveLater();
+        const allocation = this.center.get_allocation(); // Get the window's allocation (size and position)
+        const window_x = allocation.x;
+        const window_y = allocation.y;
+        const window_width = allocation.width;
+        const window_height = allocation.height;
+
+        // Check if the pointer is inside the window's area
+        if (
+          x >= window_x &&
+          x <= window_x + window_width &&
+          y >= window_y &&
+          y <= window_y + window_height
+        ) {
+        } else {
+          // print("Pointer is outside the window.");
+          this._leave();
+        }
+      });
+      this.center.add_controller(motionController);
     }
 
     destroy() {
@@ -290,8 +327,57 @@ export const DockPanel = GObject.registerClass(
         );
       }
 
+      // animation
+      if (this.ENABLE_ANIMATION) {
+        let baseScale = 1.55;
+        let baseY = 7;
+        let baseMargin = 10;
+        let transitionStyle = `0.5s cubic-bezier(0.25, 1.5, 0.5, 1)`;
+        // let transitionStyle = `0.15s ease-in-out`;
+
+        let scaleDownContainer = 0.8;
+        this.center.add_css_class('animated-container');
+        let transforms = [
+          { scale: baseScale, y: -baseY, margin: baseMargin },
+          { scale: baseScale * 0.9, y: -baseY * 0.9, margin: baseMargin * 0.9 },
+          { scale: baseScale * 0.7, y: -baseY * 0.7, margin: baseMargin * 0.7 },
+        ];
+        styles.push(
+          `#${windowName} #container .animated-container { transform: scale(${scaleDownContainer}) translateY(${baseY}px); }`,
+        );
+        styles.push(
+          `#${windowName} #container .animated-container .dock-item button { background: transparent; }`,
+        );
+        styles.push(
+          `#${windowName} #container .animated-container .dock-item { transition: margin ${transitionStyle}, transform ${transitionStyle}; }`,
+        );
+        styles.push(
+          `#${windowName} #container .animated-container .button-hover { transform: scale(${transforms[0].scale}) translateY(${transforms[0].y}px); }`,
+        );
+        styles.push(
+          `#${windowName} #container .animated-container .button-hover { margin-left: ${transforms[0].margin}px; margin-right: ${transforms[0].margin}px; }`,
+        );
+        styles.push(
+          `#${windowName} #container .animated-container .button-adjacent-1 { transform: scale(${transforms[1].scale}) translateY(${transforms[1].y}px); }`,
+        );
+        styles.push(
+          `#${windowName} #container .animated-container .button-adjacent-1 { margin-left: ${transforms[1].margin}px; margin-right: ${transforms[1].margin}px; }`,
+        );
+        styles.push(
+          `#${windowName} #container .animated-container .button-adjacent-2 { transform: scale(${transforms[2].scale}) translateY(${transforms[2].y}px); }`,
+        );
+        styles.push(
+          `#${windowName} #container .animated-container .button-adjacent-2 { margin-left: ${transforms[2].margin}px; margin-right: ${transforms[2].margin}px; }`,
+        );
+
+        LayerShell.set_exclusive_zone(this, this.get_icon_size() * 0.9);
+      } else {
+        this.center.remove_css_class('animated-container');
+        LayerShell.auto_exclusive_zone_enable(this);
+      }
+
       try {
-        // console.log(styles);
+        console.log(styles);
         this.style.buildCss(`${this.stylePrefix}-style`, styles);
       } catch (err) {
         console.log(err);
@@ -344,13 +430,70 @@ export const DockPanel = GObject.registerClass(
         c._parent?.append(c);
         delete c._parent;
       });
+
+      currentIcons.forEach((c) => {
+        if (this.ENABLE_ANIMATION) {
+          c.on_enter = () => {
+            this._hover(c);
+          };
+        } else {
+          c.on_enter = () => {};
+        }
+      });
     }
 
-    async update_icon_size() {
+    _hover(item) {
+      this._leave();
+      let icons = this.get_icons(null, this.center);
+      for (let i = 0; i < icons.length; i++) {
+        if (icons[i] == item) {
+          icons[i].add_css_class('button-hover');
+        }
+        if (icons[i - 1] == item) {
+          icons[i].add_css_class('button-adjacent-1');
+        }
+        if (icons[i - 2] == item) {
+          icons[i].add_css_class('button-adjacent-2');
+        }
+        if (icons[i + 1] == item) {
+          icons[i].add_css_class('button-adjacent-1');
+        }
+        if (icons[i + 2] == item) {
+          icons[i].add_css_class('button-adjacent-2');
+        }
+      }
+    }
+
+    _leaveLater() {
+      this._debounceLeave = Main.loTimer.debounce(
+        Main.hiTimer,
+        () => {
+          this._leave();
+        },
+        3000,
+        this._debounceLeave,
+      );
+    }
+
+    _leave() {
+      let icons = this.get_icons(null, this.center);
+      for (let i = 0; i < icons.length; i++) {
+        icons[i].remove_css_class('button-hover');
+        icons[i].remove_css_class('button-adjacent-1');
+        icons[i].remove_css_class('button-adjacent-2');
+      }
+    }
+
+    get_icon_size() {
       const baseIconSizes = [16, 22, 24, 32, 48, 64];
       let iconSize =
         (baseIconSizes[this.ICON_SIZE] ?? 48) *
         (1 + 2 * (this.ICON_SCALE ?? 0));
+      return iconSize;
+    }
+
+    async update_icon_size() {
+      let iconSize = this.get_icon_size();
       let currentIcons = this.get_icons();
       currentIcons.forEach((c) => {
         // docks have buttons
