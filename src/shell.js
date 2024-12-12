@@ -1,3 +1,4 @@
+import Gdk from 'gi://Gdk?version=4.0';
 import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
 import GObject from 'gi://GObject';
@@ -209,7 +210,7 @@ const ShellInterface = GObject.registerClass(
     getWindows() {}
     focusWindow(id) {}
 
-    async focusOrOpen(className, exec, arg = '') {
+    async focusOrOpen(className, exec, arg = '', modifiers = {}) {
       let openedWindow = null;
       try {
         let openedWindows = (this.windows ?? []).filter((w) => {
@@ -221,12 +222,15 @@ const ShellInterface = GObject.registerClass(
         }
       } catch (err) {
         console.log(err);
+        return Promise.reject(err);
       }
 
-      if (openedWindow) {
-        this.focusWindow(openedWindow);
-      } else {
+      if (!openedWindow || modifiers[Gdk.KEY_Control_L]) {
         this.spawn(exec, arg);
+        return Promise.resolve(0);
+      } else {
+        this.focusWindow(openedWindow);
+        return Promise.resolve(1);
       }
     }
 

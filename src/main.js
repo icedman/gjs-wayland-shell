@@ -64,7 +64,15 @@ globalThis.Main = {
   volume: new Volume(),
   mic: new Mic(),
   trash: new Trash(),
-  style: new Style({ initialStyles: [{ name: 'app', path: './style.css' }] }),
+  style: new Style({
+    initialStyles: [
+      { name: 'app', path: './style.css' },
+      {
+        name: 'user',
+        path: `${GLib.getenv('HOME')}/.config/gws/style.css`,
+      },
+    ],
+  }),
 
   // extensions
   extensions: {},
@@ -72,6 +80,9 @@ globalThis.Main = {
   // settings
   settings: new Gio.Settings({ schema: 'com.github.icedman.gws' }),
   userSettings: {},
+
+  // keys:
+  modifiers: {},
 
   // imports
   imports: {
@@ -216,16 +227,17 @@ let promisedExtensions = [
   ...loadExtensions('./extensions'),
   ...loadExtensions('./user-extensions'),
 ];
-Promise.all().then((res) => {
-  cssSources.push({
-    name: 'user',
-    path: `${GLib.getenv('HOME')}/.config/gws/style.css`,
+Promise.all(promisedExtensions)
+  .then((res) => {
+    // cssSources.push();
+    cssSources.forEach((style) => {
+      Main.style.loadCssFile(style.name, style.path);
+    });
+    Main.app.emit('ready');
+  })
+  .catch((err) => {
+    console.log(err);
   });
-  cssSources.forEach((style) => {
-    Main.style.loadCssFile(style.name, style.path);
-  });
-  Main.app.emit('ready');
-});
 
 let loop = GLib.MainLoop.new(null, false);
 loop.run();

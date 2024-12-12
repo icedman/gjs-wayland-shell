@@ -362,11 +362,11 @@ const Search = GObject.registerClass(
 
       // border-radius
       {
-        let ss = [];
-        ss.push(`border-radius: ${borderRadius}px;`);
+        let ss = [`border-radius: ${borderRadius}px;`];
         styles.push(`#${windowName} { ${ss.join(' ')}}`);
         styles.push(`#${windowName} entry { ${ss.join(' ')}}`);
         styles.push(`#${windowName} .entry-container { ${ss.join(' ')}}`);
+        ss = [`border-radius: ${Math.floor(borderRadius * 0.6)}px;`];
         styles.push(`#${windowName} .result-row:focus { ${ss.join(' ')}}`);
         styles.push(`#${windowName} button { ${ss.join(' ')}}`);
       }

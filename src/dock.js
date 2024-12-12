@@ -9,6 +9,10 @@ import { PopupMenu } from './lib/popupMenu.js';
 import { Extension } from './lib/extensionInterface.js';
 import { getAppInfo, getAppInfoFromFile } from './lib/appInfo.js';
 
+const baseScale = 1.55;
+const scaleDownContainer = 0.75;
+const oneOverScaleDownContainer = 1.1 / scaleDownContainer;
+
 export const IconGroups = {
   HEAD: 10,
   FAVORITE_APPS: 100,
@@ -80,13 +84,22 @@ export const DockItem = GObject.registerClass(
         this.append(menu);
       }
 
-      this.btn.connect('clicked', (actor) => {
-        console.log(appInfo);
-        try {
-          Main.shell.focusOrOpen(appInfo.id, appInfo.exec);
-        } catch (err) {
-          console.log(err);
-        }
+      this.btn.connect('clicked', async (actor) => {
+        let modifiers = { ...Main.modifiers };
+        // move this to a general handler
+        Main.shell
+          .focusOrOpen(appInfo.id, appInfo.exec, '' /* args */, modifiers)
+          .then((res) => {
+            if (res == 0) {
+              this.add_css_class('bounce-icon');
+              Main.loTimer.runOnce(() => {
+                this.remove_css_class('bounce-icon');
+              }, 3000);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+          });
       });
       this.btn.child.set_pixel_size(iconSize);
       this.append(this.btn);
@@ -99,6 +112,8 @@ export const DockItem = GObject.registerClass(
         this.btn.child.set_from_icon_name(icon);
       }
     }
+
+    animate_bounce() {}
 
     on_enter() {}
 
@@ -179,7 +194,7 @@ export const DockPanel = GObject.registerClass(
         [`${prefix}-show`]: this.update_layout.bind(this),
         [`${prefix}-location`]: this.update_layout.bind(this),
         [`${prefix}-edge-distance`]: this.update_layout.bind(this),
-        [`${prefix}-enable-animation`]: this.update_style.bind(this),
+        [`${prefix}-enable-animation`]: this.update_animation.bind(this),
         [`${prefix}-padding`]: this.update_style.bind(this),
         [`${prefix}-icon-shadow`]: this.update_style.bind(this),
         [`${prefix}-icon-size`]: this.update_icon_size.bind(this),
@@ -196,17 +211,15 @@ export const DockPanel = GObject.registerClass(
       this.update_layout();
       this.update_style();
 
-      //
       const motionController = new Gtk.EventControllerMotion();
       motionController.connect('motion', (controller, x, y) => {
         this._leaveLater();
-        const allocation = this.center.get_allocation(); // Get the window's allocation (size and position)
+        const allocation = this.center.get_allocation();
         const window_x = allocation.x;
         const window_y = allocation.y;
         const window_width = allocation.width;
         const window_height = allocation.height;
 
-        // Check if the pointer is inside the window's area
         if (
           x >= window_x &&
           x <= window_x + window_width &&
@@ -214,7 +227,9 @@ export const DockPanel = GObject.registerClass(
           y <= window_y + window_height
         ) {
         } else {
-          // print("Pointer is outside the window.");
+          // pointer is outside window
+          LayerShell.set_keyboard_mode(this, LayerShell.KeyboardMode.NONE);
+          Main.modifiers = {};
           this._leave();
         }
       });
@@ -252,6 +267,12 @@ export const DockPanel = GObject.registerClass(
         this.EDGE_DISTANCE * 10,
       );
 
+      if (this.ENABLE_ANIMATION) {
+        LayerShell.set_exclusive_zone(this, this.get_icon_size());
+      } else {
+        LayerShell.auto_exclusive_zone_enable(this);
+      }
+
       this.queue_resize();
       this.set_visible(this.SHOW);
     }
@@ -269,6 +290,7 @@ export const DockPanel = GObject.registerClass(
       let backgroundColor = this.style.rgba(this.BACKGROUND_COLOR);
       let windowName = this.name;
 
+      // color
       {
         let ss = [];
         if (foregroundColor[3] > 0) {
@@ -315,32 +337,45 @@ export const DockPanel = GObject.registerClass(
         }
       }
 
+      // border radius
       {
         let ss = [];
         ss.push(`border-radius: ${Math.floor(borderRadius * 0.6)}px;`);
         styles.push(`#DockItem .button { ${ss.join(' ')}}`);
       }
 
+      // shadow
       if (this.ICON_SHADOW) {
         styles.push(
           `#${windowName} button { -gtk-icon-shadow: rgba(0, 0, 0, 0.6) 0 6px 6px; }`,
         );
       }
 
+      // buttons in general
+      {
+        styles.push(`#${windowName} button { outline: none; }`);
+      }
+
       // animation
       if (this.ENABLE_ANIMATION) {
-        let baseScale = 1.55;
-        let baseY = 7;
-        let baseMargin = 10;
+        let iconSize = this.get_icon_size();
         let transitionStyle = `0.5s cubic-bezier(0.25, 1.5, 0.5, 1)`;
         // let transitionStyle = `0.15s ease-in-out`;
 
-        let scaleDownContainer = 0.8;
+        // const baseY = 7;
+        // const baseMargin = 14;
+        const baseY = iconSize * 0.12;
+        const baseMargin = iconSize * 0.3;
+
         this.center.add_css_class('animated-container');
         let transforms = [
           { scale: baseScale, y: -baseY, margin: baseMargin },
           { scale: baseScale * 0.9, y: -baseY * 0.9, margin: baseMargin * 0.9 },
-          { scale: baseScale * 0.7, y: -baseY * 0.7, margin: baseMargin * 0.7 },
+          {
+            scale: baseScale * 0.725,
+            y: -baseY * 0.7,
+            margin: baseMargin * 0.7,
+          },
         ];
         styles.push(
           `#${windowName} #container .animated-container { transform: scale(${scaleDownContainer}) translateY(${baseY}px); }`,
@@ -369,15 +404,12 @@ export const DockPanel = GObject.registerClass(
         styles.push(
           `#${windowName} #container .animated-container .button-adjacent-2 { margin-left: ${transforms[2].margin}px; margin-right: ${transforms[2].margin}px; }`,
         );
-
-        LayerShell.set_exclusive_zone(this, this.get_icon_size() * 0.9);
       } else {
         this.center.remove_css_class('animated-container');
-        LayerShell.auto_exclusive_zone_enable(this);
       }
 
       try {
-        console.log(styles);
+        // console.log(styles);
         this.style.buildCss(`${this.stylePrefix}-style`, styles);
       } catch (err) {
         console.log(err);
@@ -447,7 +479,14 @@ export const DockPanel = GObject.registerClass(
       let icons = this.get_icons(null, this.center);
       for (let i = 0; i < icons.length; i++) {
         if (icons[i] == item) {
-          icons[i].add_css_class('button-hover');
+          if (!icons[i].has_css_class('button-hover')) {
+            icons[i].add_css_class('button-hover');
+            // grab the keyboard
+            LayerShell.set_keyboard_mode(
+              this,
+              LayerShell.KeyboardMode.ON_DEMAND,
+            );
+          }
         }
         if (icons[i - 1] == item) {
           icons[i].add_css_class('button-adjacent-1');
@@ -486,9 +525,14 @@ export const DockPanel = GObject.registerClass(
 
     get_icon_size() {
       const baseIconSizes = [16, 22, 24, 32, 48, 64];
+      const animationAdjustment = this.ENABLE_ANIMATION
+        ? oneOverScaleDownContainer
+        : 1;
       let iconSize =
         (baseIconSizes[this.ICON_SIZE] ?? 48) *
+        animationAdjustment *
         (1 + 2 * (this.ICON_SCALE ?? 0));
+      // console.log(`iconSize: ${this.ENABLE_ANIMATION} ${iconSize} ${animationAdjustment}`);
       return iconSize;
     }
 
@@ -503,6 +547,12 @@ export const DockPanel = GObject.registerClass(
       });
 
       this.queue_resize();
+    }
+
+    update_animation() {
+      this.update_icon_size();
+      this.update_layout();
+      this.update_style();
     }
   },
 );
@@ -534,17 +584,26 @@ const Dock = GObject.registerClass(
       this.trail = this.window.trail;
       this.center = this.window.center;
 
-      this.window.add_css_class('startup');
-      this.window.present();
-      this.window.update_layout();
-
-      Main.hiTimer.runOnce(() => {
-        this.window.remove_css_class('startup');
-      }, 0);
-
       // hack to allow extensions to load
-      // Main.app.connectObject('ready', () => {
-      // }, this);
+      Main.app.connectObject(
+        'ready',
+        () => {
+          this.window.update_layout();
+          this.window.present();
+        },
+        this,
+      );
+
+      let event = new Gtk.EventControllerKey();
+      event.connect('key-pressed', (w, key, keycode) => {
+        Main.modifiers[keycode] = true;
+        Main.modifiers[key] = true;
+      });
+      event.connect('key-released', (w, key, keycode) => {
+        Main.modifiers[keycode] = false;
+        Main.modifiers[key] = false;
+      });
+      this.window.add_controller(event);
 
       super.enable();
     }
