@@ -232,6 +232,16 @@
         <summary>Show trash</summary>
         <description></description>
     </key>
+    <key type="b" name="dockitems-show-separator">
+        <default>false</default>
+        <summary>Show separator</summary>
+        <description></description>
+    </key>
+    <key type="(dddd)" name="dockitems-separator-color">
+        <default>(0.5,0.5,0.5,0.5)</default>
+        <summary>Dock separator color</summary>
+        <description>Set separator color.</description>
+    </key>
     <key type="b" name="dockitems-show-mounted-volumes">
         <default>false</default>
         <summary>Show mounted volumes</summary>

@@ -19,6 +19,12 @@
     background: rgba(0,0,0,0.5);
 }
 
+#Dock separator {
+    transform: scale(0.7);
+    margin: 4px;
+    background: rgba(150, 150, 150, 0.6);
+}
+
 /* Bar */
 #Bar {
     background: transparent;

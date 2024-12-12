@@ -28,6 +28,7 @@ const DockItemsExtension = GObject.registerClass(
       let prefix = this.name.toLowerCase();
       this.settings = Main.settings;
       this.settingsMap = {
+        [`${prefix}-show-separator`]: this.reattachDockItems.bind(this),
         [`${prefix}-show-trash`]: this.reattachDockItems.bind(this),
         [`${prefix}-show-mounted-volumes`]: this.reattachDockItems.bind(this),
         [`${prefix}-show-apps`]: this.reattachDockItems.bind(this),
@@ -105,6 +106,15 @@ const DockItemsExtension = GObject.registerClass(
       );
       Main.trash.sync();
       return trash;
+    }
+
+    createSeparator(target = null) {
+      target = target ?? Main.dock.center;
+      let item = new Gtk.Separator();
+      Main.dock.add_dock_item(item, target);
+      item.group = IconGroups.SEPARATOR;
+      item.add_css_class('separator');
+      return item;
     }
 
     createFavoritesItem(target = null) {
@@ -276,22 +286,32 @@ const DockItemsExtension = GObject.registerClass(
         let items = this.createRunningApps();
         this.dockItems.push(items);
       }
-
       if (this.SHOW_APPS) {
         let item = this.createAppsItem();
         this.dockItems.push(item);
       }
-
       if (this.SHOW_TRASH) {
         let item = this.createTrashItem();
         this.dockItems.push(item);
       }
-
       if (this.SHOW_MOUNTED_VOLUMES) {
         let item = this.createMountedVolumes();
         this.dockItems.push(item);
       }
-
+      if (
+        this.SHOW_SEPARATOR &&
+        this.SHOW_APPS &&
+        (this.SHOW_RUNNING_APPS || this.SHOW_TRASH)
+      ) {
+        let windows = Main.shell.windows ?? [];
+        if (
+          this.favorite_apps.length > 0 &&
+          (windows.length > 0 || this.SHOW_TRASH)
+        ) {
+          let item = this.createSeparator();
+          this.dockItems.push(item);
+        }
+      }
       Main.dock.window.sort_icons();
     }
 

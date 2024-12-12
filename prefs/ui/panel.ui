@@ -289,6 +289,7 @@
         </child>
         <child>
           <object class="AdwActionRow">
+            <property name="visible">false</property>
             <property name="title" translatable="yes">Separator Thickness</property>
             <property name="subtitle" translatable="yes">Set separator thickness.</property>
             <property name="activatable-widget">separator-thickness</property>
@@ -302,6 +303,7 @@
         </child>
         <child>
           <object class="AdwActionRow">
+            <property name="visible">false</property>
             <property name="title" translatable="yes">Separator Color</property>
             <property name="subtitle" translatable="yes">Select separator color.</property>
             <property name="activatable-widget">separator-color</property>

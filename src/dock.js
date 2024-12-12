@@ -16,6 +16,7 @@ const oneOverScaleDownContainer = 1.1 / scaleDownContainer;
 export const IconGroups = {
   HEAD: 10,
   FAVORITE_APPS: 100,
+  SEPARATOR: 199,
   RUNNING_APPS: 200,
   VOLUMES: 300,
   PLACES: 400,
@@ -192,9 +193,12 @@ export const DockPanel = GObject.registerClass(
       this.settings = Main.settings;
       this.settingsMap = {
         [`${prefix}-show`]: this.update_layout.bind(this),
-        [`${prefix}-location`]: this.update_layout.bind(this),
         [`${prefix}-edge-distance`]: this.update_layout.bind(this),
+
+        // settings affecting animation or affected by animation
+        [`${prefix}-location`]: this.update_animation.bind(this),
         [`${prefix}-enable-animation`]: this.update_animation.bind(this),
+
         [`${prefix}-padding`]: this.update_style.bind(this),
         [`${prefix}-icon-shadow`]: this.update_style.bind(this),
         [`${prefix}-icon-size`]: this.update_icon_size.bind(this),
@@ -267,7 +271,7 @@ export const DockPanel = GObject.registerClass(
         this.EDGE_DISTANCE * 10,
       );
 
-      if (this.ENABLE_ANIMATION) {
+      if (this.ENABLE_ANIMATION && this.LOCATION == 0) {
         LayerShell.set_exclusive_zone(this, this.get_icon_size());
       } else {
         LayerShell.auto_exclusive_zone_enable(this);
@@ -357,7 +361,7 @@ export const DockPanel = GObject.registerClass(
       }
 
       // animation
-      if (this.ENABLE_ANIMATION) {
+      if (this.ENABLE_ANIMATION && this.LOCATION == 0) {
         let iconSize = this.get_icon_size();
         let transitionStyle = `0.5s cubic-bezier(0.25, 1.5, 0.5, 1)`;
         // let transitionStyle = `0.15s ease-in-out`;
@@ -464,7 +468,7 @@ export const DockPanel = GObject.registerClass(
       });
 
       currentIcons.forEach((c) => {
-        if (this.ENABLE_ANIMATION) {
+        if (this.ENABLE_ANIMATION && this.LOCATION == 0) {
           c.on_enter = () => {
             this._hover(c);
           };
@@ -478,6 +482,7 @@ export const DockPanel = GObject.registerClass(
       this._leave();
       let icons = this.get_icons(null, this.center);
       for (let i = 0; i < icons.length; i++) {
+        if (icons[i].group == IconGroups.SEPARATOR) continue;
         if (icons[i] == item) {
           if (!icons[i].has_css_class('button-hover')) {
             icons[i].add_css_class('button-hover');
@@ -525,9 +530,10 @@ export const DockPanel = GObject.registerClass(
 
     get_icon_size() {
       const baseIconSizes = [16, 22, 24, 32, 48, 64];
-      const animationAdjustment = this.ENABLE_ANIMATION
-        ? oneOverScaleDownContainer
-        : 1;
+      const animationAdjustment =
+        this.ENABLE_ANIMATION && this.LOCATION == 0
+          ? oneOverScaleDownContainer
+          : 1;
       let iconSize =
         (baseIconSizes[this.ICON_SIZE] ?? 48) *
         animationAdjustment *
