@@ -84,12 +84,12 @@ const ShellInterface = GObject.registerClass(
 
     onWindowClosed(evt) {
       console.log('onWindowClosed');
-      console.log(evt);
-      console.log(this.windows.length);
+      // console.log(evt);
+      // console.log(this.windows.length);
       this.windows = this.windows.filter((w) => {
         return w.id != evt['window']['id'];
       });
-      console.log(this.windows.length);
+      // console.log(this.windows.length);
       // this.normalizeWindows();
       this.emit('windows-update');
       this.emit('window-closed');
@@ -160,7 +160,7 @@ const ShellInterface = GObject.registerClass(
             this.emit('windows-update');
             break;
           default:
-            console.log('unhandled ' + eventType);
+            // console.log('unhandled ' + eventType);
             break;
         }
       });
@@ -392,7 +392,8 @@ const NiriShell = GObject.registerClass(
 
     async focusWindow(window) {
       if (!window || !window['id']) return;
-      console.log(window);
+
+      // console.log(window);
 
       let connection = this.connect();
       if (!connection) {

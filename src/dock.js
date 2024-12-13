@@ -616,10 +616,15 @@ export const DockPanel = GObject.registerClass(
       let iconSize = this.get_icon_size();
       let currentIcons = this.get_icons();
       currentIcons.forEach((c) => {
+        if (c.set_icon_size) {
+          c.set_icon_size(iconSize);
+        }
+        // {
         // docks have buttons
-        c.btn?.child?.set_pixel_size(iconSize);
+        // c.btn?.child?.set_pixel_size(iconSize);
         // panels have icons
-        c.icon?.set_pixel_size(iconSize);
+        // c.icon?.set_pixel_size(iconSize);
+        // }
       });
 
       this.queue_resize();

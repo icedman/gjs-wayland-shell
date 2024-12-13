@@ -67,10 +67,7 @@ const Login1 = GObject.registerClass(
           OBJECT_PATH,
           (proxy, error) => {
             if (error) console.error(error.message);
-            else
-              console.log(
-                this._proxy.connect('g-properties-changed', () => this.sync()),
-              );
+            else this._proxy.connect('g-properties-changed', () => this.sync());
             this.sync();
           },
         );

@@ -405,7 +405,7 @@ const Search = GObject.registerClass(
       // }
 
       try {
-        console.log(JSON.stringify(styles, null, 4));
+        // console.log(JSON.stringify(styles, null, 4));
         this.style.buildCss(`${this.stylePrefix}-style`, styles);
       } catch (err) {
         console.log(err);

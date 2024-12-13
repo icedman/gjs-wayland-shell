@@ -42,6 +42,10 @@ const PanelItem = GObject.registerClass(
         this.icon.set_from_icon_name(icon);
       }
     }
+
+    set_icon_size(size) {
+      this.icon?.set_pixel_size(size);
+    }
   },
 );
 

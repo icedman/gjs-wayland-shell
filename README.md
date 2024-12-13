@@ -22,7 +22,7 @@
 	```sudo dnf install gtk4-layer-shell-devel```
 3. gnome-shell
 	```sudo dnf install gnome-shell```
-4. udiskie - for volume mount monitor
+4. udiskie (optiona) for volume mount monitor
   ```sudo dnf install udiskie```
 
 # Installation
@@ -37,13 +37,25 @@ Run from terminal or from niri, sway, hyprland autostart config
 $ gws
 ```
 
-# Search menu
+# Features
+
+* dash
+* topbar
+* search light
+* animated icons
+* autohide
+* dynamic trash icons
+* mount icons
+
+# Search Light
 
 Map the search app to your hotkey with your window manager. Or run the app from terminal.
 
 ```sh
 $ gws-search
 ```
+
+Functions the same ways as Gnome Shell's search, using DBus querying SearchProviders.
 
 # Panel Items
 
@@ -117,13 +129,13 @@ The sample extension show how to add custom dock. (Requires coding)
 
 ```
 
-# why is gnome-shell required?
+# Why is gnome-shell required?
 * This shell re-uses some of gnome-shell's dbus interfaces
 * This shell re-uses a lot of gnome-shell's code
 * gnome-shell need not be running
 
 
-# debugging
+# Debugging
 
 To show a console like gnome-shell's looking glass the browse console:
 

@@ -13,6 +13,12 @@ const DBusServiceInterface = `
   <interface name="${BUS_NAME}">
     <method name="show_search"/>
     <method name="show_console"/>
+    <method name="key_down">
+      <arg name="application_name" type="s" direction="in"/>
+    </method>
+    <method name="key_up">
+      <arg name="application_name" type="s" direction="in"/>
+    </method>
   </interface>
 </node>`;
 
@@ -70,6 +76,12 @@ const DBus = GObject.registerClass(
     show_console() {
       this.emit('request-console');
     }
+
+    key_down(key) {
+      console.log(key);
+    }
+
+    key_up(key) {}
   },
 );
 
