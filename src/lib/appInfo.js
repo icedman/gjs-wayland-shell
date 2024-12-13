@@ -43,6 +43,7 @@ function getAppInfo(app) {
   }
 
   appRegistry[appInfo.id] = appInfo;
+  // console.log(appInfo);
   return appInfo;
 }
 

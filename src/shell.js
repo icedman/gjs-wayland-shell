@@ -375,6 +375,8 @@ const NiriShell = GObject.registerClass(
         return;
       }
 
+      // console.log(window);
+
       let message =
         JSON.stringify({ Action: { FocusWindow: { id: window['id'] } } }) +
         '\n';

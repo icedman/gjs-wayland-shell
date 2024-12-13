@@ -12,7 +12,8 @@ import { getAppInfo, getAppInfoFromFile } from './lib/appInfo.js';
 const baseScale = 1.55;
 const scaleDownContainer = 0.75;
 const oneOverScaleDownContainer = 1.1 / scaleDownContainer;
-const animatedLocations = [0, 1, 2, 3];
+// const animatedLocations = [0, 1, 2, 3];
+const animatedLocations = [0, 3];
 
 export const IconGroups = {
   HEAD: 10,
@@ -74,15 +75,21 @@ export const DockItem = GObject.registerClass(
       // right click
       if (appInfo.menu?.length > 0) {
         let menu = new PopupMenu({
-          items: appInfo.menu,
+          app: appInfo,
         });
 
         let evt = new Gtk.GestureClick();
         evt.set_button(3); // right click
         evt.connect('pressed', (actor, count) => {
+          menu.updateWindowItems(
+            Main.shell.windows.filter(
+              (w) => w.app_id == appInfo.id.replace('.desktop', ''),
+            ),
+          );
           menu.popup();
         });
         this.btn.add_controller(evt);
+        this.menu = menu;
         this.append(menu);
       }
 
@@ -236,7 +243,8 @@ export const DockPanel = GObject.registerClass(
         ) {
         } else {
           // pointer is outside window
-          LayerShell.set_keyboard_mode(this, LayerShell.KeyboardMode.NONE);
+          // ungrab
+          // LayerShell.set_keyboard_mode(this, LayerShell.KeyboardMode.NONE);
           Main.modifiers = {};
           this._leave();
         }
@@ -279,6 +287,13 @@ export const DockPanel = GObject.registerClass(
         LayerShell.set_exclusive_zone(this, this.get_icon_size());
       } else {
         LayerShell.auto_exclusive_zone_enable(this);
+      }
+
+      if (this.prevLocation != this.LOCATION) {
+        this.center.set_size_request(20, 20);
+        this.container.set_size_request(20, 20);
+        this.set_size_request(20, 20);
+        this.prevLocation = this.LOCATION;
       }
 
       this.queue_resize();
@@ -506,10 +521,10 @@ export const DockPanel = GObject.registerClass(
           if (!icons[i].has_css_class('button-hover')) {
             icons[i].add_css_class('button-hover');
             // grab the keyboard
-            LayerShell.set_keyboard_mode(
-              this,
-              LayerShell.KeyboardMode.ON_DEMAND,
-            );
+            // LayerShell.set_keyboard_mode(
+            //   this,
+            //   LayerShell.KeyboardMode.ON_DEMAND,
+            // );
           }
         }
         if (icons[i - 1] == item) {
