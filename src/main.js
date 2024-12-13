@@ -13,6 +13,7 @@ import ShellService from './shell.js';
 import Power from './services/power.js';
 import Brightness from './services/brightness.js';
 import Inhibitor from './services/inhibitor.js';
+import Login1 from './services/login1.js';
 import Network from './services/network.js';
 import Mounts from './services/mounts.js';
 import { Volume, Mic } from './services/volume.js';
@@ -66,6 +67,7 @@ globalThis.Main = {
   mic: new Mic(),
   trash: new Trash(),
   inhibitor: new Inhibitor(),
+  login1: new Login1(),
   style: new Style({
     initialStyles: [
       { name: 'app', path: './style.css' },
@@ -115,6 +117,7 @@ Main.loTimer.initialize(750);
   Main.brightness,
   Main.panel,
   Main.inhibitor,
+  Main.login1,
   Main.dock,
   Main.apps,
   Main.search,
