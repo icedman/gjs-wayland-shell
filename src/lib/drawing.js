@@ -2,8 +2,91 @@
 
 import PangoCairo from 'gi://PangoCairo';
 import Pango from 'gi://Pango';
-import Cogl from 'gi://Cogl';
-import Clutter from 'gi://Clutter';
+
+const NAMED_COLORS = {
+  red: { r: 255, g: 0, b: 0, a: 255 },
+  green: { r: 0, g: 255, b: 0, a: 255 },
+  blue: { r: 0, g: 0, b: 255, a: 255 },
+  black: { r: 0, g: 0, b: 0, a: 255 },
+  white: { r: 255, g: 255, b: 255, a: 255 },
+  // Add more named colors as needed
+};
+
+function colorFromString(colorString) {
+  if (!colorString || typeof colorString !== 'string') {
+    throw new Error('Invalid color string');
+  }
+
+  colorString = colorString.trim().toLowerCase();
+
+  // Check for named colors
+  if (NAMED_COLORS[colorString]) {
+    return { ...NAMED_COLORS[colorString] };
+  }
+
+  // Check for hex formats
+  let match;
+
+  // #RRGGBB
+  match = /^#([0-9a-f]{6})$/i.exec(colorString);
+  if (match) {
+    const hex = match[1];
+    return {
+      r: parseInt(hex.substring(0, 2), 16),
+      g: parseInt(hex.substring(2, 4), 16),
+      b: parseInt(hex.substring(4, 6), 16),
+      a: 255,
+    };
+  }
+
+  // #RRGGBBAA
+  match = /^#([0-9a-f]{8})$/i.exec(colorString);
+  if (match) {
+    const hex = match[1];
+    return {
+      r: parseInt(hex.substring(0, 2), 16),
+      g: parseInt(hex.substring(2, 4), 16),
+      b: parseInt(hex.substring(4, 6), 16),
+      a: parseInt(hex.substring(6, 8), 16),
+    };
+  }
+
+  // #RGB
+  match = /^#([0-9a-f]{3})$/i.exec(colorString);
+  if (match) {
+    const hex = match[1];
+    return {
+      r: parseInt(hex[0] + hex[0], 16),
+      g: parseInt(hex[1] + hex[1], 16),
+      b: parseInt(hex[2] + hex[2], 16),
+      a: 255,
+    };
+  }
+
+  // #RGBA
+  match = /^#([0-9a-f]{4})$/i.exec(colorString);
+  if (match) {
+    const hex = match[1];
+    return {
+      r: parseInt(hex[0] + hex[0], 16),
+      g: parseInt(hex[1] + hex[1], 16),
+      b: parseInt(hex[2] + hex[2], 16),
+      a: parseInt(hex[3] + hex[3], 16),
+    };
+  }
+
+  throw new Error('Invalid color format');
+}
+
+// Example usage
+// try {
+//     console.log(colorFromString('#3498db')); // { r: 52, g: 152, b: 219, a: 255 }
+//     console.log(colorFromString('red'));     // { r: 255, g: 0, b: 0, a: 255 }
+//     console.log(colorFromString('#abc'));    // { r: 170, g: 187, b: 204, a: 255 }
+//     console.log(colorFromString('#abcd'));   // { r: 170, g: 187, b: 204, a: 221 }
+// } catch (e) {
+//     console.error(e.message);
+// }
 
 function draw_rotated_line(ctx, color, width, angle, len, offset) {
   offset = offset || 0;
@@ -115,9 +198,8 @@ function draw_text(ctx, showtext, font = 'DejaVuSans 42') {
 
 function set_color(ctx, clr, alpha) {
   if (typeof clr === 'string') {
-    const fn = Cogl?.Color.from_string || Clutter?.Color.from_string;
-    const [, cc] = fn(clr);
-    ctx.setSourceRGBA(cc.red, cc.green, cc.blue, alpha);
+    const cc = colorFromString(clr);
+    ctx.setSourceRGBA(cc.r, cc.g, cc.b, cc.a);
   } else {
     if (clr.red) {
       ctx.setSourceRGBA(clr.red, clr.green, clr.blue, alpha);

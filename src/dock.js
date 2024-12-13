@@ -6,6 +6,7 @@ import Gio from 'gi://Gio';
 import GObject from 'gi://GObject';
 import LayerShell from 'gi://Gtk4LayerShell';
 import { PopupMenu } from './lib/popupMenu.js';
+import { Dot } from './lib/dot.js';
 import { Extension } from './lib/extensionInterface.js';
 import { getAppInfo, getAppInfoFromFile } from './lib/appInfo.js';
 
@@ -111,9 +112,21 @@ export const DockItem = GObject.registerClass(
           });
       });
       this.btn.child.set_pixel_size(iconSize);
-      // this.overlay = new Gtk.Overlay({hexpand: true, vexpand: true});
-      // this.overlay.add_overlay(this.btn);
-      this.append(this.btn);
+      // this.append(this.btn);
+
+      this.overlay = new Gtk.Fixed({ hexpand: true, vexpand: true });
+      this.overlay.put(this.btn, 0, 0);
+
+      // this.indicator = new Gtk.Label({label: 'hello'});
+      // this.indicator = new Dot(48);
+      // this.indicator.set_state({
+      //   style: 'binary',
+      //   color: '#ff00ff',
+      //   count: 4
+      // });
+      // this.overlay.put(this.indicator, 8, 8);
+
+      this.append(this.overlay);
     }
 
     set_icon(icon) {
@@ -126,6 +139,7 @@ export const DockItem = GObject.registerClass(
 
     set_icon_size(size) {
       this.btn.child?.set_pixel_size(size);
+      this.indicator?.set_size_request(size, size);
     }
 
     on_enter() {}
@@ -175,7 +189,7 @@ export const DockPanel = GObject.registerClass(
         hexpand: false,
         vexpand: false,
       });
-      // this.overlay = new Gtk.Overlay({ hexpand: true, vexpand: true });
+      this.overlay = new Gtk.Fixed({ hexpand: true, vexpand: true });
       this.center.orientation = Gtk.Orientation.HORIZONTAL;
       this.lead.orientation = Gtk.Orientation.HORIZONTAL;
       this.trail.orientation = Gtk.Orientation.HORIZONTAL;
@@ -194,9 +208,11 @@ export const DockPanel = GObject.registerClass(
       });
       this.container.append(this.lead);
       this.container.append(this.leadSpacer);
+
       this.container.append(this.center);
       // this.container.append(this.overlay);
-      // this.overlay.add_overlay(this.center);
+      // this.overlay.put(this.center, 0, 0);
+
       this.container.append(this.trailSpacer);
       this.container.append(this.trail);
 
@@ -634,6 +650,7 @@ export const DockPanel = GObject.registerClass(
       this.update_icon_size();
       this.update_layout();
       this.update_style();
+      this.window.sort_icons();
     }
   },
 );
@@ -669,8 +686,8 @@ const Dock = GObject.registerClass(
       Main.app.connectObject(
         'ready',
         () => {
-          this.window.update_layout();
           this.window.present();
+          this.window.update_layout();
         },
         this,
       );

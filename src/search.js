@@ -171,7 +171,17 @@ const Search = GObject.registerClass(
       );
 
       if (Main?.dbus) {
-        Main.dbus.connectObject('request-search', this.show.bind(this), this);
+        Main.dbus.connectObject(
+          'request-search',
+          () => {
+            if (this.window.visible) {
+              this.hide();
+            } else {
+              this.show();
+            }
+          },
+          this,
+        );
       }
 
       super.enable();
