@@ -40,7 +40,7 @@ export const PopupMenu = GObject.registerClass(
         // make this configurable
         let evt = new Gtk.GestureClick();
         // evt.set_button(3);
-        evt.connect('pressed', (actor, count) => {
+        evt.connect('pressed', async (actor, count) => {
           if (item.action == 'open') {
             Main.shell.focusOrOpen(item.id, item.exec);
             this.popdown();

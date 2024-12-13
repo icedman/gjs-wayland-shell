@@ -91,6 +91,7 @@ const BarItemsExtension = GObject.registerClass(
       logo.add_css_class('logo');
       // logo.set_label(getOSName());
       // logo.set_label(getShorterOSName());
+      // logo.set_label("Unicode Example: こんにちは 🌟");
       logo.set_icon(getOSIcon());
       return logo;
     }

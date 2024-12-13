@@ -111,6 +111,8 @@ export const DockItem = GObject.registerClass(
           });
       });
       this.btn.child.set_pixel_size(iconSize);
+      // this.overlay = new Gtk.Overlay({hexpand: true, vexpand: true});
+      // this.overlay.add_overlay(this.btn);
       this.append(this.btn);
     }
 
@@ -122,7 +124,9 @@ export const DockItem = GObject.registerClass(
       }
     }
 
-    animate_bounce() {}
+    set_icon_size(size) {
+      this.btn.child?.set_pixel_size(size);
+    }
 
     on_enter() {}
 
@@ -209,6 +213,7 @@ export const DockPanel = GObject.registerClass(
         // settings affecting animation or affected by animation
         [`${prefix}-location`]: this.update_animation.bind(this),
         [`${prefix}-enable-animation`]: this.update_animation.bind(this),
+        [`${prefix}-enable-autohide`]: this.update_animation.bind(this),
 
         [`${prefix}-padding`]: this.update_style.bind(this),
         [`${prefix}-icon-shadow`]: this.update_style.bind(this),
@@ -283,7 +288,14 @@ export const DockPanel = GObject.registerClass(
         this.EDGE_DISTANCE * 10,
       );
 
-      if (this.ENABLE_ANIMATION && animatedLocations.includes(this.LOCATION)) {
+      this.container.remove_css_class('autohide');
+      if (this.ENABLE_AUTOHIDE) {
+        this.container.add_css_class('autohide');
+        LayerShell.set_exclusive_zone(this, this.get_icon_size() / 8);
+      } else if (
+        this.ENABLE_ANIMATION &&
+        animatedLocations.includes(this.LOCATION)
+      ) {
         LayerShell.set_exclusive_zone(this, this.get_icon_size());
       } else {
         LayerShell.auto_exclusive_zone_enable(this);
@@ -379,9 +391,10 @@ export const DockPanel = GObject.registerClass(
         styles.push(`#${windowName} button { outline: none; }`);
       }
 
+      let iconSize = this.get_icon_size();
+
       // animation
       if (this.ENABLE_ANIMATION && animatedLocations.includes(this.LOCATION)) {
-        let iconSize = this.get_icon_size();
         let transitionStyle = `0.5s cubic-bezier(0.25, 1.5, 0.5, 1)`;
         // let transitionStyle = `0.15s ease-in-out`;
 
@@ -441,6 +454,29 @@ export const DockPanel = GObject.registerClass(
         );
       } else {
         this.center.remove_css_class('animated-container');
+      }
+
+      // autohide
+      if (this.ENABLE_AUTOHIDE) {
+        let hideDistance = iconSize * 1.2;
+        let offset = `translateY(${hideDistance}px);`;
+        if (dockLocation[this.LOCATION] == 'top') {
+          offset = `translateY(-${hideDistance}px);`;
+        }
+        if (dockOrientation[this.LOCATION] == Gtk.Orientation.VERTICAL) {
+          offset = `translateX(${hideDistance}px);`;
+          if (dockLocation[this.LOCATION] == 'left') {
+            offset = `translateX(-${hideDistance}px);`;
+          }
+        }
+
+        let ss = [];
+        ss.push(`transition: transform 0.25s ease-in-out;`);
+        ss.push(`transform: ${offset};`);
+        styles.push(`#{windowName} #container.autohide { ${ss.join(' ')}}`);
+        styles.push(
+          `#{windowName}:hover #container.autohide { transform: none }}`,
+        );
       }
 
       try {
@@ -586,8 +622,6 @@ export const DockPanel = GObject.registerClass(
         c.icon?.set_pixel_size(iconSize);
       });
 
-      // let { width, height } = this.center.get_allocation();
-      // this.overlay.set_size_request(width, height);
       this.queue_resize();
     }
 

@@ -33,7 +33,6 @@
 }
 
 #PanelItem.logo * {
-    font-family: Helvetica;
     font-weight: bold;
 }
 
@@ -62,11 +61,11 @@
 }
 
 #Menu contents {
-    background: rgba(0,0,0,0.98);
+    background: rgba(0,0,0,0.9);
 }
 
 #Menu arrow {
-    background: rgba(0,0,0,0.98);
+    background: rgba(0,0,0,0.9);
 }
 
 #Menu * {

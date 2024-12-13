@@ -184,15 +184,27 @@
     </child>
     <child>
       <object class="AdwPreferencesGroup">
-        <property name="title" translatable="yes">Animation</property>
+        <property name="title" translatable="yes">Animation Effects</property>
         <property name="description" translatable="yes"/>
         <child>
           <object class="AdwActionRow">
-            <property name="title" translatable="yes">Enable</property>
+            <property name="title" translatable="yes">Animate</property>
             <property name="subtitle" translatable="yes">Animate the dash icons.</property>
             <property name="activatable-widget">dock-enable-animation</property>
             <child>
               <object class="GtkSwitch" id="dock-enable-animation">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="yes">Autohide</property>
+            <property name="subtitle" translatable="yes">Autohide the dash icons.</property>
+            <property name="activatable-widget">dock-enable-autohide</property>
+            <child>
+              <object class="GtkSwitch" id="dock-enable-autohide">
                 <property name="valign">center</property>
               </object>
             </child>
@@ -238,6 +250,7 @@
         </child>
         <child>
           <object class="AdwActionRow">
+            <property name="visible">false</property>
             <property name="title" translatable="yes">Icons Spacing</property>
             <property name="subtitle" translatable="yes">Adjust icons spacing.</property>
             <property name="activatable-widget">dock-icon-spacing</property>

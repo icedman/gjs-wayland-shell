@@ -58,11 +58,9 @@ const ShellInterface = GObject.registerClass(
         newWindow = evt;
       }
       if (newWindow) {
-        // if data is bare... fetch all windows
         if (!newWindow['window']['app_id']) {
-          this.getWindows().then((res) => {
-            // new windows
-          });
+          // if data is bare... fetch all windows
+          // this.queueGetWindows();
         } else {
           this.windows = [...this.windows, newWindow['window']];
           this.normalizeWindows();
@@ -95,6 +93,22 @@ const ShellInterface = GObject.registerClass(
       // this.normalizeWindows();
       this.emit('windows-update');
       this.emit('window-closed');
+    }
+
+    queueGetWindows() {
+      this._queueGetWindowSeq = Main.loTimer.debounce(
+        Main.loTimer,
+        () => {
+          try {
+            this.getWindows();
+          } catch (err) {
+            // oops!?
+            console.log(err);
+          }
+        },
+        1500,
+        this._queueGetWindowSeq,
+      );
     }
 
     normalizeWindows(target = null) {
@@ -284,7 +298,14 @@ const NiriShell = GObject.registerClass(
 
       let lines = msg.trim().split('\n');
       lines.forEach((l) => {
-        let obj = JSON.parse(l);
+        let obj = null;
+        try {
+          obj = JSON.parse(l);
+        } catch (err) {
+          console.log(l);
+          console.log(err);
+          return;
+        }
 
         if (obj['WindowsChanged']) {
           this.windows = obj['WindowChanged']['windows'];
@@ -370,12 +391,13 @@ const NiriShell = GObject.registerClass(
     }
 
     async focusWindow(window) {
+      if (!window || !window['id']) return;
+      console.log(window);
+
       let connection = this.connect();
       if (!connection) {
         return;
       }
-
-      // console.log(window);
 
       let message =
         JSON.stringify({ Action: { FocusWindow: { id: window['id'] } } }) +
