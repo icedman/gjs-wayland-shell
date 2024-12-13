@@ -50,7 +50,6 @@ const DockItemsExtension = GObject.registerClass(
 
     createAppsItem(target) {
       target = target ?? Main.dock.center;
-
       let appInfo = {
         id: 'fuzzel',
         icon_name: 'view-app-grid-symbolic',

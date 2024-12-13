@@ -12,6 +12,7 @@ import { getAppInfo, getAppInfoFromFile } from './lib/appInfo.js';
 const baseScale = 1.55;
 const scaleDownContainer = 0.75;
 const oneOverScaleDownContainer = 1.1 / scaleDownContainer;
+const animatedLocations = [0, 1, 2, 3];
 
 export const IconGroups = {
   HEAD: 10,
@@ -163,6 +164,7 @@ export const DockPanel = GObject.registerClass(
         hexpand: false,
         vexpand: false,
       });
+      // this.overlay = new Gtk.Overlay({ hexpand: true, vexpand: true });
       this.center.orientation = Gtk.Orientation.HORIZONTAL;
       this.lead.orientation = Gtk.Orientation.HORIZONTAL;
       this.trail.orientation = Gtk.Orientation.HORIZONTAL;
@@ -182,6 +184,8 @@ export const DockPanel = GObject.registerClass(
       this.container.append(this.lead);
       this.container.append(this.leadSpacer);
       this.container.append(this.center);
+      // this.container.append(this.overlay);
+      // this.overlay.add_overlay(this.center);
       this.container.append(this.trailSpacer);
       this.container.append(this.trail);
 
@@ -271,7 +275,7 @@ export const DockPanel = GObject.registerClass(
         this.EDGE_DISTANCE * 10,
       );
 
-      if (this.ENABLE_ANIMATION && this.LOCATION == 0) {
+      if (this.ENABLE_ANIMATION && animatedLocations.includes(this.LOCATION)) {
         LayerShell.set_exclusive_zone(this, this.get_icon_size());
       } else {
         LayerShell.auto_exclusive_zone_enable(this);
@@ -361,15 +365,27 @@ export const DockPanel = GObject.registerClass(
       }
 
       // animation
-      if (this.ENABLE_ANIMATION && this.LOCATION == 0) {
+      if (this.ENABLE_ANIMATION && animatedLocations.includes(this.LOCATION)) {
         let iconSize = this.get_icon_size();
         let transitionStyle = `0.5s cubic-bezier(0.25, 1.5, 0.5, 1)`;
         // let transitionStyle = `0.15s ease-in-out`;
 
-        // const baseY = 7;
-        // const baseMargin = 14;
-        const baseY = iconSize * 0.12;
+        let translateFunc = 'translateY';
+        let marginLeft = 'margin-left';
+        let marginRight = 'margin-right';
+        let baseY = iconSize * 0.12;
         const baseMargin = iconSize * 0.3;
+
+        // if top or right
+        if ([1, 3].includes(this.LOCATION)) {
+          baseY *= -1;
+        }
+        // if vertical
+        if (dockOrientation[this.LOCATION] == Gtk.Orientation.VERTICAL) {
+          translateFunc = 'translateX';
+          marginLeft = 'margin-top';
+          marginRight = 'margin-bottom';
+        }
 
         this.center.add_css_class('animated-container');
         let transforms = [
@@ -382,7 +398,7 @@ export const DockPanel = GObject.registerClass(
           },
         ];
         styles.push(
-          `#${windowName} #container .animated-container { transform: scale(${scaleDownContainer}) translateY(${baseY}px); }`,
+          `#${windowName} #container .animated-container { transform: scale(${scaleDownContainer}) ${translateFunc}(${baseY}px); }`,
         );
         styles.push(
           `#${windowName} #container .animated-container .dock-item button { background: transparent; }`,
@@ -391,22 +407,22 @@ export const DockPanel = GObject.registerClass(
           `#${windowName} #container .animated-container .dock-item { transition: margin ${transitionStyle}, transform ${transitionStyle}; }`,
         );
         styles.push(
-          `#${windowName} #container .animated-container .button-hover { transform: scale(${transforms[0].scale}) translateY(${transforms[0].y}px); }`,
+          `#${windowName} #container .animated-container .button-hover { transform: scale(${transforms[0].scale}) ${translateFunc}(${transforms[0].y}px); }`,
         );
         styles.push(
-          `#${windowName} #container .animated-container .button-hover { margin-left: ${transforms[0].margin}px; margin-right: ${transforms[0].margin}px; }`,
+          `#${windowName} #container .animated-container .button-hover { ${marginLeft}: ${transforms[0].margin}px; ${marginRight}: ${transforms[0].margin}px; }`,
         );
         styles.push(
-          `#${windowName} #container .animated-container .button-adjacent-1 { transform: scale(${transforms[1].scale}) translateY(${transforms[1].y}px); }`,
+          `#${windowName} #container .animated-container .button-adjacent-1 { transform: scale(${transforms[1].scale}) ${translateFunc}(${transforms[1].y}px); }`,
         );
         styles.push(
-          `#${windowName} #container .animated-container .button-adjacent-1 { margin-left: ${transforms[1].margin}px; margin-right: ${transforms[1].margin}px; }`,
+          `#${windowName} #container .animated-container .button-adjacent-1 { ${marginLeft}: ${transforms[1].margin}px; ${marginRight}: ${transforms[1].margin}px; }`,
         );
         styles.push(
-          `#${windowName} #container .animated-container .button-adjacent-2 { transform: scale(${transforms[2].scale}) translateY(${transforms[2].y}px); }`,
+          `#${windowName} #container .animated-container .button-adjacent-2 { transform: scale(${transforms[2].scale}) ${translateFunc}(${transforms[2].y}px); }`,
         );
         styles.push(
-          `#${windowName} #container .animated-container .button-adjacent-2 { margin-left: ${transforms[2].margin}px; margin-right: ${transforms[2].margin}px; }`,
+          `#${windowName} #container .animated-container .button-adjacent-2 { ${marginLeft}: ${transforms[2].margin}px; ${marginRight}: ${transforms[2].margin}px; }`,
         );
       } else {
         this.center.remove_css_class('animated-container');
@@ -468,7 +484,10 @@ export const DockPanel = GObject.registerClass(
       });
 
       currentIcons.forEach((c) => {
-        if (this.ENABLE_ANIMATION && this.LOCATION == 0) {
+        if (
+          this.ENABLE_ANIMATION &&
+          animatedLocations.includes(this.LOCATION)
+        ) {
           c.on_enter = () => {
             this._hover(c);
           };
@@ -531,7 +550,7 @@ export const DockPanel = GObject.registerClass(
     get_icon_size() {
       const baseIconSizes = [16, 22, 24, 32, 48, 64];
       const animationAdjustment =
-        this.ENABLE_ANIMATION && this.LOCATION == 0
+        this.ENABLE_ANIMATION && animatedLocations.includes(this.LOCATION)
           ? oneOverScaleDownContainer
           : 1;
       let iconSize =
@@ -552,6 +571,8 @@ export const DockPanel = GObject.registerClass(
         c.icon?.set_pixel_size(iconSize);
       });
 
+      // let { width, height } = this.center.get_allocation();
+      // this.overlay.set_size_request(width, height);
       this.queue_resize();
     }
 

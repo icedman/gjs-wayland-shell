@@ -75,13 +75,10 @@ const Login1 = GObject.registerClass(
           },
         );
 
-        this._proxy.connectSignal(
-          'PrepareForSleep',
-          () => {
-            console.log('PrepareForSleep');
-            Main.inhibitor.uninhibit();
-          }
-        );
+        this._proxy.connectSignal('PrepareForSleep', () => {
+          console.log('PrepareForSleep');
+          Main.inhibitor.uninhibit();
+        });
       } catch (err) {
         console.log(err);
       }

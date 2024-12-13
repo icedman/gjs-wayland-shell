@@ -153,7 +153,15 @@ const Search = GObject.registerClass(
       });
       this.window.add_controller(event);
 
-      this.window.set_child(widget);
+      // this.overlay = new Gtk.Overlay({ hexpand: true, vexpand: true });
+      // this.background = new Gtk.Box({ hexpand: true, vexpand: true });
+      // this.background.add_css_class('blurred-background');
+      // this.overlay.add_overlay(this.background);
+      // this.overlay.add_overlay(this.widget);
+      // this.window.set_child(this.overlay);
+
+      this.container = widget;
+      this.window.set_child(this.container);
 
       LayerShell.init_for_window(this.window);
       LayerShell.set_layer(this.window, LayerShell.Layer.TOP);
@@ -191,7 +199,7 @@ const Search = GObject.registerClass(
 
       let evt = new Gtk.GestureClick();
       evt.connect('pressed', (actor, count) => {
-        this.show();
+        this.toggle();
       });
       item.add_controller(evt);
       return item;
@@ -384,6 +392,10 @@ const Search = GObject.registerClass(
         styles.push(
           `#${windowName}.has-results .entry-container { background: transparent; border-color: transparent; }`,
         );
+        // styles.push(
+        //   `#${windowName}.has-results .blurred-background { background: rgba(150,150,150,0.2); border-color: transparent; }`,
+        //   `#${windowName}.has-results .blurred-background { border: 20px solid red; filter: blur(20px); }`,
+        // );
       }
 
       // if (this.ICON_SHADOW) {
@@ -580,6 +592,8 @@ const Search = GObject.registerClass(
     }
 
     show() {
+      // let { width, height } = this.widget.get_allocation();
+      // this.overlay.set_size_request(width, height);
       this.window.remove_css_class('has-results');
       this.window.present();
       this.entry.grab_focus();
@@ -588,6 +602,14 @@ const Search = GObject.registerClass(
     hide() {
       this.clear();
       this.window.hide();
+    }
+
+    toggle() {
+      if (!this.window.visible) {
+        this.show();
+      } else {
+        this.hide();
+      }
     }
   },
 );
