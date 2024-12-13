@@ -7,8 +7,8 @@ import { Extension } from '../lib/extensionInterface.js';
 
 const BUS_NAME = 'org.freedesktop.ScreenSaver';
 const OBJECT_PATH = '/org/freedesktop/ScreenSaver';
-const ACTIVE_ICON = 'my-caffeine-on-symbolic';
-const INACTIVE_ICON = 'my-caffeine-off-symbolic';
+const ACTIVE_ICON = 'caffeine-on';
+const INACTIVE_ICON = 'caffeine-off';
 
 const InhibitorInterface = `
   <node>
