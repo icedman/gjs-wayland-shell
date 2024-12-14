@@ -169,6 +169,16 @@
     }
 }
 
+/* misc */
+
 .bounce-icon {
     animation: bounce 1s ease 2; /* Play twice */
+}
+
+.with-indicators #container button {
+    padding-bottom: 10px;
+}
+
+.dots {
+    transform: translateY(12px);
 }

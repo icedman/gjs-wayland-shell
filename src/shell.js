@@ -48,7 +48,7 @@ const ShellInterface = GObject.registerClass(
     }
 
     onWindowFocused(evt) {
-      // console.log('onWindowFocused');
+      console.log('onWindowFocused');
       // console.log(evt);
       let newWindow = false;
       let oldWindow = !this.windows.find((w) => {
@@ -71,7 +71,7 @@ const ShellInterface = GObject.registerClass(
     }
 
     onWindowOpened(evt) {
-      // console.log('onWindowOpened');
+      console.log('onWindowOpened');
       // console.log(evt);
       this.windows = this.windows.filter((w) => {
         return w.id != evt['window']['id'];

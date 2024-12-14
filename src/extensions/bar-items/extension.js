@@ -317,6 +317,74 @@ const BarItemsExtension = GObject.registerClass(
       return mic;
     }
 
+    createBrightnessIndicator() {
+      let brightness = new Main.panel.PanelItem();
+      brightness.add_css_class('brightness');
+      brightness.set_label('brightness');
+
+      let menu = new PopupMenu({
+        has_arrow: true,
+      });
+
+      let builder = new Gtk.Builder();
+      builder.add_from_file(`${this.path}/ui/brightness.ui`);
+
+      let widget = builder.get_object('brightness-widget');
+      let w = builder.get_object('brightness');
+      let l = builder.get_object('brightness-label');
+      // let t = builder.get_object('brightness-toggle');
+      l.set_size_request(40, -1);
+      widget.parent.remove(widget);
+      menu.child.append(widget);
+      brightness.append(menu);
+
+      let evt = new Gtk.GestureClick();
+      // evt.set_button(3); // right click
+      evt.connect('pressed', (actor, count) => {
+        menu.popup();
+      });
+      brightness.add_controller(evt);
+
+      let updateBrightness = () => {
+        this._debounceBrightness = Main.loTimer.debounce(
+          Main.loTimer,
+          () => {
+            let value = w.get_value() * 100;
+            if (value < 5) {
+              value = 5;
+            }
+            if (value > 100) {
+              value = 100;
+            }
+            Main.brightness._proxy.Brightness = value;
+          },
+          5,
+          this._debounceBrightness,
+        );
+      };
+
+      w.connect('value-changed', (w) => {
+        updateBrightness();
+      });
+
+      Main.brightness.connectObject(
+        'brightness-update',
+        () => {
+          let state = Main.brightness.state;
+          brightness.set_label(``);
+          brightness.set_icon(state.icon);
+          // brightness.icon.opacity = (state.brightness / 100);
+          w.set_value(state.brightness / 100);
+          l.set_label(`${Math.floor(state.brightness)}%`);
+          brightness.visible = state.visible;
+        },
+        this,
+      );
+      Main.brightness.sync();
+      // brightness.visible = false;
+      return brightness;
+    }
+
     createInhibitorIndicator() {
       let inhibitor = new Main.panel.PanelItem();
       inhibitor.add_css_class('inhibitor');
@@ -354,6 +422,7 @@ const BarItemsExtension = GObject.registerClass(
         power: this.createPowerIndicator.bind(this),
         volume: this.createVolumeIndicator.bind(this),
         mic: this.createMicIndicator.bind(this),
+        brightness: this.createBrightnessIndicator.bind(this),
         inhibitor: this.createInhibitorIndicator.bind(this),
       };
 
@@ -415,6 +484,10 @@ const BarItemsExtension = GObject.registerClass(
       if (this._debounceVolume) {
         Main.loTimer.cancel(this._debounceVolume);
         this._debounceVolume = null;
+      }
+      if (this._debounceBrightness) {
+        Main.loTimer.cancel(this._debounceBrightness);
+        this._debounceBrightness = null;
       }
     }
   },

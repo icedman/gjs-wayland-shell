@@ -10,27 +10,27 @@ import GObject from 'gi://GObject';
 import Cairo from 'gi://cairo';
 
 import { Drawing } from './drawing.js';
-let size = 400;
 
 export const Dot = GObject.registerClass(
   {},
   class Dot extends Gtk.DrawingArea {
     _init(x) {
-      if (x) size = x;
-
       super._init({
         name: 'dotCanvas',
         hexpand: true,
         vexpand: true,
       });
 
+      this.add_css_class('dots');
+
+      this.size = 200;
       this.set_draw_func(this.on_draw.bind(this));
-      this.set_size_request(size, size);
+      this.set_size_request(this.size, this.size);
 
       this.state = {};
 
       this._padding = 8;
-      this._barHeight = 6;
+      this._barHeight = 3;
     }
 
     set_state(s) {
@@ -42,14 +42,30 @@ export const Dot = GObject.registerClass(
         this.state.rotate != s.rotate ||
         this.state.translate != s.translate
       ) {
-        this.state = s;
+        this.state = {
+          ...this.state,
+          ...s,
+        };
+        if (!this.state.style) {
+          this.visible = false;
+          return;
+        }
+        this.visible = true;
         this.queue_draw();
       }
     }
 
     on_draw(area, ctx, width, height) {
-      if (!this.state || !this.state.color || !this.state.count) return;
+      if (
+        !this.state ||
+        !this.state.color ||
+        !this.state.count ||
+        !width ||
+        !height
+      )
+        return;
 
+      this.size = width;
       const dot_color = this.state.color;
 
       ctx.setOperator(Cairo.Operator.CLEAR);
@@ -87,6 +103,7 @@ export const Dot = GObject.registerClass(
     destroy() {}
 
     _draw_segmented(ctx, state) {
+      let size = this.size;
       let count = state.count;
       if (count > 4) count = 4;
       let height = this._barHeight;
@@ -113,6 +130,7 @@ export const Dot = GObject.registerClass(
     }
 
     _draw_dashes(ctx, state) {
+      let size = this.size;
       let count = state.count;
       if (count > 4) count = 4;
       let height = this._barHeight + 2;
@@ -142,6 +160,7 @@ export const Dot = GObject.registerClass(
     }
 
     _draw_squares(ctx, state) {
+      let size = this.size;
       let count = state.count;
       if (count > 4) count = 4;
       let height = this._barHeight + 5;
@@ -170,9 +189,10 @@ export const Dot = GObject.registerClass(
     }
 
     _draw_triangles(ctx, state) {
+      let size = this.size;
       let count = state.count;
       if (count > 4) count = 4;
-      let height = this._barHeight + 6;
+      let height = this._barHeight + 3;
       let width = size - this._padding * 2;
 
       let spacing = Math.ceil(width / 16); // separation between the dots
@@ -200,6 +220,7 @@ export const Dot = GObject.registerClass(
     }
 
     _draw_diamonds(ctx, state) {
+      let size = this.size;
       let count = state.count;
       if (count > 4) count = 4;
       let height = this._barHeight + 10;
@@ -231,6 +252,7 @@ export const Dot = GObject.registerClass(
     }
 
     _draw_dots(ctx, state) {
+      let size = this.size;
       let count = state.count;
       if (count > 4) count = 4;
       let height = this._barHeight;
@@ -262,7 +284,12 @@ export const Dot = GObject.registerClass(
       ctx.fill();
     }
 
+    _draw_dot(ctx, state) {
+      this._draw_dots(ctx, { ...state, count: 1 });
+    }
+
     _draw_binary(ctx, state) {
+      let size = this.size;
       let count = 4;
       let n = Math.min(15, state.count);
       let binaryValue = String('0000' + (n >>> 0).toString(2)).slice(-4);
@@ -302,10 +329,6 @@ export const Dot = GObject.registerClass(
       ctx.strokePreserve();
       Drawing.set_color(ctx, state.color, state.color[3]);
       ctx.fill();
-    }
-
-    _draw_dot(ctx, state) {
-      this._draw_dots(ctx, { ...state, count: 1 });
     }
   },
 );

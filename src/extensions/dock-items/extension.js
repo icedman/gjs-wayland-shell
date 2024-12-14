@@ -14,7 +14,7 @@ const DockItemsExtension = GObject.registerClass(
       super.enable();
 
       this.name = 'dockitems';
-      this.favorite_apps = Main.userSettings.favorite_apps;
+      this.favorite_apps = Main.userSettings['favorite-apps'];
 
       if (!this.favorite_apps) {
         const settingsShell = new Gio.Settings({

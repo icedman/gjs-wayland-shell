@@ -348,31 +348,17 @@
     </child>
     <child>
       <object class="AdwPreferencesGroup">
-        <property name="visible">false</property>
         <property name="title" translatable="yes">App Indicators</property>
         <property name="description" translatable="yes"/>
         <child>
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Running Indicator Style</property>
             <property name="subtitle" translatable="yes">Customize the running app indicator style.</property>
-            <property name="activatable-widget">running-indicator-style</property>
+            <property name="activatable-widget">dock-running-indicator</property>
             <child>
-              <object class="GtkDropDown" id="running-indicator-style">
+              <object class="GtkDropDown" id="dock-running-indicator">
                 <property name="valign">center</property>
-                <property name="model">running-indicator-style-model</property>
-              </object>
-            </child>
-          </object>
-        </child>
-        <child>
-          <object class="AdwActionRow">
-            <property name="title" translatable="yes">Running Indicator Size</property>
-            <property name="subtitle" translatable="yes">Set running app indicator size.</property>
-            <property name="activatable-widget">running-indicator-size</property>
-            <child>
-              <object class="GtkDropDown" id="running-indicator-size">
-                <property name="valign">center</property>
-                <property name="model">running-indicator-size-model</property>
+                <property name="model">dock-running-indicator-model</property>
               </object>
             </child>
           </object>
@@ -381,9 +367,9 @@
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Indicator Color</property>
             <property name="subtitle" translatable="yes">Select indicator color.</property>
-            <property name="activatable-widget">running-indicator-color</property>
+            <property name="activatable-widget">dock-running-indicator-color</property>
             <child>
-              <object class="GtkColorButton" id="running-indicator-color">
+              <object class="GtkColorButton" id="dock-running-indicator-color">
                 <property name="valign">center</property>
                 <property name="hexpand">false</property>
                 <property name="width-request">70px</property>
@@ -396,37 +382,26 @@
         </child>
         <child>
           <object class="AdwActionRow">
+            <property name="visible">false</property>
             <property name="title" translatable="yes">Notification Badge Style</property>
             <property name="subtitle" translatable="yes">Customize the notification badge style.</property>
-            <property name="activatable-widget">notification-badge-style</property>
+            <property name="activatable-widget">dock-notification-badge</property>
             <child>
-              <object class="GtkDropDown" id="notification-badge-style">
+              <object class="GtkDropDown" id="dock-notification-badge">
                 <property name="valign">center</property>
-                <property name="model">notification-badge-style-model</property>
+                <property name="model">dock-notification-badge-model</property>
               </object>
             </child>
           </object>
         </child>
         <child>
           <object class="AdwActionRow">
-            <property name="title" translatable="yes">Notification Badge Size</property>
-            <property name="subtitle" translatable="yes">Set the notification badge size.</property>
-            <property name="activatable-widget">notification-badge-size</property>
-            <child>
-              <object class="GtkDropDown" id="notification-badge-size">
-                <property name="valign">center</property>
-                <property name="model">notification-badge-size-model</property>
-              </object>
-            </child>
-          </object>
-        </child>
-        <child>
-          <object class="AdwActionRow">
+            <property name="visible">false</property>
             <property name="title" translatable="yes">Badge Color</property>
             <property name="subtitle" translatable="yes">Select indicator color.</property>
-            <property name="activatable-widget">notification-badge-color</property>
+            <property name="activatable-widget">dock-notification-badge-color</property>
             <child>
-              <object class="GtkColorButton" id="notification-badge-color">
+              <object class="GtkColorButton" id="dock-notification-badge-color">
                 <property name="valign">center</property>
                 <property name="hexpand">false</property>
                 <property name="width-request">70px</property>
@@ -662,7 +637,7 @@
     <property name="upper">1.0</property>
     <property name="step-increment">0.01</property>
   </object>
-  <object class="GtkStringList" id="running-indicator-style-model">
+  <object class="GtkStringList" id="dock-running-indicator-model">
     <items>
       <item translatable="yes">None</item>
       <item translatable="yes">Dots</item>
@@ -680,7 +655,7 @@
       <item translatable="yes">Binary</item>
     </items>
   </object>
-  <object class="GtkStringList" id="notification-badge-style-model">
+  <object class="GtkStringList" id="dock-notification-badge-model">
     <items>
       <item translatable="yes">None</item>
       <item translatable="yes">Dot</item>

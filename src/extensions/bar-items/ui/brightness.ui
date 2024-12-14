@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <object class="GtkBox">
+    <child>
+      <object class="GtkBox" id="brightness-widget">
+        <child>
+          <object class="GtkButton" id="brightness-toggle">
+            <property name="hexpand">false</property>
+            <property name="icon_name">brightness-display-symbolic</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkScale" id="brightness">
+            <property name="valign">center</property>
+            <property name="width-request">140px</property>
+            <property name="draw-value">false</property>
+            <property name="value-pos">right</property>
+            <property name="orientation">horizontal</property>
+            <property name="digits">2</property>
+            <property name="adjustment">brightness-adjust</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel" id="brightness-label">
+            <property name="hexpand">false</property>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+  <object class="GtkAdjustment" id="brightness-adjust">
+    <property name="lower">0.0</property>
+    <property name="upper">1.0</property>
+    <property name="step-increment">0.01</property>
+  </object>
+</interface>

@@ -57,7 +57,9 @@ const Brightness = GObject.registerClass(
 
     async enable() {
       super.enable();
-      this.state = {};
+      this.state = {
+        icon: 'brightness-display-symbolic',
+      };
 
       const BrightnessProxy =
         Gio.DBusProxy.makeProxyWrapper(BrightnessInterface);
@@ -84,6 +86,7 @@ const Brightness = GObject.registerClass(
       this.state = {
         brightness,
         visible,
+        icon: 'brightness-display-symbolic',
       };
 
       this.emit('brightness-update', this);

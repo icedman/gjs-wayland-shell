@@ -26,6 +26,23 @@ export const IconGroups = {
   TAIL: 1000,
 };
 
+const appIndicatorStyles = [
+  '',
+  'dots',
+  'dot',
+  'dashes',
+  'dash',
+  'squares',
+  'square',
+  'segmented',
+  'solid',
+  'triangles',
+  'triangle',
+  'diamonds',
+  'diamond',
+  'binary',
+];
+
 const dockLocation = ['bottom', 'left', 'right', 'top'];
 const dockEdge = [
   LayerShell.Edge.BOTTOM,
@@ -115,16 +132,16 @@ export const DockItem = GObject.registerClass(
       // this.append(this.btn);
 
       this.overlay = new Gtk.Fixed({ hexpand: true, vexpand: true });
-      this.overlay.put(this.btn, 0, 0);
 
-      // this.indicator = new Gtk.Label({label: 'hello'});
-      // this.indicator = new Dot(48);
-      // this.indicator.set_state({
-      //   style: 'binary',
-      //   color: '#ff00ff',
-      //   count: 4
-      // });
-      // this.overlay.put(this.indicator, 8, 8);
+      this.indicator = new Dot(48);
+      this.indicator.set_state({
+        style: 'binary',
+        color: '#fff',
+        count: 0,
+      });
+      this.indicator.set_sensitive(false);
+      this.overlay.put(this.btn, 0, 0);
+      this.overlay.put(this.indicator, 4, 0);
 
       this.append(this.overlay);
     }
@@ -140,6 +157,17 @@ export const DockItem = GObject.registerClass(
     set_icon_size(size) {
       this.btn.child?.set_pixel_size(size);
       this.indicator?.set_size_request(size, size);
+    }
+
+    update_indicator(config = {}) {
+      if (!this.appInfo || !this.indicator) return;
+      let windows = Main.shell.windows.filter(
+        (w) => w.app_id == this.appInfo.id.replace('.desktop', ''),
+      );
+      this.indicator.set_state({
+        ...config,
+        count: windows.length,
+      });
     }
 
     on_enter() {}
@@ -241,6 +269,7 @@ export const DockPanel = GObject.registerClass(
         [`${prefix}-background-color`]: this.update_style.bind(this),
         [`${prefix}-panel-mode`]: this.update_style.bind(this),
         // [`${prefix}-icon-spacing`]: this.update_style.bind(this),
+        [`${prefix}-running-indicator`]: this.update_indicators.bind(this),
       };
 
       this.load_settings();
@@ -565,8 +594,13 @@ export const DockPanel = GObject.registerClass(
     }
 
     _hover(item) {
-      this._leave();
       let icons = this.get_icons(null, this.center);
+      for (let i = 0; i < icons.length; i++) {
+        if (icons[i] == item && icons[i].has_css_class('button-hover')) {
+          return; // no need to re-hover
+        }
+      }
+      this._leave();
       for (let i = 0; i < icons.length; i++) {
         if (icons[i].group == IconGroups.SEPARATOR) continue;
         if (icons[i] == item) {
@@ -600,7 +634,7 @@ export const DockPanel = GObject.registerClass(
         () => {
           this._leave();
         },
-        3000,
+        2000,
         this._debounceLeave,
       );
     }
@@ -650,7 +684,23 @@ export const DockPanel = GObject.registerClass(
       this.update_icon_size();
       this.update_layout();
       this.update_style();
-      this.window.sort_icons();
+      this.sort_icons();
+    }
+
+    update_indicators() {
+      if (this.RUNNING_INDICATOR > 0) {
+        this.add_css_class('with-indicators');
+      } else {
+        this.remove_css_class('with-indicators');
+      }
+      let items = this.get_icons();
+      items.forEach((item) => {
+        if (item.indicator) {
+          item.update_indicator({
+            style: appIndicatorStyles[this.RUNNING_INDICATOR],
+          });
+        }
+      });
     }
   },
 );
@@ -666,6 +716,7 @@ const Dock = GObject.registerClass(
     }
 
     enable() {
+      // monkey patched at enviroment
       this.load_settings();
 
       this.window = new DockPanel({
@@ -703,11 +754,20 @@ const Dock = GObject.registerClass(
       });
       this.window.add_controller(event);
 
+      Main.shell.connectObject(
+        'windows-update',
+        () => {
+          this.window.update_indicators();
+        },
+        this,
+      );
+
       super.enable();
     }
 
     disable() {
       Main.app.disconnectObject(this);
+      Main.shell.disconnectObject(this);
       this.window.destroy();
       this.window = null;
       super.disable();

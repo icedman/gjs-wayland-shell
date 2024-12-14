@@ -63,7 +63,11 @@ GObject.Object.prototype.load_settings = function () {
       .replace(`${this.name.toLowerCase()}-`, '')
       .replaceAll('-', '_')
       .toUpperCase();
-    this[_key] = this.settings.getSetting(k);
+    try {
+      this[_key] = this.settings.getSetting(k);
+    } catch (err) {
+      return;
+    }
     if (Main.userSettings && Main.userSettings[k]) {
       this[_key] = Main.userSettings[k];
     }

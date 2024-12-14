@@ -86,6 +86,21 @@
         <summary>Icon shadow</summary>
         <description>Add the icon shadow effect.</description>
     </key>
+    <key type="i" name="dock-running-indicator">
+        <default>0</default>
+        <summary>Apps running indicator</summary>
+        <description>Show running indicator</description>
+    </key>
+    <key type="(dddd)" name="dock-running-indicator-color">
+        <default>(1.,1.,1.,1.)</default>
+        <summary>Dock running-indicator color</summary>
+        <description>Set topbar panel running-indicator color.</description>
+    </key>
+    <key type="(dddd)" name="dock-notification-badge-color">
+        <default>(1.,1.,1.,1.)</default>
+        <summary>Dock running-indicator color</summary>
+        <description>Set dock running-indicator color.</description>
+    </key>
     <!-- PANEL -->
     <key type="b" name="bar-show">
         <default>true</default>
@@ -277,5 +292,21 @@
         <summary>Items at trail area</summary>
         <description></description>
     </key>
+    <key type="i" name="bar-running-indicator">
+        <default>0</default>
+        <summary>Apps running indicator</summary>
+        <description>Show running indicator</description>
+    </key>
+    <key type="(dddd)" name="bar-running-indicator-color">
+        <default>(1.,1.,1.,1.)</default>
+        <summary>Bar running-indicator color</summary>
+        <description>Set topbar panel running-indicator color.</description>
+    </key>
+    <key type="(dddd)" name="bar-notification-badge-color">
+        <default>(1.,1.,1.,1.)</default>
+        <summary>Bar running-indicator color</summary>
+        <description>Set bar running-indicator color.</description>
+    </key>
+
   </schema>
 </schemalist>
