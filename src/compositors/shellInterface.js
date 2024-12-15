@@ -25,8 +25,7 @@ const ShellInterface = GObject.registerClass(
       super.enable();
       this.windows = [];
       this.focusIndex = 0;
-
-      this._log = () => {};
+      this.verbose = false;
 
       this.queueGetWindows();
     }
@@ -42,6 +41,7 @@ const ShellInterface = GObject.registerClass(
     }
 
     _log(msg) {
+      if (!this.verbose) return;
       console.log(msg);
     }
 

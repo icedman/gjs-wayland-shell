@@ -56,10 +56,6 @@ function dump(n, l) {
 let builder = new Gtk.Builder();
 const AdwPreferencesPage = Adw.PreferencesPage;
 
-// If you are not using GtkApplication which has its own mainloop
-// you must create it yourself, see gtk-application.js example
-let loop = GLib.MainLoop.new(null, false);
-
 // win.set_decorated(false);
 builder.add_from_file('./ui/window.ui');
 builder.add_from_file('./ui/general.ui');
@@ -150,12 +146,6 @@ win.add_css_class(
 let iconTheme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default());
 let UIFolderPath = `./ui`;
 iconTheme.add_search_path(`${UIFolderPath}/icons`);
-
-// This is a callback function
-function onCloseRequest() {
-  log('close-request emitted');
-  loop.quit();
-}
 
 win.connect('close-request', onCloseRequest);
 
@@ -293,12 +283,38 @@ panelItems[0].open();
 
 // dump(win, 0);
 
-// Show the window
-win.present();
 
 // Control will end here and wait for an event to occur
 // (like a key press or mouse event)
 // The main loop will run until loop.quit is called.
-loop.run();
+
+let app = new Gtk.Application({
+    application_id: "kitty", // Change this to your app ID
+    flags: Gio.ApplicationFlags.FLAGS_NONE,
+});
+
+app.connect('activate', () => {
+  let appWindow = new Gtk.ApplicationWindow({
+        application: app,
+        title: "My App",
+        default_width: 400,
+        default_height: 300,
+    });
+  // appWindow.present();
+  win.present();
+});
+
+
+function onCloseRequest() {
+  log('close-request emitted');
+  app.quit();
+}
+
+app.run([]);
+
+// If you are not using GtkApplication which has its own mainloop
+// you must create it yourself, see gtk-application.js example
+// let loop = GLib.MainLoop.new(null, false);
+// loop.run();
 
 log('The main loop has completed.');

@@ -36,7 +36,7 @@ const NiriShell = GObject.registerClass(
         }
 
         if (obj['WindowsChanged']) {
-          this.windows = obj['WindowChanged']['windows'];
+          this.windows = obj['WindowsChanged']['windows'];
           this.normalizeWindows();
           res.push({
             event: 'windows-update',

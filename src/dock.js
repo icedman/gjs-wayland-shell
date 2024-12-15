@@ -20,9 +20,10 @@ export const IconGroups = {
   HEAD: 10,
   FAVORITE_APPS: 100,
   SEPARATOR: 199,
-  RUNNING_APPS: 200,
-  VOLUMES: 300,
-  PLACES: 400,
+  SPECIAL_ICONS: 200,
+  RUNNING_APPS: 300,
+  VOLUMES: 400,
+  PLACES: 500,
   TAIL: 1000,
 };
 
@@ -471,8 +472,7 @@ export const DockPanel = GObject.registerClass(
 
       // animation
       if (this.ENABLE_ANIMATION && animatedLocations.includes(this.LOCATION)) {
-        let transitionStyle = `0.5s cubic-bezier(0.25, 1.5, 0.5, 1)`;
-        // let transitionStyle = `0.15s ease-in-out`;
+        let transitionStyle = `0.15s ease-in-out`;
 
         let translateFunc = 'translateY';
         let marginLeft = 'margin-left';
@@ -534,6 +534,7 @@ export const DockPanel = GObject.registerClass(
 
       // autohide
       if (this.ENABLE_AUTOHIDE) {
+        // let transitionStyle = `0.25s cubic-bezier(0.25, 1.5, 0.5, 1)`;
         let hideDistance = iconSize * 1.2;
         let offset = `translateY(${hideDistance}px);`;
         if (dockLocation[this.LOCATION] == 'top') {
@@ -547,7 +548,7 @@ export const DockPanel = GObject.registerClass(
         }
 
         let ss = [];
-        ss.push(`transition: transform 0.25s ease-in-out;`);
+        ss.push(`transition: transform ${transitionStyle};`);
         ss.push(`transform: ${offset};`);
         styles.push(`#{windowName} #container.autohide { ${ss.join(' ')}}`);
         styles.push(

@@ -187,10 +187,19 @@ const DockItemsExtension = GObject.registerClass(
         windows.forEach((w) => {
           let appId = w.app_id + '.desktop';
           appIds.push(appId);
+
+          // if (!w.appInfo) {
+          //   let appInfo = getAppInfo(appId);
+          //   w.appInfo = appInfo;
+          // }
+
           try {
             let icon = Main.dock.create_dockitem_from_appinfo(appId);
             if (icon) {
               add_dock_item(icon, target);
+              // if (w.appInfo?.icon_name) {
+              //   icon.set_icon(w.appInfo.icon_name);
+              // }
               item.items.push(icon);
               icon.group = IconGroups.RUNNING_APPS;
             }
@@ -337,6 +346,7 @@ const DockItemsExtension = GObject.registerClass(
           window.favorite_apps.length > 0 &&
           (windows.length > 0 || config.SHOW_TRASH)
         ) {
+          // todo .. hide if nothing after the separator (like no runnings apps, no trash)
           let item = this.createSeparator(targetDock.center);
           targetDock._dockItems.push(item);
         }
