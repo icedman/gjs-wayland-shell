@@ -64,8 +64,8 @@ const BarItemsExtension = GObject.registerClass(
   class BarItemsExtension extends Extension {
     _init(params) {
       super._init(params);
-      this.itemsMap = {}
-      this.externalItemsMap = {}
+      this.itemsMap = {};
+      this.externalItemsMap = {};
     }
 
     enable() {

@@ -95,19 +95,11 @@ globalThis.Main = {
   },
 };
 
-// init timers
-// three available timers
-// for persistent runs
-Main.timer.initialize(3500);
-// for animation runs
-// resolution (15) will be modified by animation-fps
-Main.hiTimer.initialize(15);
-// for deferred or debounced runs
-Main.loTimer.initialize(750);
+let iconTheme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default());
+iconTheme.add_search_path(`./ui/icons`);
 
-// init the extension
-let modules =
-[
+let cssSources = [];
+let modules = [
   Main.shell,
   Main.dbus,
   Main.power,
@@ -124,6 +116,18 @@ let modules =
   Main.apps,
   Main.search,
 ];
+
+function initTimers() {
+  // init timers
+  // three available timers
+  // for persistent runs
+  Main.timer.initialize(3500);
+  // for animation runs
+  // resolution (15) will be modified by animation-fps
+  Main.hiTimer.initialize(15);
+  // for deferred or debounced runs
+  Main.loTimer.initialize(750);
+}
 
 // load and init extensions
 async function loadModule(moduleName) {
@@ -216,9 +220,7 @@ function loadCustomSettings() {
   }
 }
 
-loadCustomSettings();
-
-function enableModules(){
+function enableModules() {
   modules.forEach(async (m) => {
     try {
       m.enable();
@@ -230,22 +232,24 @@ function enableModules(){
   Main.shell.listen();
 }
 
-let iconTheme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default());
-iconTheme.add_search_path(`./ui/icons`);
+function loadStyleSheets() {
+  cssSources.forEach((style) => {
+    Main.style.loadCssFile(style.name, style.path);
+  });
+}
 
-let cssSources = [];
+initTimers();
+loadCustomSettings();
+
 let promisedExtensions = [
   ...loadExtensions('./extensions'),
   ...loadExtensions('./user-extensions'),
 ];
+
 Promise.all(promisedExtensions)
   .then((res) => {
-    // cssSources.push();
-    cssSources.forEach((style) => {
-      Main.style.loadCssFile(style.name, style.path);
-    });
+    loadStyleSheets();
     enableModules();
-    // todo ... wait for all modules to be enabled
     Main.app.emit('ready');
   })
   .catch((err) => {
