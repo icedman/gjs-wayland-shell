@@ -190,21 +190,16 @@ const Search = GObject.registerClass(
       this.update_layout();
       this.update_style();
 
-      this.attachPanelItems();
-      Main.panel.connect('notify::enabled', () => {
-        if (Main.panel.enabled) {
-          this.attachPanelItems();
-        } else {
-          this.panelItems = null;
-        }
+      Main.extensions['bar-items'].connectObject('notify::enabled', () => {
+        this.registerPanelItems();
       });
+      this.registerPanelItems();
     }
 
     createSearchIcon() {
       let item = new Main.panel.PanelItem();
       item.set_label('');
       item.set_icon('system-search-symbolic');
-      item.sort_order = -1;
 
       let evt = new Gtk.GestureClick();
       evt.connect('pressed', (actor, count) => {
@@ -214,34 +209,15 @@ const Search = GObject.registerClass(
       return item;
     }
 
-    attachPanelItems() {
-      if (!Main.panel.enabled || this.panelItems) return;
-      if (!this.SHOW_PANEL_ICON) return;
-
-      this.panelItems = [];
-      {
-        let item = this.createSearchIcon();
-        Main.panel.trail.append(item);
-        this.panelItems.push(item);
+    registerPanelItems() {
+      let barItems = Main.extensions['bar-items'];
+      if (barItems && barItems.enabled) {
+        barItems.registerPanelItem('search', this.createSearchIcon.bind(this));
       }
-
-      Main.panel.window.sort_icons();
-    }
-
-    detachPanelItems() {
-      if (!this.panelItems) return;
-
-      (this.panelItems || []).forEach((item) => {
-        item.parent?.remove(item);
-      });
-      this.panelItems = null;
     }
 
     update_icons() {
       if (this.SHOW_PANEL_ICON) {
-        this.attachPanelItems();
-      } else {
-        this.detachPanelItems();
       }
     }
 
@@ -256,8 +232,6 @@ const Search = GObject.registerClass(
       }
       this.window.destroy();
       this.window = null;
-
-      this.detachPanelItems();
 
       this.providers = null;
       this.cancellable = null;

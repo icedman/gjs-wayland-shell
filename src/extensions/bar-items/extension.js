@@ -62,9 +62,13 @@ function formatTimeToString(seconds) {
 
 const BarItemsExtension = GObject.registerClass(
   class BarItemsExtension extends Extension {
-    enable() {
-      super.enable();
+    _init(params) {
+      super._init(params);
+      this.itemsMap = {}
+      this.externalItemsMap = {}
+    }
 
+    enable() {
       this.name = 'baritems';
 
       let prefix = 'panel';
@@ -103,6 +107,8 @@ const BarItemsExtension = GObject.registerClass(
           Main.panel._panelItems = null;
         }
       });
+
+      super.enable();
     }
 
     createLogo() {
@@ -480,7 +486,7 @@ const BarItemsExtension = GObject.registerClass(
         Object.keys(areaMap).forEach((k) => {
           let source = itemsList[areaMap[k]] ?? [];
           source.forEach((item, idx) => {
-            let create = this.itemsMap[item];
+            let create = this.externalItemsMap[item] ?? this.itemsMap[item];
             if (create) {
               let item = create();
               if (item.sort_order == undefined) {
@@ -513,6 +519,13 @@ const BarItemsExtension = GObject.registerClass(
     reattachPanelItems(target, itemsList) {
       this.detachPanelItems(target);
       this.attachPanelItems(target, itemsList);
+    }
+
+    registerPanelItem(name, createFunc) {
+      this.externalItemsMap[name] = createFunc;
+      if (this.enabled) {
+        this.reattachPanelItems(Main.panel, this);
+      }
     }
 
     disable() {

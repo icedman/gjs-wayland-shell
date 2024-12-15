@@ -106,6 +106,7 @@ Main.hiTimer.initialize(15);
 Main.loTimer.initialize(750);
 
 // init the extension
+let modules =
 [
   Main.shell,
   Main.dbus,
@@ -122,16 +123,7 @@ Main.loTimer.initialize(750);
   Main.dock,
   Main.apps,
   Main.search,
-].forEach(async (m) => {
-  try {
-    m.enable();
-  } catch (err) {
-    console.log(m);
-    console.log(err);
-  }
-});
-
-Main.shell.listen();
+];
 
 // load and init extensions
 async function loadModule(moduleName) {
@@ -185,7 +177,8 @@ function loadExtensions(directoryPath) {
               Main.extensions[fileName] = extension;
               extension.path = extensionPath;
               try {
-                extension.enable();
+                modules.push(extension);
+                // extension.enable();
                 cssSources.push({ name: fileName, path: extensionCssFilePath });
                 resolve(extension);
               } catch (err) {
@@ -225,6 +218,18 @@ function loadCustomSettings() {
 
 loadCustomSettings();
 
+function enableModules(){
+  modules.forEach(async (m) => {
+    try {
+      m.enable();
+    } catch (err) {
+      console.log(m);
+      console.log(err);
+    }
+  });
+  Main.shell.listen();
+}
+
 let iconTheme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default());
 iconTheme.add_search_path(`./ui/icons`);
 
@@ -239,6 +244,8 @@ Promise.all(promisedExtensions)
     cssSources.forEach((style) => {
       Main.style.loadCssFile(style.name, style.path);
     });
+    enableModules();
+    // todo ... wait for all modules to be enabled
     Main.app.emit('ready');
   })
   .catch((err) => {
