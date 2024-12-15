@@ -21,18 +21,31 @@ function test_shell() {
   s.enable();
   s.connectObject('windows-update', () => {
     console.log('update...');
+    console.log('--------------------------');
+    console.log(s.currentWindows());
+  });
+  s.connectObject('window-focused', () => {
+    console.log('focused...');
+  });
+  s.connectObject('window-opened', () => {
+    console.log('opened...');
+  });
+  s.connectObject('window-closed', () => {
+    console.log('closed...');
   });
 
   s.listen();
   s.getWindows()
     .then((res) => {
-      console.log(res);
+      // console.log(res);
     })
     .catch((err) => {
       console.log('oops');
       console.log(err);
     });
-  s.spawn('kitty');
+  // s.spawn('kitty');
+
+  Main.shell = s;
 }
 
 function test_bar_items() {
@@ -64,8 +77,8 @@ async function test_network() {
 
 Gtk.init();
 
-// test_shell();
-test_bar_items();
+test_shell();
+// test_bar_items();
 // test_network();
 
 try {
@@ -75,13 +88,13 @@ try {
   console.log(err);
 }
 
-try {
-  let s = new Search();
-  s.enable();
-  Main.search = s;
-} catch (err) {
-  console.log(err);
-}
+// try {
+//   let s = new Search();
+//   s.enable();
+//   Main.search = s;
+// } catch (err) {
+//   console.log(err);
+// }
 
 let loop = GLib.MainLoop.new(null, false);
 loop.run();

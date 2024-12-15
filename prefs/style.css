@@ -32,9 +32,9 @@ preferencesgroup .dim-label {
 
 .panel-row {
 	padding: 4px;
-	padding-left: 0px;
-	padding-right: 0px;
-	border-radius: 0px;
+/*	padding-left: 0px;*/
+/*	padding-right: 0px;*/
+	border-radius: 6px;
 }
 .panel-row.active .panel-box,
 .panel-row:hover .panel-box {

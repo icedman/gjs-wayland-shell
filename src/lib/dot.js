@@ -163,7 +163,7 @@ export const Dot = GObject.registerClass(
       let size = this.size;
       let count = state.count;
       if (count > 4) count = 4;
-      let height = this._barHeight + 5;
+      let height = this._barHeight + 3;
       let width = size - this._padding * 2;
 
       let spacing = Math.ceil(width / 18); // separation between the dots
@@ -192,7 +192,7 @@ export const Dot = GObject.registerClass(
       let size = this.size;
       let count = state.count;
       if (count > 4) count = 4;
-      let height = this._barHeight + 3;
+      let height = this._barHeight + 2;
       let width = size - this._padding * 2;
 
       let spacing = Math.ceil(width / 16); // separation between the dots
@@ -223,7 +223,7 @@ export const Dot = GObject.registerClass(
       let size = this.size;
       let count = state.count;
       if (count > 4) count = 4;
-      let height = this._barHeight + 10;
+      let height = this._barHeight + 6;
       let width = size - this._padding * 2;
 
       let spacing = Math.ceil(width / 16); // separation between the dots

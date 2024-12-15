@@ -92,8 +92,6 @@
 #Search {
     background: transparent;
 }
-#Search * {
-}
 #Search .entry-container {
     padding: 2px;
     background: rgba(10,10,10,0.95);
@@ -126,12 +124,15 @@
     border: none;
     background: transparent;
 }
-
+#Search .results-apps .button:hover {
+    background: rgba(50,50,50,0.6);
+}
 #Search .result-row {
     padding: 8px;
     background: transparent;
     border: 0px;
 }
+#Search .result-row:hover,
 #Search .result-row:focus {
     background: rgba(50,50,50,0.6);
 }

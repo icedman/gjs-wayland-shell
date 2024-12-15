@@ -534,11 +534,15 @@ const Search = GObject.registerClass(
         if (currentApp_ids.includes(app.id)) {
           return;
         }
+        let box = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL });
         let btn = new Gtk.Button({
           icon_name: app.icon_name ?? 'user-trash',
         });
+        box.append(btn);
+        let label = new Gtk.Label({ label: app.title ?? '' });
+        box.append(label);
         try {
-          this.resultsApps.append(btn);
+          this.resultsApps.append(box);
           btn.child.set_pixel_size(64);
           btn.add_css_class('button');
           btn.id = app.id;

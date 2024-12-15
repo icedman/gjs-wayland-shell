@@ -300,12 +300,42 @@ export const DockPanel = GObject.registerClass(
         }
       });
       this.center.add_controller(motionController);
+
+      // hack to allow extensions to load
+      // Main.app.connectObject(
+      //   'ready',
+      //   () => {
+      //     this.present();
+      //     this.update_layout();
+      //   },
+      //   this,
+      // );
+
+      let event = new Gtk.EventControllerKey();
+      event.connect('key-pressed', (w, key, keycode) => {
+        Main.modifiers[keycode] = true;
+        Main.modifiers[key] = true;
+      });
+      event.connect('key-released', (w, key, keycode) => {
+        Main.modifiers[keycode] = false;
+        Main.modifiers[key] = false;
+      });
+      this.add_controller(event);
+
+      Main.shell.connectObject(
+        'windows-update',
+        () => {
+          this.update_indicators();
+        },
+        this,
+      );
     }
 
     destroy() {
       this.hide();
       this.style = null;
       Main.settings.disconnectObject(this);
+      Main.shell.disconnectObject(this);
       super.destroy();
     }
 
@@ -733,41 +763,10 @@ const Dock = GObject.registerClass(
       this.trail = this.window.trail;
       this.center = this.window.center;
 
-      // hack to allow extensions to load
-      Main.app.connectObject(
-        'ready',
-        () => {
-          this.window.present();
-          this.window.update_layout();
-        },
-        this,
-      );
-
-      let event = new Gtk.EventControllerKey();
-      event.connect('key-pressed', (w, key, keycode) => {
-        Main.modifiers[keycode] = true;
-        Main.modifiers[key] = true;
-      });
-      event.connect('key-released', (w, key, keycode) => {
-        Main.modifiers[keycode] = false;
-        Main.modifiers[key] = false;
-      });
-      this.window.add_controller(event);
-
-      Main.shell.connectObject(
-        'windows-update',
-        () => {
-          this.window.update_indicators();
-        },
-        this,
-      );
-
       super.enable();
     }
 
     disable() {
-      Main.app.disconnectObject(this);
-      Main.shell.disconnectObject(this);
       this.window.destroy();
       this.window = null;
       super.disable();

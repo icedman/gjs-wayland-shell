@@ -99,7 +99,7 @@ async function sendMessage(connection, message) {
   return false;
 }
 
-async function receiveMessage(connection, count = BYTES_NUM) {
+async function receiveMessage(connection, count = BYTES_NUM, loop = 20) {
   let inputStream = connection.get_input_stream();
   if (!inputStream) {
     logError(new Error('Failed to get input stream.'));
@@ -109,6 +109,17 @@ async function receiveMessage(connection, count = BYTES_NUM) {
   let inputBytes = inputStream.read_bytes(count, null);
   let byteArray = new Uint8Array(inputBytes.get_data());
   let response = String.fromCharCode.apply(null, byteArray);
+
+  // consume all
+  if (inputBytes.get_size() == count && loop > 0) {
+    try {
+      let _response = await receiveMessage(connection, count, loop - 1);
+      response += _response;
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
   return response;
 }
 

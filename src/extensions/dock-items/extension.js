@@ -121,7 +121,7 @@ const DockItemsExtension = GObject.registerClass(
 
       let item = new Gtk.Box({ visible: false }); // placeholder
       item.items = [];
-      // Main.dock.center.append(item);
+      target.append(item);
 
       for (let i = 0; i < this.favorite_apps.length; i++) {
         let app = this.favorite_apps[i];
@@ -150,7 +150,7 @@ const DockItemsExtension = GObject.registerClass(
 
       let item = new Gtk.Box({ visible: false }); // placeholder
       item.items = [];
-      // Main.dock.center.append(item);
+      target.append(item);
 
       function update_running_apps() {
         let windows = Main.shell.windows ?? [];
@@ -215,7 +215,7 @@ const DockItemsExtension = GObject.registerClass(
 
       let item = new Gtk.Box({ visible: false }); // placeholder
       item.items = [];
-      // Main.dock.center.append(item);
+      target.append(item);
 
       function update_mounted_volumes() {
         let mount_ids = Main.mounts.state?.mount_ids ?? [];
