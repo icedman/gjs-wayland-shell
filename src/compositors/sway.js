@@ -176,6 +176,7 @@ const SwayShell = GObject.registerClass(
         windows: this.windows,
         raw: obj,
       };
+      this.onWindowsUpdated(obj);
       return Promise.resolve(obj);
     }
 
