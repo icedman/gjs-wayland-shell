@@ -8,42 +8,70 @@ import { PopupMenu } from '../../lib/popupMenu.js';
 import { IconGroups } from '../../dock.js';
 import { getAppInfo, getAppInfoFromFile } from '../../lib/appInfo.js';
 
+function add_dock_item(dockItem, target = null) {
+  target = target ?? Main.dock.center;
+  let window = target.parent?.parent; // this has to be a DockPanel
+  let currentIcons = window.get_icons(null, target);
+  let existing = currentIcons.find(
+    (icon) => icon.id == (dockItem.id ?? dockItem.name),
+  );
+  if (existing) {
+    return null;
+  }
+  target.append(dockItem);
+  return dockItem;
+}
+
 const DockItemsExtension = GObject.registerClass(
   class DockItemsExtension extends Extension {
     enable() {
       super.enable();
 
       this.name = 'dockitems';
-      this.favorite_apps = Main.userSettings['favorite-apps'];
+      let target = Main.dock.window;
+      target.favorite_apps = Main.userSettings['favorite-apps'];
 
-      if (!this.favorite_apps) {
+      if (!target.favorite_apps) {
         const settingsShell = new Gio.Settings({
           schema_id: 'org.gnome.shell',
         });
-        this.favorite_apps = settingsShell
+        target.favorite_apps = settingsShell
           .get_value('favorite-apps')
           .deepUnpack();
       }
 
-      let prefix = this.name.toLowerCase();
+      let prefix = 'dock';
+      this.settingsPrefix = prefix;
       this.settings = Main.settings;
       this.settingsMap = {
-        [`${prefix}-show-separator`]: this.reattachDockItems.bind(this),
-        [`${prefix}-show-trash`]: this.reattachDockItems.bind(this),
-        [`${prefix}-show-mounted-volumes`]: this.reattachDockItems.bind(this),
-        [`${prefix}-show-apps`]: this.reattachDockItems.bind(this),
-        [`${prefix}-show-favorite-apps`]: this.reattachDockItems.bind(this),
-        [`${prefix}-show-running-apps`]: this.reattachDockItems.bind(this),
+        [`${prefix}-show-separator`]: () => {
+          this.reattachDockItems(Main.dock, this);
+        },
+        [`${prefix}-show-trash`]: () => {
+          this.reattachDockItems(Main.dock, this);
+        },
+        [`${prefix}-show-mounted-volumes`]: () => {
+          this.reattachDockItems(Main.dock, this);
+        },
+        [`${prefix}-show-apps`]: () => {
+          this.reattachDockItems(Main.dock, this);
+        },
+        [`${prefix}-show-favorite-apps`]: () => {
+          this.reattachDockItems(Main.dock, this);
+        },
+        [`${prefix}-show-running-apps`]: () => {
+          this.reattachDockItems(Main.dock, this);
+        },
       };
       this.load_settings();
 
-      this.attachDockItems();
+      this.attachDockItems(Main.dock, this);
 
       Main.dock.connect('notify::enabled', () => {
         if (Main.dock.enabled) {
-          this.attachDockItems();
+          this.attachDockItems(Main.dock, this);
         } else {
-          this.dockItems = null;
+          Main.dock._dockItems = null;
         }
       });
     }
@@ -56,9 +84,9 @@ const DockItemsExtension = GObject.registerClass(
         title: 'Fuzzel',
         exec: `fuzzel`,
       };
-      let apps = Main.dock.create_desktop_app_item(appInfo);
+      let apps = Main.dock.create_dockitem_from_appinfo(appInfo);
       if (apps) {
-        Main.dock.add_dock_item(apps, target);
+        add_dock_item(apps, target);
         apps.group = IconGroups.HEAD;
       }
       return apps;
@@ -85,9 +113,9 @@ const DockItemsExtension = GObject.registerClass(
           },
         ],
       };
-      let trash = Main.dock.create_desktop_app_item(appInfo);
+      let trash = Main.dock.create_dockitem_from_appinfo(appInfo);
       if (trash) {
-        Main.dock.add_dock_item(trash, target);
+        add_dock_item(trash, target);
         trash.group = IconGroups.TAIL + 1;
       }
 
@@ -109,8 +137,8 @@ const DockItemsExtension = GObject.registerClass(
 
     createSeparator(target = null) {
       target = target ?? Main.dock.center;
-      let item = new Gtk.Separator();
-      Main.dock.add_dock_item(item, target);
+      let item = new Gtk.Separator({ name: 'separator' });
+      add_dock_item(item, target);
       item.group = IconGroups.SEPARATOR;
       item.add_css_class('separator');
       return item;
@@ -118,16 +146,17 @@ const DockItemsExtension = GObject.registerClass(
 
     createFavoritesItem(target = null) {
       target = target ?? Main.dock.center;
+      let window = target.parent?.parent;
 
       let item = new Gtk.Box({ visible: false }); // placeholder
       item.items = [];
       target.append(item);
 
-      for (let i = 0; i < this.favorite_apps.length; i++) {
-        let app = this.favorite_apps[i];
-        let btn = Main.dock.create_desktop_app_item(app);
+      for (let i = 0; i < window.favorite_apps.length; i++) {
+        let app = window.favorite_apps[i];
+        let btn = Main.dock.create_dockitem_from_appinfo(app);
         if (btn) {
-          Main.dock.add_dock_item(btn, target);
+          add_dock_item(btn, target);
           item.items.push(btn);
           btn.group = IconGroups.FAVORITE_APPS;
         }
@@ -159,9 +188,9 @@ const DockItemsExtension = GObject.registerClass(
           let appId = w.app_id + '.desktop';
           appIds.push(appId);
           try {
-            let icon = Main.dock.create_desktop_app_item(appId);
+            let icon = Main.dock.create_dockitem_from_appinfo(appId);
             if (icon) {
-              Main.dock.add_dock_item(icon, target);
+              add_dock_item(icon, target);
               item.items.push(icon);
               icon.group = IconGroups.RUNNING_APPS;
             }
@@ -225,9 +254,9 @@ const DockItemsExtension = GObject.registerClass(
           let appId = appInfo.id;
           appIds.push(appId);
           try {
-            let icon = Main.dock.create_desktop_app_item(appId);
+            let icon = Main.dock.create_dockitem_from_appinfo(appId);
             if (icon) {
-              Main.dock.add_dock_item(icon, target);
+              add_dock_item(icon, target);
               item.items.push(icon);
               icon.group = IconGroups.VOLUMES;
             }
@@ -272,64 +301,65 @@ const DockItemsExtension = GObject.registerClass(
       return item;
     }
 
-    attachDockItems() {
-      if (!Main.dock.enabled || this.dockItems) return;
+    attachDockItems(targetDock, config) {
+      if (!targetDock.enabled || targetDock._dockItems) return;
+      let window = targetDock.window;
 
-      this.dockItems = [];
+      targetDock._dockItems = [];
 
-      if (this.SHOW_FAVORITE_APPS) {
-        let items = this.createFavoritesItem();
-        this.dockItems.push(items);
+      if (config.SHOW_FAVORITE_APPS) {
+        let items = this.createFavoritesItem(targetDock.center);
+        targetDock._dockItems.push(items);
       }
-      if (this.SHOW_RUNNING_APPS) {
-        let items = this.createRunningApps();
-        this.dockItems.push(items);
+      if (config.SHOW_RUNNING_APPS) {
+        let items = this.createRunningApps(targetDock.center);
+        targetDock._dockItems.push(items);
       }
-      if (this.SHOW_APPS) {
-        let item = this.createAppsItem();
-        this.dockItems.push(item);
+      if (config.SHOW_APPS) {
+        let item = this.createAppsItem(targetDock.center);
+        targetDock._dockItems.push(item);
       }
-      if (this.SHOW_TRASH) {
-        let item = this.createTrashItem();
-        this.dockItems.push(item);
+      if (config.SHOW_TRASH) {
+        let item = this.createTrashItem(targetDock.center);
+        targetDock._dockItems.push(item);
       }
-      if (this.SHOW_MOUNTED_VOLUMES) {
-        let item = this.createMountedVolumes();
-        this.dockItems.push(item);
+      if (config.SHOW_MOUNTED_VOLUMES) {
+        let item = this.createMountedVolumes(targetDock.center);
+        targetDock._dockItems.push(item);
       }
       if (
-        this.SHOW_SEPARATOR &&
-        this.SHOW_APPS &&
-        (this.SHOW_RUNNING_APPS || this.SHOW_TRASH)
+        config.SHOW_SEPARATOR &&
+        config.SHOW_APPS &&
+        (config.SHOW_RUNNING_APPS || config.SHOW_TRASH)
       ) {
         let windows = Main.shell.windows ?? [];
         if (
-          this.favorite_apps.length > 0 &&
-          (windows.length > 0 || this.SHOW_TRASH)
+          window.favorite_apps.length > 0 &&
+          (windows.length > 0 || config.SHOW_TRASH)
         ) {
-          let item = this.createSeparator();
-          this.dockItems.push(item);
+          let item = this.createSeparator(targetDock.center);
+          targetDock._dockItems.push(item);
         }
       }
-      Main.dock.window.sort_icons();
+      targetDock.window.sort_icons();
     }
 
-    detachDockItems() {
-      (this.dockItems || []).forEach((item) => {
-        item.emit('destroy');
+    detachDockItems(targetDock) {
+      (targetDock._dockItems || []).forEach((item) => {
         item.parent?.remove(item);
+        item.emit('destroy');
       });
-      this.dockItems = null;
+      targetDock._dockItems = null;
     }
 
-    reattachDockItems() {
-      this.detachDockItems();
-      this.attachDockItems();
+    reattachDockItems(targetDock, config) {
+      this.detachDockItems(targetDock);
+      this.attachDockItems(targetDock, config);
     }
 
     disable() {
       super.disable();
-      this.detachDockItems();
+      this.detachDockItems(Main.dock);
       Main.settings.disconnectObject(this);
     }
   },

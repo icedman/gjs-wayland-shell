@@ -79,14 +79,8 @@ const Panel = GObject.registerClass(
 
       this.container.set_homogeneous(true);
 
-      this.window.add_css_class('startup');
       this.window.present();
       this.window.update_layout();
-
-      Main.hiTimer.runOnce(() => {
-        this.window.remove_css_class('startup');
-      }, 0);
-
       super.enable();
     }
 
@@ -94,6 +88,11 @@ const Panel = GObject.registerClass(
       this.window.destroy();
       this.window = null;
       super.disable();
+    }
+
+    create_panel(params) {
+      let p = new Panel(params);
+      return p;
     }
   },
 );

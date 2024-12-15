@@ -191,7 +191,6 @@ const Search = GObject.registerClass(
       this.update_style();
 
       this.attachPanelItems();
-
       Main.panel.connect('notify::enabled', () => {
         if (Main.panel.enabled) {
           this.attachPanelItems();

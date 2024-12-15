@@ -19,17 +19,11 @@
     background: rgba(0,0,0,0.5);
 }
 
-#Dock separator {
-    transform: scale(0.7);
-    margin: 4px;
-    background: rgba(150, 150, 150, 0.6);
-}
-
 /* Bar */
 #Bar {
     background: transparent;
     opacity: 1;
-    transition: opacity 0.25s ease-in-out;
+    transition: opacity 1.75s ease-in-out;
 }
 
 #PanelItem.logo * {
@@ -43,14 +37,22 @@
     padding-right: 8px;
 }
 
-/* Common */
+/* Separator */
+#Dock separator,
+#Bar separator {
+    transform: scale(0.7);
+    margin: 4px;
+    background: rgba(150, 150, 150, 0.6);
+}
 
+/* Common */
 #lead, #center, #trail {
 }
 
 #container {
 }
 
+/* Effects */
 #Dock.startup, #Bar.startup {
     opacity: 0;
 }
@@ -154,7 +156,7 @@
     }
     30% {
         opacity: 0.3;
-/*        transform: translateY(-20px);*/
+/*        transform: translateY(-8px);*/
     }
     50% {
         opacity: 0.5;
@@ -162,7 +164,7 @@
     }
     70% {
         opacity: 0.7;
-/*        transform: translateY(-10px);*/
+/*        transform: translateY(-3px);*/
     }
     100% {
         opacity: 1.0;
@@ -171,8 +173,7 @@
 }
 
 /* misc */
-
-.bounce-icon {
+.bounce-icon image {
     animation: bounce 1s ease 2; /* Play twice */
 }
 

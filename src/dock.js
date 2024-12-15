@@ -115,7 +115,7 @@ export const DockItem = GObject.registerClass(
         let modifiers = { ...Main.modifiers };
         // move this to a general handler
         Main.shell
-          .focusOrOpen(appInfo.id, appInfo.exec, '' /* args */, modifiers)
+          .focusOrSpawn(appInfo.id, appInfo.exec, '' /* args */, modifiers)
           .then((res) => {
             if (res == 0) {
               this.add_css_class('bounce-icon');
@@ -249,6 +249,7 @@ export const DockPanel = GObject.registerClass(
       let prefix = this.name.toLowerCase();
       this.stylePrefix = prefix;
 
+      this.settingsPrefix = prefix;
       this.settings = Main.settings;
       this.settingsMap = {
         [`${prefix}-show`]: this.update_layout.bind(this),
@@ -772,24 +773,18 @@ const Dock = GObject.registerClass(
       super.disable();
     }
 
-    create_desktop_app_item(app) {
+    create_dock(params) {
+      let d = new Dock(params);
+      return d;
+    }
+
+    create_dockitem_from_appinfo(app) {
       let appInfo = getAppInfo(app);
       if (!appInfo) return;
       let btn = new DockItem({
         app: appInfo,
       });
       return btn;
-    }
-
-    add_dock_item(dockItem, target = null) {
-      target = target ?? this.center;
-      let currentIcons = this.window.get_icons(null, target);
-      let existing = currentIcons.find((icon) => icon.id == dockItem.id);
-      if (existing) {
-        return null;
-      }
-      target.append(dockItem);
-      return dockItem;
     }
   },
 );

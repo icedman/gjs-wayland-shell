@@ -67,21 +67,40 @@ const BarItemsExtension = GObject.registerClass(
 
       this.name = 'baritems';
 
-      let prefix = this.name.toLowerCase();
+      let prefix = 'panel';
+      this.settingsPrefix = prefix;
       this.settings = Main.settings;
       this.settingsMap = {
-        [`${prefix}-lead-items`]: this.retachPanelItems.bind(this),
-        [`${prefix}-center-items`]: this.retachPanelItems.bind(this),
-        [`${prefix}-trail-items`]: this.retachPanelItems.bind(this),
+        [`${prefix}-lead-items`]: () => {
+          this.reattachPanelItems(Main.panel, this);
+        },
+        [`${prefix}-center-items`]: () => {
+          this.reattachPanelItems(Main.panel, this);
+        },
+        [`${prefix}-trail-items`]: () => {
+          this.reattachPanelItems(Main.panel, this);
+        },
       };
-      this.load_settings();
+      this.load_settings(this.setting, this.settingsMap, this.settingsPrefix);
 
-      this.attachPanelItems();
+      this.itemsMap = {
+        logo: this.createLogo.bind(this),
+        hello: this.createHello.bind(this),
+        clock: this.createClock.bind(this),
+        network: this.createNetworkIndicator.bind(this),
+        power: this.createPowerIndicator.bind(this),
+        volume: this.createVolumeIndicator.bind(this),
+        mic: this.createMicIndicator.bind(this),
+        brightness: this.createBrightnessIndicator.bind(this),
+        inhibitor: this.createInhibitorIndicator.bind(this),
+      };
+
+      this.attachPanelItems(Main.panel, this);
       Main.panel.connect('notify::enabled', () => {
         if (Main.panel.enabled) {
-          this.attachPanelItems();
+          this.attachPanelItems(Main.panel, this);
         } else {
-          this.panelItems = null;
+          Main.panel._panelItems = null;
         }
       });
     }
@@ -91,7 +110,6 @@ const BarItemsExtension = GObject.registerClass(
       logo.add_css_class('logo');
       // logo.set_label(getOSName());
       // logo.set_label(getShorterOSName());
-      // logo.set_label("Unicode Example: こんにちは 🌟");
       logo.set_icon(getOSIcon());
       return logo;
     }
@@ -112,8 +130,19 @@ const BarItemsExtension = GObject.registerClass(
         let dt = formatDate(new Date());
         clock.set_label(dt);
       };
-      this.clockTimer = Main.timer.runLoop(updateClock, 1000 * 1, 'clockTimer');
+      clock.clockTimer = Main.timer.runLoop(
+        updateClock,
+        1000 * 1,
+        'clockTimer',
+      );
       updateClock();
+
+      clock.connect('destroy', () => {
+        if (clock.clockTimer) {
+          Main.timer.cancel(clock.clockTimer);
+          clock.clockTimer = null;
+        }
+      });
       return clock;
     }
 
@@ -184,8 +213,12 @@ const BarItemsExtension = GObject.registerClass(
           power.set_label(``);
           power.set_icon(state.icon);
         },
-        this,
+        power,
       );
+      power.connect('destroy', () => {
+        Main.power.disconnectObject(power);
+      });
+
       Main.power.sync();
 
       let menu = new PopupMenu({
@@ -245,14 +278,14 @@ const BarItemsExtension = GObject.registerClass(
       volume.add_controller(evt);
 
       let updateVolume = () => {
-        this._debounceVolume = Main.loTimer.debounce(
+        volume._debounceVolume = Main.loTimer.debounce(
           Main.loTimer,
           () => {
             let value = w.get_value();
             Main.volume._stream.volume = Main.volume.state.max_volume * value;
           },
           5,
-          this._debounceVolume,
+          volume._debounceVolume,
         );
       };
 
@@ -288,6 +321,14 @@ const BarItemsExtension = GObject.registerClass(
         },
         this,
       );
+      volume.connect('destroy', () => {
+        if (volume._debounceVolume) {
+          Main.loTimer.cancel(volume._debounceVolume);
+          volume._debounceVolume = null;
+        }
+        Main.volume.disconnectObject(volume);
+      });
+
       Main.volume.sync();
       return volume;
     }
@@ -306,6 +347,10 @@ const BarItemsExtension = GObject.registerClass(
         },
         this,
       );
+      mic.connect('destroy', () => {
+        Main.mic.disconnectObject(mic);
+      });
+
       Main.mic.sync();
 
       let evt = new Gtk.GestureClick();
@@ -346,7 +391,7 @@ const BarItemsExtension = GObject.registerClass(
       brightness.add_controller(evt);
 
       let updateBrightness = () => {
-        this._debounceBrightness = Main.loTimer.debounce(
+        brightness._debounceBrightness = Main.loTimer.debounce(
           Main.loTimer,
           () => {
             let value = w.get_value() * 100;
@@ -359,7 +404,7 @@ const BarItemsExtension = GObject.registerClass(
             Main.brightness._proxy.Brightness = value;
           },
           5,
-          this._debounceBrightness,
+          brightness._debounceBrightness,
         );
       };
 
@@ -380,6 +425,13 @@ const BarItemsExtension = GObject.registerClass(
         },
         this,
       );
+      brightness.connect('destroy', () => {
+        if (brightness._debounceBrightness) {
+          Main.loTimer.cancel(brightness._debounceBrightness);
+          brightness._debounceBrightness = null;
+        }
+        Main.brightness.disconnectObject(brightness);
+      });
       Main.brightness.sync();
       // brightness.visible = false;
       return brightness;
@@ -409,22 +461,14 @@ const BarItemsExtension = GObject.registerClass(
       return inhibitor;
     }
 
-    attachPanelItems() {
-      if (!Main.panel.enabled || this.panelItems) return;
+    attachPanelItems(targetPanel, itemsList) {
+      if (!itemsList) {
+        itemsList = targetPanel;
+      }
+      if (!targetPanel || !targetPanel.enabled || targetPanel._panelItems)
+        return;
 
-      this.panelItems = [];
-
-      const itemsMap = {
-        logo: this.createLogo.bind(this),
-        hello: this.createHello.bind(this),
-        clock: this.createClock.bind(this),
-        network: this.createNetworkIndicator.bind(this),
-        power: this.createPowerIndicator.bind(this),
-        volume: this.createVolumeIndicator.bind(this),
-        mic: this.createMicIndicator.bind(this),
-        brightness: this.createBrightnessIndicator.bind(this),
-        inhibitor: this.createInhibitorIndicator.bind(this),
-      };
+      targetPanel._panelItems = [];
 
       const areaMap = {
         lead: 'LEAD_ITEMS',
@@ -434,15 +478,17 @@ const BarItemsExtension = GObject.registerClass(
 
       try {
         Object.keys(areaMap).forEach((k) => {
-          let source = this[areaMap[k]] ?? [];
+          let source = itemsList[areaMap[k]] ?? [];
           source.forEach((item, idx) => {
-            let create = itemsMap[item];
+            let create = this.itemsMap[item];
             if (create) {
               let item = create();
-              item.sort_order = idx;
+              if (item.sort_order == undefined) {
+                item.sort_order = idx;
+              }
               if (item) {
-                Main.panel[k].append(item);
-                this.panelItems.push(item);
+                targetPanel[k].append(item);
+                targetPanel._panelItems.push(item);
               }
             }
           });
@@ -454,41 +500,25 @@ const BarItemsExtension = GObject.registerClass(
       Main.panel.window.sort_icons();
     }
 
-    detachPanelItems() {
-      if (!this.panelItems) return;
+    detachPanelItems(targetPanel) {
+      if (!targetPanel || !targetPanel._panelItems) return;
 
-      (this.panelItems || []).forEach((item) => {
+      (targetPanel._panelItems || []).forEach((item) => {
         item.parent?.remove(item);
+        item.emit('destroy');
       });
-      this.panelItems = null;
+      targetPanel._panelItems = null;
     }
 
-    retachPanelItems() {
-      this.detachPanelItems();
-      this.attachPanelItems();
+    reattachPanelItems(target, itemsList) {
+      this.detachPanelItems(target);
+      this.attachPanelItems(target, itemsList);
     }
 
     disable() {
       super.disable();
-      this.detachPanelItems();
-      Main.power.disconnectObject(this);
-      Main.volume.disconnectObject(this);
-      Main.mic.disconnectObject(this);
+      this.detachPanelItems(Main.panel);
       Main.settings.disconnectObject(this);
-
-      // cleanup timers
-      if (this.clockTimer) {
-        Main.timer.cancel(this.clockTimer);
-        this.clockTimer = null;
-      }
-      if (this._debounceVolume) {
-        Main.loTimer.cancel(this._debounceVolume);
-        this._debounceVolume = null;
-      }
-      if (this._debounceBrightness) {
-        Main.loTimer.cancel(this._debounceBrightness);
-        this._debounceBrightness = null;
-      }
     }
   },
 );

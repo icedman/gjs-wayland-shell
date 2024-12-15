@@ -237,59 +237,59 @@
         <description></description>
     </key>
     <!-- DOCK-ITEMS -->
-    <key type="as" name="dockitems-favorite-apps">
-        <default>[]</default>
-        <summary>DockItems favorite apps</summary>
-        <description></description>
-    </key>
-    <key type="b" name="dockitems-show-favorite-apps">
-        <default>true</default>
-        <summary>Show icons of favorite apps</summary>
-        <description></description>
-    </key>
-    <key type="b" name="dockitems-show-running-apps">
-        <default>false</default>
-        <summary>Show icons of running apps</summary>
-        <description></description>
-    </key>
-    <key type="b" name="dockitems-show-trash">
-        <default>false</default>
-        <summary>Show trash</summary>
-        <description></description>
-    </key>
-    <key type="b" name="dockitems-show-separator">
-        <default>false</default>
-        <summary>Show separator</summary>
-        <description></description>
-    </key>
-    <key type="(dddd)" name="dockitems-separator-color">
-        <default>(0.5,0.5,0.5,0.5)</default>
-        <summary>Dock separator color</summary>
-        <description>Set separator color.</description>
-    </key>
-    <key type="b" name="dockitems-show-mounted-volumes">
-        <default>false</default>
-        <summary>Show mounted volumes</summary>
-        <description></description>
-    </key>
-    <key type="b" name="dockitems-show-apps">
-        <default>false</default>
-        <summary>Show apps icons</summary>
-        <description></description>
-    </key>
-    <key type="as" name="baritems-lead-items">
+    <key type="as" name="dock-lead-items">
         <default>['logo']</default>
         <summary>Items at lead area</summary>
         <description></description>
     </key>
-    <key type="as" name="baritems-center-items">
+    <key type="as" name="dock-center-items">
         <default>['clock', 'hello']</default>
         <summary>Items at center area</summary>
         <description></description>
     </key>
-    <key type="as" name="baritems-trail-items">
+    <key type="as" name="dock-trail-items">
         <default>['network', 'power', 'volume', 'mic']</default>
         <summary>Items at trail area</summary>
+        <description></description>
+    </key>
+    <key type="as" name="dock-favorite-apps">
+        <default>[]</default>
+        <summary>DockItems favorite apps</summary>
+        <description></description>
+    </key>
+    <key type="b" name="dock-show-favorite-apps">
+        <default>true</default>
+        <summary>Show icons of favorite apps</summary>
+        <description></description>
+    </key>
+    <key type="b" name="dock-show-running-apps">
+        <default>false</default>
+        <summary>Show icons of running apps</summary>
+        <description></description>
+    </key>
+    <key type="b" name="dock-show-trash">
+        <default>false</default>
+        <summary>Show trash</summary>
+        <description></description>
+    </key>
+    <key type="b" name="dock-show-separator">
+        <default>false</default>
+        <summary>Show separator</summary>
+        <description></description>
+    </key>
+    <key type="(dddd)" name="dock-separator-color">
+        <default>(0.5,0.5,0.5,0.5)</default>
+        <summary>Dock separator color</summary>
+        <description>Set separator color.</description>
+    </key>
+    <key type="b" name="dock-show-mounted-volumes">
+        <default>false</default>
+        <summary>Show mounted volumes</summary>
+        <description></description>
+    </key>
+    <key type="b" name="dock-show-apps">
+        <default>false</default>
+        <summary>Show apps icons</summary>
         <description></description>
     </key>
     <key type="i" name="bar-running-indicator">
@@ -307,6 +307,21 @@
         <summary>Bar running-indicator color</summary>
         <description>Set bar running-indicator color.</description>
     </key>
-
+    <!-- PANEL ITEMS -->
+    <key type="as" name="panel-lead-items">
+        <default>['logo']</default>
+        <summary>Items at lead area</summary>
+        <description></description>
+    </key>
+    <key type="as" name="panel-center-items">
+        <default>['clock', 'hello']</default>
+        <summary>Items at center area</summary>
+        <description></description>
+    </key>
+    <key type="as" name="panel-trail-items">
+        <default>['network', 'power', 'volume', 'mic']</default>
+        <summary>Items at trail area</summary>
+        <description></description>
+    </key>
   </schema>
 </schemalist>

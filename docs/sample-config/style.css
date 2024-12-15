@@ -1,0 +1,30 @@
+#Dock button image {
+	filter: sepia(50%);
+/*  filter: grayscale(90%); */
+/*	filter: contrast(120%);*/
+/*	transform: scale(1.5);*/
+}
+
+#Dock #container {
+	border: 2px solid red;
+}
+#Dock:hover #container {
+	transform: translateY(0px);
+}
+
+#Dock #container {
+	border-left: 0px;
+	border-right: 0px;
+	border-bottom: 0px;
+}
+
+#Bar #container {
+	border-bottom: 2px solid yellow;
+}
+
+#Search {
+	filter: blur(2px);
+/*	filter: sepia(50%);*/
+/*	filter: grayscale(90%);*/
+/*	filter: contrast(120%);*/
+}

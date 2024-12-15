@@ -22,6 +22,7 @@ import Style from './services/style.js';
 import DBus from './services/dbus.js';
 import SystemApps from './services/systemApps.js';
 import Timer from './lib/timer.js';
+
 import { Extension } from './lib/extensionInterface.js';
 
 import './lib/environment.js';
@@ -135,7 +136,6 @@ Main.shell.listen();
 // load and init extensions
 async function loadModule(moduleName) {
   try {
-    console.log(moduleName);
     const module = await import(moduleName);
     console.log(`loaded ${moduleName}`);
     return module;
@@ -174,8 +174,8 @@ function loadExtensions(directoryPath) {
           'style.css',
         ]);
 
-        console.log('====================');
-        console.log(extensionFilePath);
+        // console.log('====================');
+        // console.log(extensionFilePath);
 
         let p = new Promise((resolve, reject) => {
           (async () => {
@@ -216,7 +216,7 @@ function loadCustomSettings() {
       let contentsString = decoder.decode(contents);
       let json = JSON.parse(contentsString);
       Main.userSettings = json;
-      console.log(Main.userSettings);
+      // console.log(Main.userSettings);
     }
   } catch (err) {
     console.log(err);

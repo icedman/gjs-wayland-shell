@@ -42,7 +42,7 @@ export const PopupMenu = GObject.registerClass(
         // evt.set_button(3);
         evt.connect('pressed', async (actor, count) => {
           if (item.action == 'open') {
-            Main.shell.focusOrOpen(item.id, item.exec);
+            Main.shell.focusOrSpawn(item.id, item.exec);
             this.popdown();
             return;
           }

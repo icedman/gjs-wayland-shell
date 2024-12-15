@@ -317,11 +317,11 @@
             <property name="visible">false</property>
             <property name="title" translatable="yes">Separator Thickness</property>
             <property name="subtitle" translatable="yes">Set separator thickness.</property>
-            <property name="activatable-widget">separator-thickness</property>
+            <property name="activatable-widget">dock-separator-thickness</property>
             <child>
-              <object class="GtkDropDown" id="separator-thickness">
+              <object class="GtkDropDown" id="dock-separator-thickness">
                 <property name="valign">center</property>
-                <property name="model">separator-thickness-model</property>
+                <property name="model">dock-separator-thickness-model</property>
               </object>
             </child>
           </object>
@@ -331,9 +331,9 @@
             <property name="visible">false</property>
             <property name="title" translatable="yes">Separator Color</property>
             <property name="subtitle" translatable="yes">Select separator color.</property>
-            <property name="activatable-widget">separator-color</property>
+            <property name="activatable-widget">dock-separator-color</property>
             <child>
-              <object class="GtkColorButton" id="separator-color">
+              <object class="GtkColorButton" id="dock-separator-color">
                 <property name="valign">center</property>
                 <property name="hexpand">false</property>
                 <property name="width-request">70px</property>
@@ -536,9 +536,9 @@
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Favorite Apps</property>
             <property name="subtitle" translatable="yes">Show favorite apps icon.</property>
-            <property name="activatable-widget">dockitems-show-favorite-apps</property>
+            <property name="activatable-widget">dock-show-favorite-apps</property>
             <child>
-              <object class="GtkSwitch" id="dockitems-show-favorite-apps">
+              <object class="GtkSwitch" id="dock-show-favorite-apps">
                 <property name="valign">center</property>
               </object>
             </child>
@@ -548,9 +548,9 @@
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Running Apps</property>
             <property name="subtitle" translatable="yes">Show running apps icon.</property>
-            <property name="activatable-widget">dockitems-show-running-apps</property>
+            <property name="activatable-widget">dock-show-running-apps</property>
             <child>
-              <object class="GtkSwitch" id="dockitems-show-running-apps">
+              <object class="GtkSwitch" id="dock-show-running-apps">
                 <property name="valign">center</property>
               </object>
             </child>
@@ -560,9 +560,9 @@
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Separator</property>
             <property name="subtitle" translatable="yes">Show separator between favorite and running apps.</property>
-            <property name="activatable-widget">dockitems-show-separator</property>
+            <property name="activatable-widget">dock-show-separator</property>
             <child>
-              <object class="GtkSwitch" id="dockitems-show-separator">
+              <object class="GtkSwitch" id="dock-show-separator">
                 <property name="valign">center</property>
               </object>
             </child>
@@ -572,9 +572,9 @@
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Trash Icon</property>
             <property name="subtitle" translatable="yes">Show a dynamic trash icon.</property>
-            <property name="activatable-widget">dockitems-show-trash</property>
+            <property name="activatable-widget">dock-show-trash</property>
             <child>
-              <object class="GtkSwitch" id="dockitems-show-trash">
+              <object class="GtkSwitch" id="dock-show-trash">
                 <property name="valign">center</property>
               </object>
             </child>
@@ -584,9 +584,9 @@
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Mounted Volumes</property>
             <property name="subtitle" translatable="yes">Show mounted volumes.</property>
-            <property name="activatable-widget">dockitems-show-mounted-volumes</property>
+            <property name="activatable-widget">dock-show-mounted-volumes</property>
             <child>
-              <object class="GtkSwitch" id="dockitems-show-mounted-volumes">
+              <object class="GtkSwitch" id="dock-show-mounted-volumes">
                 <property name="valign">center</property>
               </object>
             </child>
@@ -596,9 +596,9 @@
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Show Apps Icon</property>
             <property name="subtitle" translatable="yes">Show apps icon.</property>
-            <property name="activatable-widget">dockitems-show-apps</property>
+            <property name="activatable-widget">dock-show-apps</property>
             <child>
-              <object class="GtkSwitch" id="dockitems-show-apps">
+              <object class="GtkSwitch" id="dock-show-apps">
                 <property name="valign">center</property>
               </object>
             </child>
@@ -691,7 +691,7 @@
       <item>3px</item>
     </items>
   </object>
-  <object class="GtkStringList" id="separator-thickness-model">
+  <object class="GtkStringList" id="dock-separator-thickness-model">
     <items>
       <item translatable="yes">None</item>
       <item>1px</item>

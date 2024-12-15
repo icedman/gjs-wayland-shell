@@ -1,5 +1,5 @@
 {
-  "favorite_apps": [
+  "favorite-apps": [
     "kitty.desktop",
     "org.gnome.Nautilus.desktop",
     "google-chrome.desktop",
@@ -9,7 +9,7 @@
     "org.gnome.Software.desktop",
     "org.gnome.TextEditor.desktop"
   ],
-  "baritems-lead-items": ["logo"],
-  "baritems-center-items": ["clock"],
-  "baritems-trail-items": ["network", "power", "volume", "mic"]
+  "panel-lead-items": ["logo"],
+  "panel-center-items": ["clock"],
+  "panel-trail-items": ["inhibitor", "brightness", "network", "power", "volume", "mic"]
 }

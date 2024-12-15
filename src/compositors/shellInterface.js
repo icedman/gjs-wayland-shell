@@ -5,7 +5,6 @@ import { Extension } from '../lib/extensionInterface.js';
 
 import {
   connectToSocket,
-  connectToNiriSocket,
   disconnectSocket,
   sendMessage,
   receiveMessage,
@@ -27,6 +26,8 @@ const ShellInterface = GObject.registerClass(
       this.windows = [];
       this.focusIndex = 0;
 
+      this._log = () => {};
+
       this.queueGetWindows();
     }
 
@@ -35,9 +36,13 @@ const ShellInterface = GObject.registerClass(
     }
 
     onWindowsUpdated(evt) {
-      console.log('onWindowsUpdated');
-      console.log(evt);
+      this._log('onWindowsUpdated');
+      this._log(evt);
       this.emit('windows-update');
+    }
+
+    _log(msg) {
+      console.log(msg);
     }
 
     _appendNewWindow(window) {
@@ -64,8 +69,8 @@ const ShellInterface = GObject.registerClass(
     }
 
     onWindowFocused(evt) {
-      console.log('onWindowFocused');
-      console.log(evt);
+      this._log('onWindowFocused');
+      this._log(evt);
 
       if (this._appendNewWindow(evt['window'])) {
         return;
@@ -74,8 +79,8 @@ const ShellInterface = GObject.registerClass(
     }
 
     onWindowOpened(evt) {
-      console.log('onWindowOpened');
-      console.log(evt);
+      this._log('onWindowOpened');
+      this._log(evt);
 
       if (this._appendNewWindow(evt['window'])) {
         // return;
@@ -92,8 +97,8 @@ const ShellInterface = GObject.registerClass(
     }
 
     onWindowClosed(evt) {
-      console.log('onWindowClosed');
-      console.log(evt);
+      this._log('onWindowClosed');
+      this._log(evt);
 
       this.windows = this.windows.filter((w) => {
         return w.id != evt['window']['id'];
@@ -176,7 +181,7 @@ const ShellInterface = GObject.registerClass(
       if (msg) {
         await sendMessage(connection, msg);
         let response = await receiveMessage(connection);
-        console.log(response);
+        // console.log(response);
       }
 
       let inputStream = connection.get_input_stream();
@@ -230,7 +235,7 @@ const ShellInterface = GObject.registerClass(
     async getWindows() {}
     async focusWindow(id) {}
 
-    async focusOrOpen(className, exec, arg = '', modifiers = {}) {
+    async focusOrSpawn(className, cmd, arg = '', modifiers = {}) {
       let openedWindow = null;
       try {
         let openedWindows = (this.windows ?? []).filter((w) => {
@@ -247,7 +252,7 @@ const ShellInterface = GObject.registerClass(
 
       if (!openedWindow) {
         // || modifiers[Gdk.KEY_Control_L]) {
-        this.spawn(exec, arg);
+        this.spawn(cmd, arg);
         return Promise.resolve(0);
       } else {
         this.focusWindow(openedWindow);
@@ -287,12 +292,24 @@ const ShellInterface = GObject.registerClass(
       }
     }
 
-    currentWindows() {
-      return this.windows.map((w) => ({
+    currentWindows(filter = null) {
+      let windows = this.windows;
+      if (filter) {
+        let keys = Object.keys(filter);
+        windows = windows.filter((w) => {
+          for (let i; keys.length; i++) {
+            if (w[k] != filter[k]) return false;
+          }
+          return true;
+        });
+      }
+      windows = windows.map((w) => ({
         id: w.id,
         app_id: w.app_id,
         title: w.title,
       }));
+
+      return windows;
     }
   },
 );

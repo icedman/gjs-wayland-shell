@@ -56,15 +56,18 @@ Gio.Settings.prototype.getSetting = function (k) {
   return null;
 };
 
-GObject.Object.prototype.load_settings = function () {
-  this.settingsMap = this.settingsMap ?? {};
-  Object.keys(this.settingsMap).forEach((k) => {
-    let _key = k
-      .replace(`${this.name.toLowerCase()}-`, '')
-      .replaceAll('-', '_')
-      .toUpperCase();
+GObject.Object.prototype.load_settings = function (
+  settings,
+  settingsMap,
+  prefix,
+) {
+  settings = settings ?? this.settings;
+  settingsMap = settingsMap ?? this.settingsMap ?? {};
+  prefix = prefix ?? this.settingsPrefix ?? this.name?.toLowerCase() ?? '';
+  Object.keys(settingsMap).forEach((k) => {
+    let _key = k.replace(`${prefix}-`, '').replaceAll('-', '_').toUpperCase();
     try {
-      this[_key] = this.settings.getSetting(k);
+      this[_key] = settings.getSetting(k);
     } catch (err) {
       return;
     }
@@ -74,17 +77,17 @@ GObject.Object.prototype.load_settings = function () {
     if (this.customSettings && this.customSettings[k]) {
       this[_key] = this.customSettings[k];
     }
-    this.settings.connectObject(
+    settings.connectObject(
       `changed::${k}`,
       () => {
-        this[_key] = this.settings.getSetting(k);
+        this[_key] = settings.getSetting(k);
         if (Main.userSettings && Main.userSettings[k]) {
           this[_key] = Main.userSettings[k];
         }
         if (this.customSettings && this.customSettings[k]) {
           this[_key] = this.customSettings[k];
         }
-        this.settingsMap[k]();
+        settingsMap[k]();
       },
       this,
     );
