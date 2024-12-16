@@ -173,8 +173,18 @@ const BarItemsExtension = GObject.registerClass(
         has_arrow: true,
       });
 
-      let w = new Gtk.Label();
-      menu.child.append(w);
+      // let w = new Gtk.Label();
+      // menu.child.append(w);
+      // network.append(menu);
+      let builder = new Gtk.Builder();
+      builder.add_from_file(`${this.path}/ui/network.ui`);
+
+      let widget = builder.get_object('network-widget');
+      let i = builder.get_object('network-icon');
+      let l = builder.get_object('network-label');
+      l.set_size_request(40, -1);
+      widget.parent.remove(widget);
+      menu.child.append(widget);
       network.append(menu);
 
       let evt = new Gtk.GestureClick();
@@ -183,7 +193,7 @@ const BarItemsExtension = GObject.registerClass(
         let state = Main.network.state;
         let source = Main.network.indicator._primaryIndicatorBinding.source;
         if (source) {
-          w.set_label(`${source.title} ${state.id ?? source.subtitle}`);
+          i.set_label(`${source.title} ${state.id ?? source.subtitle}`);
           menu.popup();
           return;
         }
@@ -211,28 +221,19 @@ const BarItemsExtension = GObject.registerClass(
       power.add_css_class('power');
       power.set_label('power');
 
-      Main.power.connectObject(
-        'power-update',
-        () => {
-          let state = Main.power.state;
-          // power.set_label(`${state.fillLevel}%`);
-          power.set_label(``);
-          power.set_icon(state.icon);
-        },
-        power,
-      );
-      power.connect('destroy', () => {
-        Main.power.disconnectObject(power);
-      });
-
-      Main.power.sync();
-
       let menu = new PopupMenu({
         has_arrow: true,
       });
 
-      let w = new Gtk.Label();
-      menu.child.append(w);
+      let builder = new Gtk.Builder();
+      builder.add_from_file(`${this.path}/ui/power.ui`);
+
+      let widget = builder.get_object('power-widget');
+      let i = builder.get_object('power-icon');
+      let l = builder.get_object('power-label');
+      l.set_size_request(40, -1);
+      widget.parent.remove(widget);
+      menu.child.append(widget);
       power.append(menu);
 
       let evt = new Gtk.GestureClick();
@@ -245,13 +246,31 @@ const BarItemsExtension = GObject.registerClass(
           } else if (Main.power.state.timeToEmpty) {
             timeTo = `${formatTimeToString(Main.power.state.timeToEmpty)} to empty`;
           }
-          w.set_label(
+          i.set_label(
             `${Main.power.state.fillLevel}% ${Main.power.state.chargingState} ${timeTo}`,
           );
         }
         menu.popup();
       });
       power.add_controller(evt);
+
+      Main.power.connectObject(
+        'power-update',
+        () => {
+          let state = Main.power.state;
+          // power.set_label(`${state.fillLevel}%`);
+          power.set_label(``);
+          power.set_icon(state.icon);
+          // i.child?.set_from_icon_name(state.icon);
+          // i.child.visible = false;
+          i.set_child(null);
+        },
+        power,
+      );
+      power.connect('destroy', () => {
+        Main.power.disconnectObject(power);
+      });
+      Main.power.sync();
       return power;
     }
 

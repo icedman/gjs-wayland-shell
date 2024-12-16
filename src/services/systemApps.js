@@ -46,42 +46,53 @@ const SystemApps = GObject.registerClass(
       this.apps = Gio.app_info_get_all();
     }
 
-    async watchAppDirs() {
-      let dataDirs = GLib.get_system_data_dirs();
-      dataDirs.unshift(GLib.get_user_data_dir());
+    // async watchAppDirs() {
+    //   // use appInfoMonitor? ... this is expensive?
+    //   let dataDirs = GLib.get_system_data_dirs();
+    //   dataDirs.unshift(GLib.get_user_data_dir());
 
-      this.monitored = [];
-      for (let i = 0; i < dataDirs.length; i++) {
-        let path = GLib.build_filenamev([dataDirs[i], 'applications']);
-        let dir = Gio.File.new_for_path(path);
-        let watched = dir.monitor_directory(
-          Gio.FileMonitorFlags.WATCH_MOVES,
-          null,
-        );
-        watched.connectObject(
-          'changed',
-          (fileMonitor, file, otherFile, eventType) => {
-            this.collectApps();
-          },
-          this,
-        );
-        this.monitored.push(dataDirs);
-      }
-    }
+    //   this.monitored = [];
+    //   for (let i = 0; i < dataDirs.length; i++) {
+    //     let path = GLib.build_filenamev([dataDirs[i], 'applications']);
+    //     let dir = Gio.File.new_for_path(path);
+    //     let watched = dir.monitor_directory(
+    //       Gio.FileMonitorFlags.WATCH_MOVES,
+    //       null,
+    //     );
+    //     watched.connectObject(
+    //       'changed',
+    //       (fileMonitor, file, otherFile, eventType) => {
+    //         this.collectApps();
+    //       },
+    //       this,
+    //     );
+    //     this.monitored.push(dataDirs);
+    //   }
+    // }
+
+    // unwatchAppDirs() {
+    //   if (this.monitored) {
+    //     this.monitored.forEach((m) => {
+    //       m.disconnectObject(this);
+    //     });
+    //     this.monitored = null;
+    //   }
+    // }
 
     async enable() {
       super.enable();
       this.collectApps();
-      this.watchAppDirs();
+      // this.watchAppDirs();
+      this.monitor = Gio.AppInfoMonitor.get();
+      this.monitor.connectObject('changed', this.collectApps.bind(this), this);
     }
 
     disable() {
       super.disable();
-      if (this.monitored) {
-        this.monitored.forEach((m) => {
-          m.disconnectObject(this);
-        });
-        this.monitored = null;
+      // this.unwatchAppDirs();
+      if (this.monitor) {
+        this.monitor.disconnectObject(this);
+        this.monitor = null;
       }
     }
 

@@ -192,6 +192,7 @@ export const DockPanel = GObject.registerClass(
         default_height: 20,
         ...params,
       });
+      this.add_css_class('startup');
 
       this.style = Main.style;
 
@@ -250,26 +251,30 @@ export const DockPanel = GObject.registerClass(
       let prefix = this.name.toLowerCase();
       this.stylePrefix = prefix;
 
+      let _updateAnimation = this.update_animation.bind(this);
+      let _updateStyle = this.update_style.bind(this);
+      let _updateLayout = this.update_layout.bind(this);
+
       this.settingsPrefix = prefix;
       this.settings = Main.settings;
       this.settingsMap = {
-        [`${prefix}-show`]: this.update_layout.bind(this),
-        [`${prefix}-edge-distance`]: this.update_layout.bind(this),
+        [`${prefix}-show`]: _updateLayout,
+        [`${prefix}-edge-distance`]: _updateLayout,
 
         // settings affecting animation or affected by animation
-        [`${prefix}-location`]: this.update_animation.bind(this),
-        [`${prefix}-enable-animation`]: this.update_animation.bind(this),
-        [`${prefix}-enable-autohide`]: this.update_animation.bind(this),
+        [`${prefix}-location`]: _updateAnimation,
+        [`${prefix}-enable-animation`]: _updateAnimation,
+        [`${prefix}-enable-autohide`]: _updateAnimation,
 
-        [`${prefix}-padding`]: this.update_style.bind(this),
-        [`${prefix}-icon-shadow`]: this.update_style.bind(this),
-        [`${prefix}-icon-size`]: this.update_icon_size.bind(this),
-        [`${prefix}-icon-scale`]: this.update_icon_size.bind(this),
-        [`${prefix}-border-radius`]: this.update_style.bind(this),
-        [`${prefix}-border-color`]: this.update_style.bind(this),
-        [`${prefix}-border-thickness`]: this.update_style.bind(this),
-        [`${prefix}-background-color`]: this.update_style.bind(this),
-        [`${prefix}-panel-mode`]: this.update_style.bind(this),
+        [`${prefix}-padding`]: _updateStyle,
+        [`${prefix}-icon-shadow`]: _updateStyle,
+        [`${prefix}-icon-size`]: _updateAnimation,
+        [`${prefix}-icon-scale`]: _updateAnimation,
+        [`${prefix}-border-radius`]: _updateStyle,
+        [`${prefix}-border-color`]: _updateStyle,
+        [`${prefix}-border-thickness`]: _updateStyle,
+        [`${prefix}-background-color`]: _updateStyle,
+        [`${prefix}-panel-mode`]: _updateStyle,
         // [`${prefix}-icon-spacing`]: this.update_style.bind(this),
         [`${prefix}-running-indicator`]: this.update_indicators.bind(this),
       };
@@ -387,6 +392,8 @@ export const DockPanel = GObject.registerClass(
 
       this.queue_resize();
       this.set_visible(this.SHOW);
+
+      this.remove_css_class('startup');
     }
 
     async update_style() {

@@ -283,27 +283,25 @@ panelItems[0].open();
 
 // dump(win, 0);
 
-
 // Control will end here and wait for an event to occur
 // (like a key press or mouse event)
 // The main loop will run until loop.quit is called.
 
 let app = new Gtk.Application({
-    application_id: "kitty", // Change this to your app ID
-    flags: Gio.ApplicationFlags.FLAGS_NONE,
+  application_id: 'kitty', // Change this to your app ID
+  flags: Gio.ApplicationFlags.FLAGS_NONE,
 });
 
 app.connect('activate', () => {
   let appWindow = new Gtk.ApplicationWindow({
-        application: app,
-        title: "My App",
-        default_width: 400,
-        default_height: 300,
-    });
+    application: app,
+    title: 'My App',
+    default_width: 400,
+    default_height: 300,
+  });
   // appWindow.present();
   win.present();
 });
-
 
 function onCloseRequest() {
   log('close-request emitted');

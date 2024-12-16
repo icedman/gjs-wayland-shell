@@ -509,7 +509,7 @@ const Search = GObject.registerClass(
         }
         let box = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL });
         let btn = new Gtk.Button({
-          icon_name: app.icon_name ?? 'user-trash',
+          icon_name: app.icon_name ?? 'applications-symbolic',
         });
         box.append(btn);
         let label = new Gtk.Label({ label: app.title ?? '' });

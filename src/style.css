@@ -2,7 +2,11 @@
 #Dock {
     background: transparent;
     opacity: 1;
-    transition: opacity 1.75s ease-in-out;
+    transition: opacity 0.85s ease-in-out;
+}
+
+#Dock.startup {
+    opacity: 0;
 }
 
 #DockItem .button {
@@ -23,7 +27,11 @@
 #Bar {
     background: transparent;
     opacity: 1;
-    transition: opacity 1.75s ease-in-out;
+    transition: opacity 0.85s ease-in-out;
+}
+
+#Bar.startup {
+    opacity: 0;
 }
 
 #PanelItem.logo * {
@@ -178,9 +186,9 @@
 }
 
 .with-indicators #container button {
-    padding-bottom: 10px;
+    padding-bottom: 6px;
 }
 
 .dots {
-    transform: translateY(12px);
+    transform: translateY(10px);
 }
