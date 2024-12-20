@@ -115,6 +115,11 @@ export const DockItem = GObject.registerClass(
       }
 
       this.btn.connect('clicked', async (actor) => {
+        if (appInfo.script) {
+          appInfo.script();
+          return;
+        }
+
         let modifiers = getModifierStates(this.parent.parent.parent);
 
         // move this to a general handler
@@ -519,6 +524,14 @@ export const DockPanel = GObject.registerClass(
         styles.push(
           `#${windowName} #container .animated-container .button-adjacent-2 { ${marginLeft}: ${transforms[2].margin}px; ${marginRight}: ${transforms[2].margin}px; }`,
         );
+
+        // let ss = [
+        //   `#${windowName} #container .animate-adjust-left-1 { ${marginLeft}: ${baseMargin*4.0}px; }`,
+        //   `#${windowName} #container .animate-adjust-left-2 { ${marginLeft}: ${baseMargin*6.0}px; }`,
+        //   `#${windowName} #container .animate-adjust-right-1 { ${marginRight}: ${baseMargin*4.0}px; }`,
+        //   `#${windowName} #container .animate-adjust-right-2 { ${marginRight}: ${baseMargin*6.0}px; }`
+        // ];
+        // styles = [...styles, ...ss];
       } else {
         this.center.remove_css_class('animated-container');
       }
@@ -628,9 +641,12 @@ export const DockPanel = GObject.registerClass(
         }
       }
       this._leave();
+      let leftMargin = 0;
+      let rightMargin = 0;
       for (let i = 0; i < icons.length; i++) {
         if (icons[i].group == IconGroups.SEPARATOR) continue;
-
+        let alloc = icons[i].get_allocation();
+        if (!alloc.width) continue;
         if (icons[i] == item) {
           if (!icons[i].has_css_class('button-hover')) {
             icons[i].add_css_class('button-hover');
@@ -638,21 +654,44 @@ export const DockPanel = GObject.registerClass(
         }
         if (icons[i - 1] == item) {
           icons[i].add_css_class('button-adjacent-1');
+          rightMargin += 1;
         }
         if (icons[i - 2] == item) {
           icons[i].add_css_class('button-adjacent-2');
+          rightMargin += 1;
         }
         if (icons[i + 1] == item) {
           icons[i].add_css_class('button-adjacent-1');
+          leftMargin += 1;
         }
         if (icons[i + 2] == item) {
           icons[i].add_css_class('button-adjacent-2');
+          leftMargin += 1;
         }
       }
-      if (this.auto_hidden) {
-        this.auto_hidden = false;
-        this.update_layout();
-      }
+
+      // let adjust = {
+      //   left: rightMargin - leftMargin,
+      //   right: leftMargin - rightMargin,
+      // }
+      // if (adjust.left > 0) {
+      //   this.lead.add_css_class(`animate-adjust-left-${adjust.left}`);
+      //   console.log(`animate-adjust-left-${adjust.left}`);
+      // } else {
+      //   this.lead.remove_css_class(`animate-adjust-left-1`);
+      //   this.lead.remove_css_class(`animate-adjust-left-2`);
+      // }
+      // if (adjust.right > 0) {
+      //   this.trail.add_css_class(`animate-adjust-right-${adjust.right}`);
+      // } else {
+      //   this.trail.remove_css_class(`animate-adjust-right-1`);
+      //   this.trail.remove_css_class(`animate-adjust-right-2`);
+      // }
+
+      // if (this.auto_hidden) {
+      //   this.auto_hidden = false;
+      //   this.update_layout();
+      // }
     }
 
     // _leaveLater() {

@@ -82,7 +82,10 @@ const DockItemsExtension = GObject.registerClass(
         id: 'fuzzel',
         icon_name: 'view-app-grid-symbolic',
         title: 'Fuzzel',
-        exec: `fuzzel`,
+        // exec: `fuzzel`,
+        script: () => {
+          Main.search.show();
+        },
       };
       let apps = Main.dock.create_dockitem_from_appinfo(appInfo);
       if (apps) {
@@ -175,6 +178,7 @@ const DockItemsExtension = GObject.registerClass(
     }
 
     createRunningApps(target = null) {
+      let targetDock = target?.parent.parent ?? Main.dock.window;
       target = target ?? Main.dock.center;
 
       let item = new Gtk.Box({ visible: false }); // placeholder
@@ -210,10 +214,7 @@ const DockItemsExtension = GObject.registerClass(
 
         // remove closed apps
         let remove = [];
-        let current = Main.dock.window.get_icons(
-          IconGroups.RUNNING_APPS,
-          target,
-        );
+        let current = targetDock.get_icons(IconGroups.RUNNING_APPS, target);
         current.forEach((c) => {
           if (!appIds.includes(c.id)) {
             remove.push(c);
@@ -224,7 +225,8 @@ const DockItemsExtension = GObject.registerClass(
           c.parent?.remove(c);
         });
 
-        Main.dock.window.sort_icons();
+        targetDock.sort_icons();
+        targetDock.update_icon_size();
       }
 
       Main.shell.connectObject(
