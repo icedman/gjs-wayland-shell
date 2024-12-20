@@ -9,6 +9,8 @@ const BUS_NAME = 'org.freedesktop.ScreenSaver';
 const OBJECT_PATH = '/org/freedesktop/ScreenSaver';
 const ACTIVE_ICON = 'caffeine-on';
 const INACTIVE_ICON = 'caffeine-off';
+// const ACTIVE_ICON = 'caffeine-cup-full';
+// const INACTIVE_ICON = 'caffeine-cup-empty';
 
 const InhibitorInterface = `
   <node>

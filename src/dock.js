@@ -642,6 +642,10 @@ export const DockPanel = GObject.registerClass(
       this._leave();
       for (let i = 0; i < icons.length; i++) {
         if (icons[i].group == IconGroups.SEPARATOR) continue;
+
+        // let { x, y, width, height } = icons[i].get_allocation();
+        // console.log({ x, y, width, height });
+
         if (icons[i] == item) {
           if (!icons[i].has_css_class('button-hover')) {
             icons[i].add_css_class('button-hover');

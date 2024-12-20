@@ -7,6 +7,7 @@ import LayerShell from 'gi://Gtk4LayerShell';
 import { Extension } from './lib/extensionInterface.js';
 
 import { DockPanel } from './dock.js';
+import { getIconInfo } from './lib/iconInfo.js';
 
 const PanelItem = GObject.registerClass(
   class PanelItem extends Gtk.Box {
@@ -19,6 +20,7 @@ const PanelItem = GObject.registerClass(
         ...(params ?? {}),
       });
 
+      this.add_css_class('panel-item');
       this.icon = new Gtk.Image();
       this.icon.add_css_class('icon');
       this.icon.set_visible(false);
@@ -40,6 +42,7 @@ const PanelItem = GObject.registerClass(
         this.icon.set_from_file(icon);
       } else {
         this.icon.set_from_icon_name(icon);
+        // getIconInfo(icon);
       }
     }
 

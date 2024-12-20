@@ -131,10 +131,12 @@ const BarItemsExtension = GObject.registerClass(
       let clock = new Main.panel.PanelItem();
       clock.add_css_class('clock');
       clock.set_label('Clock');
-
+      clock.onUpdate = (w, s) => {};
       const updateClock = () => {
+        let d = new Date();
         let dt = formatDate(new Date());
         clock.set_label(dt);
+        clock.onUpdate(clock, { date: d });
       };
       clock.clockTimer = Main.timer.runLoop(
         updateClock,
@@ -156,7 +158,7 @@ const BarItemsExtension = GObject.registerClass(
       let network = new Main.panel.PanelItem();
       network.add_css_class('network');
       network.set_label('network');
-
+      network.onUpdate = (w, s) => {};
       Main.network.connectObject(
         'network-update',
         () => {
@@ -164,6 +166,7 @@ const BarItemsExtension = GObject.registerClass(
           network.set_label(``);
           network.set_icon(state.icon);
           // network.visible = state.visible;
+          network.onUpdate(network, state);
         },
         this,
       );
@@ -185,6 +188,7 @@ const BarItemsExtension = GObject.registerClass(
       l.set_size_request(40, -1);
       widget.parent.remove(widget);
       menu.child.append(widget);
+      network.menu = menu;
       network.append(menu);
 
       let evt = new Gtk.GestureClick();
@@ -220,6 +224,7 @@ const BarItemsExtension = GObject.registerClass(
       let power = new Main.panel.PanelItem();
       power.add_css_class('power');
       power.set_label('power');
+      power.onUpdate = (w, s) => {};
 
       let menu = new PopupMenu({
         has_arrow: true,
@@ -239,16 +244,15 @@ const BarItemsExtension = GObject.registerClass(
       let evt = new Gtk.GestureClick();
       // evt.set_button(3); // right click
       evt.connect('pressed', (actor, count) => {
-        if (Main.power.state?.fillLevel) {
+        let state = Main.power.state;
+        if (state?.fillLevel) {
           let timeTo = '';
-          if (Main.power.state.timeToFull) {
-            timeTo = `${formatTimeToString(Main.power.state.timeToFull)} to full`;
-          } else if (Main.power.state.timeToEmpty) {
-            timeTo = `${formatTimeToString(Main.power.state.timeToEmpty)} to empty`;
+          if (state.timeToFull) {
+            timeTo = `${formatTimeToString(state.timeToFull)} to full`;
+          } else if (state.timeToEmpty) {
+            timeTo = `${formatTimeToString(state.timeToEmpty)} to empty`;
           }
-          i.set_label(
-            `${Main.power.state.fillLevel}% ${Main.power.state.chargingState} ${timeTo}`,
-          );
+          i.set_label(`${state.fillLevel}% ${state.chargingState} ${timeTo}`);
         }
         menu.popup();
       });
@@ -264,6 +268,7 @@ const BarItemsExtension = GObject.registerClass(
           // i.child?.set_from_icon_name(state.icon);
           // i.child.visible = false;
           i.set_child(null);
+          this.onUpdate(power, state);
         },
         power,
       );
@@ -278,6 +283,7 @@ const BarItemsExtension = GObject.registerClass(
       let volume = new Main.panel.PanelItem();
       volume.add_css_class('volume');
       volume.set_label('volume');
+      volume.onUpdate = (w, s) => {};
 
       let menu = new PopupMenu({
         has_arrow: true,
@@ -293,6 +299,7 @@ const BarItemsExtension = GObject.registerClass(
       l.set_size_request(40, -1);
       widget.parent.remove(widget);
       menu.child.append(widget);
+      volume.menu = menu;
       volume.append(menu);
 
       let evt = new Gtk.GestureClick();
@@ -343,6 +350,7 @@ const BarItemsExtension = GObject.registerClass(
           }
           w.set_sensitive(!state.is_muted);
           // console.log(state);
+          volume.onUpdate(volume, state);
         },
         this,
       );
@@ -362,6 +370,7 @@ const BarItemsExtension = GObject.registerClass(
       let mic = new Main.panel.PanelItem();
       mic.add_css_class('mic');
       mic.set_label('mic');
+      mic.onMicUpdate = (w, s) => {};
 
       Main.mic.connectObject(
         'mic-update',
@@ -369,6 +378,7 @@ const BarItemsExtension = GObject.registerClass(
           let state = Main.mic.state;
           mic.set_label(``);
           mic.set_icon(state.icon);
+          mic.onMicUpdate(mic, state);
         },
         this,
       );
@@ -391,6 +401,7 @@ const BarItemsExtension = GObject.registerClass(
       let brightness = new Main.panel.PanelItem();
       brightness.add_css_class('brightness');
       brightness.set_label('brightness');
+      brightness.onUpdate = (w, s) => {};
 
       let menu = new PopupMenu({
         has_arrow: true,
@@ -447,6 +458,7 @@ const BarItemsExtension = GObject.registerClass(
           w.set_value(state.brightness / 100);
           l.set_label(`${Math.floor(state.brightness)}%`);
           brightness.visible = state.visible;
+          brightness.onUpdate(brightness, state);
         },
         this,
       );
@@ -466,6 +478,7 @@ const BarItemsExtension = GObject.registerClass(
       let inhibitor = new Main.panel.PanelItem();
       inhibitor.add_css_class('inhibitor');
       inhibitor.set_label('inhibitor');
+      inhibitor.onUpdate = (w, s) => {};
 
       Main.inhibitor.connectObject(
         'inhibitor-update',
@@ -473,6 +486,7 @@ const BarItemsExtension = GObject.registerClass(
           let state = Main.inhibitor.state;
           inhibitor.set_label(``);
           inhibitor.set_icon(state.icon);
+          inhibitor.onUpdate(inhibitor, state);
         },
         this,
       );

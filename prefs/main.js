@@ -287,32 +287,34 @@ panelItems[0].open();
 // (like a key press or mouse event)
 // The main loop will run until loop.quit is called.
 
-let app = new Gtk.Application({
-  application_id: 'kitty', // Change this to your app ID
-  flags: Gio.ApplicationFlags.FLAGS_NONE,
-});
+// let app = new Gtk.Application({
+//   application_id: null, // Change this to your app ID
+//   flags: Gio.ApplicationFlags.FLAGS_NONE,
+// });
 
-app.connect('activate', () => {
-  let appWindow = new Gtk.ApplicationWindow({
-    application: app,
-    title: 'My App',
-    default_width: 400,
-    default_height: 300,
-  });
-  // appWindow.present();
-  win.present();
-});
+// app.connect('activate', () => {
+//   let appWindow = new Gtk.ApplicationWindow({
+//     application: app,
+//     title: 'Preferences',
+//     default_width: 400,
+//     default_height: 300,
+//   });
+//   // appWindow.present();
+//   win.present();
+// });
 
+// app.run([]);
+
+win.present();
 function onCloseRequest() {
   log('close-request emitted');
-  app.quit();
+  // app.quit();
+  loop.quit();
 }
-
-app.run([]);
 
 // If you are not using GtkApplication which has its own mainloop
 // you must create it yourself, see gtk-application.js example
-// let loop = GLib.MainLoop.new(null, false);
-// loop.run();
+let loop = GLib.MainLoop.new(null, false);
+loop.run();
 
 log('The main loop has completed.');
