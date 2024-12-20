@@ -9,6 +9,8 @@ import { PopupMenu } from './lib/popupMenu.js';
 import { Dot } from './lib/dot.js';
 import { Extension } from './lib/extensionInterface.js';
 import { getAppInfo, getAppInfoFromFile } from './lib/appInfo.js';
+import { pointInRectangle, distanceToRectangle } from './lib/collisions.js';
+import { pointerInWindow, getModifierStates } from './lib/devices.js';
 
 const baseScale = 1.55;
 const scaleDownContainer = 0.75;
@@ -113,7 +115,8 @@ export const DockItem = GObject.registerClass(
       }
 
       this.btn.connect('clicked', async (actor) => {
-        let modifiers = { ...Main.modifiers };
+        let modifiers = getModifierStates(this.parent.parent.parent);
+
         // move this to a general handler
         Main.shell
           .focusOrSpawn(appInfo.id, appInfo.exec, '' /* args */, modifiers)
@@ -283,51 +286,33 @@ export const DockPanel = GObject.registerClass(
       this.update_layout();
       this.update_style();
 
+      LayerShell.set_keyboard_mode(
+        this,
+        LayerShell.KeyboardMode.ON_DEMAND,
+      );
+
       const motionController = new Gtk.EventControllerMotion();
       motionController.connect('motion', (controller, x, y) => {
         this._leaveLater();
-        const allocation = this.center.get_allocation();
-        const window_x = allocation.x;
-        const window_y = allocation.y;
-        const window_width = allocation.width;
-        const window_height = allocation.height;
-
-        if (
-          x >= window_x &&
-          x <= window_x + window_width &&
-          y >= window_y &&
-          y <= window_y + window_height
-        ) {
+        const rect = this.center.get_allocation();
+        if (pointInRectangle({ x, y }, rect)) {
+          // within
         } else {
-          // pointer is outside window
-          // ungrab
-          // LayerShell.set_keyboard_mode(this, LayerShell.KeyboardMode.NONE);
-          Main.modifiers = {};
-          this._leave();
+          // this._leave();
         }
       });
       this.center.add_controller(motionController);
 
-      // hack to allow extensions to load
-      // Main.app.connectObject(
-      //   'ready',
-      //   () => {
-      //     this.present();
-      //     this.update_layout();
-      //   },
-      //   this,
-      // );
-
-      let event = new Gtk.EventControllerKey();
-      event.connect('key-pressed', (w, key, keycode) => {
-        Main.modifiers[keycode] = true;
-        Main.modifiers[key] = true;
-      });
-      event.connect('key-released', (w, key, keycode) => {
-        Main.modifiers[keycode] = false;
-        Main.modifiers[key] = false;
-      });
-      this.add_controller(event);
+      // let event = new Gtk.EventControllerKey();
+      // event.connect('key-pressed', (w, key, keycode) => {
+      //   Main.modifiers[keycode] = true;
+      //   Main.modifiers[key] = true;
+      // });
+      // event.connect('key-released', (w, key, keycode) => {
+      //   Main.modifiers[keycode] = false;
+      //   Main.modifiers[key] = false;
+      // });
+      // this.add_controller(event);
 
       Main.shell.connectObject(
         'windows-update',
@@ -643,17 +628,9 @@ export const DockPanel = GObject.registerClass(
       for (let i = 0; i < icons.length; i++) {
         if (icons[i].group == IconGroups.SEPARATOR) continue;
 
-        // let { x, y, width, height } = icons[i].get_allocation();
-        // console.log({ x, y, width, height });
-
         if (icons[i] == item) {
           if (!icons[i].has_css_class('button-hover')) {
             icons[i].add_css_class('button-hover');
-            // grab the keyboard
-            // LayerShell.set_keyboard_mode(
-            //   this,
-            //   LayerShell.KeyboardMode.ON_DEMAND,
-            // );
           }
         }
         if (icons[i - 1] == item) {
@@ -675,11 +652,21 @@ export const DockPanel = GObject.registerClass(
       this._debounceLeave = Main.loTimer.debounce(
         Main.hiTimer,
         () => {
-          this._leave();
+          this._leaveIfOutsizeWindow();
         },
-        2000,
+        500,
         this._debounceLeave,
       );
+    }
+
+    _leaveIfOutsizeWindow() {
+      const pointer = pointerInWindow(this);
+      if (!pointer[0]) {
+        this._leave();
+      } else {
+        // try again laters
+        this._leaveLater();
+      }
     }
 
     _leave() {

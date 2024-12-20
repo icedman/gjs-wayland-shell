@@ -33,6 +33,7 @@ Gtk.init();
 const App = GObject.registerClass(
   {
     Signals: {
+      loaded: {},
       ready: {},
     },
   },
@@ -85,9 +86,6 @@ globalThis.Main = {
   // settings
   settings: new Gio.Settings({ schema: 'com.github.icedman.gws' }),
   userSettings: {},
-
-  // keys:
-  modifiers: {},
 
   // imports
   imports: {
@@ -249,6 +247,7 @@ let promisedExtensions = [
 Promise.all(promisedExtensions)
   .then((res) => {
     loadStyleSheets();
+    Main.app.emit('loaded');
     enableModules();
     Main.app.emit('ready');
   })

@@ -250,8 +250,7 @@ const ShellInterface = GObject.registerClass(
         return Promise.reject(err);
       }
 
-      if (!openedWindow) {
-        // || modifiers[Gdk.KEY_Control_L]) {
+      if (!openedWindow || modifiers['ctrl']) {
         this.spawn(cmd, arg);
         return Promise.resolve(0);
       } else {

@@ -140,7 +140,7 @@ const BarItemsExtension = GObject.registerClass(
       };
       clock.clockTimer = Main.timer.runLoop(
         updateClock,
-        1000 * 1,
+        1000 * 5, // << todo!
         'clockTimer',
       );
       updateClock();
@@ -268,7 +268,7 @@ const BarItemsExtension = GObject.registerClass(
           // i.child?.set_from_icon_name(state.icon);
           // i.child.visible = false;
           i.set_child(null);
-          this.onUpdate(power, state);
+          power.onUpdate(power, state);
         },
         power,
       );
