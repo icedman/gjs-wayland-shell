@@ -350,11 +350,9 @@ export const DockPanel = GObject.registerClass(
       for (let i = 0; i < 3; i++) {
         LayerShell.set_anchor(this, dockEdges[this.LOCATION][i], true);
       }
-      LayerShell.set_margin(
-        this,
-        dockEdge[this.LOCATION],
-        this.EDGE_DISTANCE * 10,
-      );
+
+      let edge = this.EDGE_DISTANCE * 10;
+      LayerShell.set_margin(this, dockEdge[this.LOCATION], edge);
 
       this.container.remove_css_class('autohide');
       if (this.ENABLE_AUTOHIDE) {
@@ -526,31 +524,35 @@ export const DockPanel = GObject.registerClass(
       }
 
       // autohide
-      if (this.ENABLE_AUTOHIDE) {
-        // let transitionStyle = `0.25s cubic-bezier(0.25, 1.5, 0.5, 1)`;
-        let hideDistance = iconSize * 1.2;
-        let offset = `translateY(${hideDistance}px);`;
-        if (dockLocation[this.LOCATION] == 'top') {
-          offset = `translateY(-${hideDistance}px);`;
-        }
-        if (dockOrientation[this.LOCATION] == Gtk.Orientation.VERTICAL) {
-          offset = `translateX(${hideDistance}px);`;
-          if (dockLocation[this.LOCATION] == 'left') {
-            offset = `translateX(-${hideDistance}px);`;
+      try {
+        if (this.ENABLE_AUTOHIDE) {
+          let transitionStyle = `0.25s ease-in-out`;
+          let hideDistance = iconSize * 1.2;
+          let offset = `translateY(${hideDistance}px)`;
+          if (dockLocation[this.LOCATION] == 'top') {
+            offset = `translateY(-${hideDistance}px)`;
           }
-        }
+          if (dockOrientation[this.LOCATION] == Gtk.Orientation.VERTICAL) {
+            offset = `translateX(${hideDistance}px)`;
+            if (dockLocation[this.LOCATION] == 'left') {
+              offset = `translateX(-${hideDistance}px)`;
+            }
+          }
 
-        let ss = [];
-        ss.push(`transition: transform ${transitionStyle};`);
-        ss.push(`transform: ${offset};`);
-        styles.push(`#{windowName} #container.autohide { ${ss.join(' ')}}`);
-        styles.push(
-          `#{windowName}:hover #container.autohide { transform: none }}`,
-        );
+          let ss = [];
+          ss.push(`transition: transform ${transitionStyle};`);
+          ss.push(`transform: ${offset};`);
+          styles.push(`#${windowName} #container.autohide { ${ss.join(' ')}}`);
+          styles.push(
+            `#${windowName}:hover #container.autohide { transform: none; }`,
+          );
+        }
+      } catch (err) {
+        console.log(err);
       }
 
       try {
-        // console.log(styles);
+        console.log(styles);
         this.style.buildCss(`${this.stylePrefix}-style`, styles);
       } catch (err) {
         console.log(err);
@@ -646,6 +648,10 @@ export const DockPanel = GObject.registerClass(
         if (icons[i + 2] == item) {
           icons[i].add_css_class('button-adjacent-2');
         }
+      }
+      if (this.auto_hidden) {
+        this.auto_hidden = false;
+        this.update_layout();
       }
     }
 

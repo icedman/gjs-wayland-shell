@@ -90,6 +90,7 @@ globalThis.Main = {
   // imports
   imports: {
     Extension,
+    LayerShell,
   },
 };
 
