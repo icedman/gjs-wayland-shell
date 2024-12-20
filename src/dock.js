@@ -286,33 +286,13 @@ export const DockPanel = GObject.registerClass(
       this.update_layout();
       this.update_style();
 
-      LayerShell.set_keyboard_mode(
-        this,
-        LayerShell.KeyboardMode.ON_DEMAND,
-      );
+      LayerShell.set_keyboard_mode(this, LayerShell.KeyboardMode.ON_DEMAND);
 
       const motionController = new Gtk.EventControllerMotion();
       motionController.connect('motion', (controller, x, y) => {
-        this._leaveLater();
-        const rect = this.center.get_allocation();
-        if (pointInRectangle({ x, y }, rect)) {
-          // within
-        } else {
-          // this._leave();
-        }
+        this._beginAnimation();
       });
       this.center.add_controller(motionController);
-
-      // let event = new Gtk.EventControllerKey();
-      // event.connect('key-pressed', (w, key, keycode) => {
-      //   Main.modifiers[keycode] = true;
-      //   Main.modifiers[key] = true;
-      // });
-      // event.connect('key-released', (w, key, keycode) => {
-      //   Main.modifiers[keycode] = false;
-      //   Main.modifiers[key] = false;
-      // });
-      // this.add_controller(event);
 
       Main.shell.connectObject(
         'windows-update',
@@ -329,6 +309,27 @@ export const DockPanel = GObject.registerClass(
       Main.settings.disconnectObject(this);
       Main.shell.disconnectObject(this);
       super.destroy();
+    }
+
+    _beginAnimation() {
+      if (!this._animSeq) {
+        this._animSeq = Main.hiTimer.runLoop(this.animate.bind(this), 500);
+      }
+    }
+
+    _endAnimation() {
+      if (this._animSeq) {
+        Main.hiTimer.cancel(this._animSeq);
+        this._animSeq = null;
+      }
+    }
+
+    animate() {
+      const pointer = pointerInWindow(this);
+      if (!pointer[0]) {
+        this._endAnimation();
+        this._leave();
+      }
     }
 
     async update_layout() {
@@ -648,26 +649,26 @@ export const DockPanel = GObject.registerClass(
       }
     }
 
-    _leaveLater() {
-      this._debounceLeave = Main.loTimer.debounce(
-        Main.hiTimer,
-        () => {
-          this._leaveIfOutsizeWindow();
-        },
-        500,
-        this._debounceLeave,
-      );
-    }
+    // _leaveLater() {
+    //   this._debounceLeave = Main.loTimer.debounce(
+    //     Main.hiTimer,
+    //     () => {
+    //       this._leaveIfOutsizeWindow();
+    //     },
+    //     500,
+    //     this._debounceLeave,
+    //   );
+    // }
 
-    _leaveIfOutsizeWindow() {
-      const pointer = pointerInWindow(this);
-      if (!pointer[0]) {
-        this._leave();
-      } else {
-        // try again laters
-        this._leaveLater();
-      }
-    }
+    // _leaveIfOutsizeWindow() {
+    //   const pointer = pointerInWindow(this);
+    //   if (!pointer[0]) {
+    //     this._leave();
+    //   } else {
+    //     // try again laters
+    //     this._leaveLater();
+    //   }
+    // }
 
     _leave() {
       let icons = this.get_icons(null, this.center);
@@ -767,6 +768,7 @@ const Dock = GObject.registerClass(
     }
 
     disable() {
+      this.window._endAnimation();
       this.window.destroy();
       this.window = null;
       super.disable();

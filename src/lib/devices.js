@@ -21,13 +21,14 @@ function getModifierStates(w) {
     console.log(keyboard?.modifier_state);
 
     return {
-      ctrl: (keyboard?.get_modifier_state() & Gdk.ModifierType.CONTROL_MASK) > 0,
+      ctrl:
+        (keyboard?.get_modifier_state() & Gdk.ModifierType.CONTROL_MASK) > 0,
       shift: (keyboard?.get_modifier_state() & Gdk.ModifierType.SHIFT_MASK) > 0,
       alt: (keyboard?.get_modifier_state() & Gdk.ModifierType.ALT_MASK) > 0,
       meta: (keyboard?.get_modifier_state() & Gdk.ModifierType.META_MASK) > 0,
       hyper: (keyboard?.get_modifier_state() & Gdk.ModifierType.HYPER_MASK) > 0,
-    }
-  } catch(err) {
+    };
+  } catch (err) {
     console.log(err);
     return {};
   }
