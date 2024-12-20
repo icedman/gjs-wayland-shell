@@ -513,6 +513,11 @@ const Search = GObject.registerClass(
         });
         box.append(btn);
         let label = new Gtk.Label({ label: app.title ?? '' });
+        label.add_css_class('app-label');
+
+        label.set_ellipsize(3);
+        label.set_max_width_chars(10);
+
         box.append(label);
         try {
           this.resultsApps.append(box);
@@ -579,16 +584,25 @@ const Search = GObject.registerClass(
     }
 
     show() {
+      this.window.add_css_class('startup');
       // let { width, height } = this.widget.get_allocation();
       // this.overlay.set_size_request(width, height);
       this.window.remove_css_class('has-results');
       this.window.present();
       this.entry.grab_focus();
+
+      Main.hiTimer.runOnce(() => {
+        this.window.remove_css_class('startup');
+      }, 0);
     }
 
     hide() {
+      this.window.add_css_class('startup');
       this.clear();
-      this.window.hide();
+
+      Main.hiTimer.runOnce(() => {
+        this.window.hide();
+      }, 400);
     }
 
     toggle() {

@@ -101,6 +101,11 @@
 /* Search */
 #Search {
     background: transparent;
+    opacity: 1;
+    transition: opacity 0.35s ease-in-out;
+}
+#Search.startup {
+    opacity: 0;
 }
 #Search .entry-container {
     padding: 2px;

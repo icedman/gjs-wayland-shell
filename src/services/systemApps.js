@@ -6,6 +6,7 @@ import GObject from 'gi://GObject';
 import { Extension } from '../lib/extensionInterface.js';
 import * as FileUtils from '../lib/fileUtils.js';
 import { getAppInfo, getAppInfoFromFile } from '../lib/appInfo.js';
+import { Search } from './fuzzy-app-search/search.js';
 
 // Simple function to calculate Levenshtein distance
 function levenshtein(a, b) {
@@ -41,9 +42,12 @@ const SystemApps = GObject.registerClass(
       super._init(params);
     }
 
-    collectApps() {
-      console.log('collectApps');
-      this.apps = Gio.app_info_get_all();
+    async collectApps() {
+      if (this._search) {
+        this._search.refresh();
+      } else {
+        this.apps = Gio.app_info_get_all();
+      }
     }
 
     // async watchAppDirs() {
@@ -81,10 +85,13 @@ const SystemApps = GObject.registerClass(
 
     async enable() {
       super.enable();
-      this.collectApps();
+      this._search = new Search();
+
       // this.watchAppDirs();
       this.monitor = Gio.AppInfoMonitor.get();
       this.monitor.connectObject('changed', this.collectApps.bind(this), this);
+
+      this.collectApps();
     }
 
     disable() {
@@ -94,10 +101,24 @@ const SystemApps = GObject.registerClass(
         this.monitor.disconnectObject(this);
         this.monitor = null;
       }
+      if (this._search) {
+        this._search = null;
+      }
+    }
+
+    async search(query) {
+      if (!this._search || !this._search.isReady()) {
+        return this.search_levenshtein(query);
+      }
+      return new Promise((resolve, reject) => {
+        this._search.find(query.split(' ')).then((res) => {
+          resolve(res.map((id) => getAppInfo(id)));
+        });
+      });
     }
 
     // Function to search applications with fuzzy matching
-    async search(query) {
+    async search_levenshtein(query) {
       let apps = this.apps;
       if (!apps) return Promise.reject('apps not available');
 
