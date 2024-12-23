@@ -17,8 +17,8 @@ import {
 
 const SwayShell = GObject.registerClass(
   class SwayShell extends ShellInterface {
-    init() {
-      super.init();
+    _init() {
+      super._init();
       this.name = 'SWAY';
     }
 

@@ -12,8 +12,8 @@ import {
 
 const NiriShell = GObject.registerClass(
   class NiriShell extends ShellInterface {
-    init() {
-      super.init();
+    _init() {
+      super._init();
       this.name = 'NIRI';
     }
 

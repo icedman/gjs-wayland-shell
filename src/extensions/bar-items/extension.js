@@ -480,23 +480,30 @@ const BarItemsExtension = GObject.registerClass(
       inhibitor.set_label('inhibitor');
       inhibitor.onUpdate = (w, s) => {};
 
-      Main.inhibitor.connectObject(
+      let inhibitorSevice = Main.inhibitor;
+
+      inhibitorSevice.connectObject(
         'inhibitor-update',
         () => {
-          let state = Main.inhibitor.state;
+          let state = inhibitorSevice.state;
           inhibitor.set_label(``);
           inhibitor.set_icon(state.icon);
           inhibitor.onUpdate(inhibitor, state);
         },
-        this,
+        inhibitor,
       );
-      Main.inhibitor.sync();
+      inhibitorSevice.sync();
 
       let evt = new Gtk.GestureClick();
       evt.connect('pressed', (actor, count) => {
-        Main.inhibitor.toggle();
+        inhibitorSevice.toggle();
       });
       inhibitor.add_controller(evt);
+
+      inhibitor.connect('destroy', () => {
+        inhibitorSevice.uninhibit();
+        inhibitorSevice.disconnectObject(inhibitor);
+      });
       return inhibitor;
     }
 

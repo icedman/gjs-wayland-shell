@@ -598,9 +598,9 @@ const Search = GObject.registerClass(
 
     hide() {
       this.window.add_css_class('startup');
-      this.clear();
 
       Main.hiTimer.runOnce(() => {
+        this.clear();
         this.window.hide();
       }, 400);
     }

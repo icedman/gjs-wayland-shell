@@ -12,8 +12,8 @@ import {
 
 const HyprShell = GObject.registerClass(
   class HyprShell extends ShellInterface {
-    init() {
-      super.init();
+    _init() {
+      super._init();
       this.name = 'HYPR';
     }
 

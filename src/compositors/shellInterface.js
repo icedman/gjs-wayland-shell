@@ -21,6 +21,11 @@ const ShellInterface = GObject.registerClass(
     },
   },
   class ShellInterface extends Extension {
+    _init() {
+      super._init();
+      this.name = 'Unknown';
+    }
+
     enable() {
       super.enable();
       this.windows = [];
