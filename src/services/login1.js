@@ -50,7 +50,6 @@ const Login1 = GObject.registerClass(
   {
     Signals: {
       'login1-update': { param_types: [GObject.TYPE_OBJECT] },
-      'inhibitor-update': { param_types: [GObject.TYPE_OBJECT] },
     },
   },
   class Login1 extends Extension {
@@ -60,11 +59,6 @@ const Login1 = GObject.registerClass(
 
     async enable() {
       super.enable();
-      this.state = {
-        active: false,
-        icon: INACTIVE_ICON,
-      };
-      this._inhibitorFd = null;
 
       const Login1Proxy = Gio.DBusProxy.makeProxyWrapper(Login1Interface);
       try {
@@ -93,60 +87,7 @@ const Login1 = GObject.registerClass(
     }
 
     sync() {
-      this.state = {
-        active: this._inhibitorFd != null,
-        cookie: this._inhibitorFd,
-      };
-      this.state.icon = this.state.active ? ACTIVE_ICON : INACTIVE_ICON;
       this.emit('login1-update', this);
-      this.emit('inhibitor-update', this);
-    }
-
-    inhibit(
-      what = 'idle',
-      who = 'gws',
-      why = 'user asked to prevent sleep',
-      mode = 'block',
-    ) {
-      this._proxy.InhibitRemote(what, who, why, mode, (fd, error) => {
-        if (error) {
-          console.error('Error adding inhibitor:', error.message);
-          return;
-        }
-        console.log('Inhibitor added with FD:', fd);
-        this._inhibitorFd = fd; // Store the file descriptor
-        this.state.active = true;
-        this.state.icon = ACTIVE_ICON;
-        this.emit('inhibitor-update', this);
-      });
-    }
-
-    uninhibit() {
-      if (this._inhibitorFd !== null) {
-        try {
-          // Close the file descriptor
-          // const stream = new Gio.UnixInputStream({ fd: this._inhibitorFd, close_fd: true });
-          // stream.close(null); // Close the stream and release the inhibitor
-          GLib.close(this._inhibitorFd[0]);
-          console.log('Inhibitor removed successfully.');
-          this._inhibitorFd = null;
-          this.state.active = false;
-          this.state.icon = INACTIVE_ICON;
-          this.emit('inhibitor-update', this);
-        } catch (e) {
-          console.error('Error removing inhibitor:', e.message);
-        }
-      } else {
-        console.log('No active inhibitor to remove.');
-      }
-    }
-
-    toggle() {
-      if (this._inhibitorFd) {
-        this.uninhibit();
-      } else {
-        this.inhibit();
-      }
     }
   },
 );

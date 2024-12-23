@@ -37,9 +37,9 @@ const App = GObject.registerClass(
       ready: {},
     },
   },
-  class App extends Extension {
-    quit() {
-      loop.quit();
+  class App extends Gtk.Application {
+    _init(params) {
+      super._init(params);
     }
   },
 );
@@ -256,5 +256,18 @@ Promise.all(promisedExtensions)
     console.log(err);
   });
 
-let loop = GLib.MainLoop.new(null, false);
-loop.run();
+// let loop = GLib.MainLoop.new(null, false);
+// loop.run();
+
+Main.app.connect('activate', () => {
+  let appWindow = new Gtk.ApplicationWindow({
+    application: Main.app,
+    title: 'Preferences',
+    default_width: 400,
+    default_height: 300,
+  });
+  // appWindow.present();
+  Main.app.window = appWindow;
+});
+
+Main.app.run([]);

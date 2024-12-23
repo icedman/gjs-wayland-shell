@@ -12,6 +12,8 @@ const INACTIVE_ICON = 'caffeine-off';
 // const ACTIVE_ICON = 'caffeine-cup-full';
 // const INACTIVE_ICON = 'caffeine-cup-empty';
 
+const GTK_APPLICATION_INHIBIT_IDLE = 8;
+
 const InhibitorInterface = `
   <node>
   <interface name="org.freedesktop.ScreenSaver">
@@ -76,25 +78,32 @@ const Inhibitor = GObject.registerClass(
     }
 
     // Inhibit the screensaver
-    inhibit(applicationName = 'gws', reason = 'by user request') {
+    inhibit(window, reason = 'by user request') {
       if (this._cookie) return;
-      this._proxy.call(
-        'Inhibit',
-        new GLib.Variant('(ss)', [applicationName, reason]),
-        Gio.DBusCallFlags.NONE,
-        -1, // Timeout (-1 for default)
-        null, // No cancellable
-        (proxy, result) => {
-          try {
-            const response = proxy.call_finish(result);
-            this._cookie = response.deep_unpack(); // This is the inhibition cookie (uint32)
-            this.sync();
-            console.log('Inhibited with cookie:', this._cookie);
-          } catch (e) {
-            console.error('Inhibit failed:', e.message);
-          }
-        },
+      this._cookie = Main.app.inhibit(
+        window ?? Main.panel.window,
+        GTK_APPLICATION_INHIBIT_IDLE,
+        reason,
       );
+      console.log('Inhibited with cookie:', this._cookie);
+
+      // this._proxy.call(
+      //   'Inhibit',
+      //   new GLib.Variant('(ss)', [applicationName, reason]),
+      //   Gio.DBusCallFlags.NONE,
+      //   -1, // Timeout (-1 for default)
+      //   null, // No cancellable
+      //   (proxy, result) => {
+      //     try {
+      //       const response = proxy.call_finish(result);
+      //       this._cookie = response.deep_unpack(); // This is the inhibition cookie (uint32)
+      //       this.sync();
+      //       console.log('Inhibited with cookie:', this._cookie);
+      //     } catch (e) {
+      //       console.error('Inhibit failed:', e.message);
+      //     }
+      //   },
+      // );
 
       this.sync();
       return this._cookie;
@@ -102,24 +111,28 @@ const Inhibitor = GObject.registerClass(
 
     uninhibit() {
       if (!this._cookie) return;
-      this._proxy.call(
-        'UnInhibit',
-        new GLib.Variant('(u)', [this._cookie]), // (u) is the type for uint32
-        Gio.DBusCallFlags.NONE,
-        -1, // Timeout (-1 for default)
-        null, // No cancellable
-        (proxy, result) => {
-          try {
-            // Call completed successfully, you can handle any return value if necessary
-            proxy.call_finish(result);
-            this._cookie = null;
-            this.sync();
-            console.log('Successfully uninhibited');
-          } catch (e) {
-            console.error('UnInhibit failed:', e.message);
-          }
-        },
-      );
+      Main.app.uninhibit(this._cookie);
+      this._cookie = null;
+      this.sync();
+
+      // this._proxy.call(
+      //   'UnInhibit',
+      //   new GLib.Variant('(u)', [this._cookie]), // (u) is the type for uint32
+      //   Gio.DBusCallFlags.NONE,
+      //   -1, // Timeout (-1 for default)
+      //   null, // No cancellable
+      //   (proxy, result) => {
+      //     try {
+      //       // Call completed successfully, you can handle any return value if necessary
+      //       proxy.call_finish(result);
+      //       this._cookie = null;
+      //       this.sync();
+      //       console.log('Successfully uninhibited');
+      //     } catch (e) {
+      //       console.error('UnInhibit failed:', e.message);
+      //     }
+      //   },
+      // );
     }
 
     toggle() {
