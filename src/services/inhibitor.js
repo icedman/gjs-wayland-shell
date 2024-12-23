@@ -48,23 +48,25 @@ const Inhibitor = GObject.registerClass(
       };
       this._cookie = null;
 
-      const InhibitorProxy = Gio.DBusProxy.makeProxyWrapper(InhibitorInterface);
-      this._proxy = new InhibitorProxy(
-        Gio.DBus.session,
-        BUS_NAME,
-        OBJECT_PATH,
-        (proxy, error) => {
-          if (error) console.error(error.message);
-          // console.log(
-          else
-            this._proxy.connect('g-properties-changed', () => this.sync()),
-              // );
-              this.sync();
-        },
-      );
+      // const InhibitorProxy = Gio.DBusProxy.makeProxyWrapper(InhibitorInterface);
+      // this._proxy = new InhibitorProxy(
+      //   Gio.DBus.session,
+      //   BUS_NAME,
+      //   OBJECT_PATH,
+      //   (proxy, error) => {
+      //     if (error) console.error(error.message);
+      //     // console.log(
+      //     else
+      //       this._proxy.connect('g-properties-changed', () => this.sync()),
+      //         // );
+      //         this.sync();
+      //   },
+      // );
     }
 
     disable() {
+      this.uninhibit();
+      this._proxy = null;
       super.disable();
     }
 
@@ -74,14 +76,25 @@ const Inhibitor = GObject.registerClass(
         cookie: this._cookie,
       };
       this.state.icon = this.state.active ? ACTIVE_ICON : INACTIVE_ICON;
+
+      // todo ... check for other inhibitors
+
       this.emit('inhibitor-update', this);
     }
 
     // Inhibit the screensaver
     inhibit(window, reason = 'by user request') {
       if (this._cookie) return;
+      if (!window) {
+        if (Main.panel.window && Main.panel.window.visible) {
+          window = Main.panel.window;
+        }
+        if (!window && Main.dock.window && Main.dock.window.visible) {
+          window = Main.dock.window;
+        }
+      }
       this._cookie = Main.app.inhibit(
-        window ?? Main.panel.window,
+        window,
         GTK_APPLICATION_INHIBIT_IDLE,
         reason,
       );
