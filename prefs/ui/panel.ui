@@ -12,24 +12,24 @@
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Enable</property>
             <property name="subtitle" translatable="yes">Show or hide the topbar.</property>
-            <property name="activatable-widget">bar-show</property>
+            <property name="activatable-widget">panel-show</property>
             <child>
-              <object class="GtkSwitch" id="bar-show">
+              <object class="GtkSwitch" id="panel-show">
                 <property name="valign">center</property>
               </object>
             </child>
           </object>
         </child>
         <child>
-          <object class="AdwActionRow" id="bar-location-row">
+          <object class="AdwActionRow" id="panel-location-row">
             <property name="visible">true</property>
             <property name="title" translatable="yes">Bar Location</property>
             <property name="subtitle" translatable="yes">Set bar position on the screen.</property>
-            <property name="activatable-widget">bar-location</property>
+            <property name="activatable-widget">panel-location</property>
             <child>
-              <object class="GtkDropDown" id="bar-location">
+              <object class="GtkDropDown" id="panel-location">
                 <property name="valign">center</property>
-                <property name="model">bar-location-model</property>
+                <property name="model">panel-location-model</property>
               </object>
             </child>
           </object>
@@ -40,9 +40,9 @@
           
             <property name="title" translatable="yes">Panel Mode</property>
             <property name="subtitle" translatable="yes">Dock the panel on a full-width.</property>
-            <property name="activatable-widget">bar-panel-mode</property>
+            <property name="activatable-widget">panel-panel-mode</property>
             <child>
-              <object class="GtkSwitch" id="bar-panel-mode">
+              <object class="GtkSwitch" id="panel-panel-mode">
                 <property name="valign">center</property>
               </object>
             </child>
@@ -53,9 +53,9 @@
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Edge Distance</property>
             <property name="subtitle" translatable="yes">Adjust dock distance from edge of screen.</property>
-            <property name="activatable-widget">bar-edge-distance</property>
+            <property name="activatable-widget">panel-edge-distance</property>
             <child>
-              <object class="GtkScale" id="bar-edge-distance">
+              <object class="GtkScale" id="panel-edge-distance">
                 <property name="valign">center</property>
                 <property name="hexpand">true</property>
                 <property name="width-request">140px</property>
@@ -63,7 +63,7 @@
                 <property name="value-pos">right</property>
                 <property name="orientation">horizontal</property>
                 <property name="digits">2</property>
-                <property name="adjustment">bar-edge-distance-adjust</property>
+                <property name="adjustment">panel-edge-distance-adjust</property>
               </object>
             </child>
           </object>
@@ -72,9 +72,9 @@
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Bar padding</property>
             <property name="subtitle" translatable="yes">Set padding size.</property>
-            <property name="activatable-widget">bar-padding</property>
+            <property name="activatable-widget">panel-padding</property>
             <child>
-              <object class="GtkScale" id="bar-padding">
+              <object class="GtkScale" id="panel-padding">
                 <property name="valign">center</property>
                 <property name="hexpand">true</property>
                 <property name="width-request">140px</property>
@@ -82,7 +82,7 @@
                 <property name="value-pos">right</property>
                 <property name="orientation">horizontal</property>
                 <property name="digits">0</property>
-                <property name="adjustment">bar-padding-adjust</property>
+                <property name="adjustment">panel-padding-adjust</property>
               </object>
             </child>
           </object>
@@ -92,9 +92,9 @@
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Border Radius</property>
             <property name="subtitle" translatable="yes">Set background border radius.</property>
-            <property name="activatable-widget">bar-border-radius</property>
+            <property name="activatable-widget">panel-border-radius</property>
             <child>
-              <object class="GtkScale" id="bar-border-radius">
+              <object class="GtkScale" id="panel-border-radius">
                 <property name="valign">center</property>
                 <property name="hexpand">true</property>
                 <property name="width-request">140px</property>
@@ -102,7 +102,7 @@
                 <property name="value-pos">right</property>
                 <property name="orientation">horizontal</property>
                 <property name="digits">0</property>
-                <property name="adjustment">bar-border-radius-adjust</property>
+                <property name="adjustment">panel-border-radius-adjust</property>
               </object>
             </child>
           </object>
@@ -112,9 +112,9 @@
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Border Thickness</property>
             <property name="subtitle" translatable="yes">Set border thickness.</property>
-            <property name="activatable-widget">bar-border-thickness</property>
+            <property name="activatable-widget">panel-border-thickness</property>
             <child>
-              <object class="GtkDropDown" id="bar-border-thickness">
+              <object class="GtkDropDown" id="panel-border-thickness">
                 <property name="valign">center</property>
                 <property name="model">border-thickness-model</property>
               </object>
@@ -125,9 +125,9 @@
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Border Color</property>
             <property name="subtitle" translatable="yes">Select border color.</property>
-            <property name="activatable-widget">bar-border-color</property>
+            <property name="activatable-widget">panel-border-color</property>
             <child>
-              <object class="GtkColorButton" id="bar-border-color">
+              <object class="GtkColorButton" id="panel-border-color">
                 <property name="valign">center</property>
                 <property name="hexpand">false</property>
                 <property name="width-request">70px</property>
@@ -142,9 +142,9 @@
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Background Color</property>
             <property name="subtitle" translatable="yes">Set background color.</property>
-            <property name="activatable-widget">bar-background-color</property>
+            <property name="activatable-widget">panel-background-color</property>
             <child>
-              <object class="GtkColorButton" id="bar-background-color">
+              <object class="GtkColorButton" id="panel-background-color">
                 <property name="valign">center</property>
                 <property name="hexpand">false</property>
                 <property name="width-request">70px</property>
@@ -160,9 +160,9 @@
             <property name="visible">false</property>
             <property name="title" translatable="yes">Background Blur</property>
             <property name="subtitle" translatable="yes">Add background blur with current wallpaper. Requires imagemagick installed.</property>
-            <property name="activatable-widget">bar-blur-background</property>
+            <property name="activatable-widget">panel-blur-background</property>
             <child>
-              <object class="GtkSwitch" id="bar-blur-background">
+              <object class="GtkSwitch" id="panel-blur-background">
                 <property name="valign">center</property>
               </object>
             </child>
@@ -172,9 +172,9 @@
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Foreground Color</property>
             <property name="subtitle" translatable="yes">Set foreground color. Set opacity to zero to adapt to background.</property>
-            <property name="activatable-widget">bar-foreground-color</property>
+            <property name="activatable-widget">panel-foreground-color</property>
             <child>
-              <object class="GtkColorButton" id="bar-foreground-color">
+              <object class="GtkColorButton" id="panel-foreground-color">
                 <property name="valign">center</property>
                 <property name="hexpand">false</property>
                 <property name="width-request">70px</property>
@@ -196,9 +196,9 @@
             <property name="visible">false</property>
             <property name="title" translatable="yes">Animate</property>
             <property name="subtitle" translatable="yes">Animate the dash icons.</property>
-            <property name="activatable-widget">bar-enable-animation</property>
+            <property name="activatable-widget">panel-enable-animation</property>
             <child>
-              <object class="GtkSwitch" id="bar-enable-animation">
+              <object class="GtkSwitch" id="panel-enable-animation">
                 <property name="valign">center</property>
               </object>
             </child>
@@ -208,9 +208,9 @@
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Autohide</property>
             <property name="subtitle" translatable="yes">Autohide the dash icons.</property>
-            <property name="activatable-widget">bar-enable-autohide</property>
+            <property name="activatable-widget">panel-enable-autohide</property>
             <child>
-              <object class="GtkSwitch" id="bar-enable-autohide">
+              <object class="GtkSwitch" id="panel-enable-autohide">
                 <property name="valign">center</property>
               </object>
             </child>
@@ -226,9 +226,9 @@
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Icon Size</property>
             <property name="subtitle" translatable="yes">Set icon size.</property>
-            <property name="activatable-widget">bar-icon-size</property>
+            <property name="activatable-widget">panel-icon-size</property>
             <child>
-              <object class="GtkDropDown" id="bar-icon-size">
+              <object class="GtkDropDown" id="panel-icon-size">
                 <property name="valign">center</property>
                 <property name="model">icon-size-model</property>
               </object>
@@ -239,9 +239,9 @@
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Icon Scale</property>
             <property name="subtitle" translatable="yes">Customize icon sizes with scaling. Set to zero for default scale.</property>
-            <property name="activatable-widget">bar-icon-scale</property>
+            <property name="activatable-widget">panel-icon-scale</property>
             <child>
-              <object class="GtkScale" id="bar-icon-scale">
+              <object class="GtkScale" id="panel-icon-scale">
                 <property name="valign">center</property>
                 <property name="hexpand">true</property>
                 <property name="width-request">140px</property>
@@ -249,7 +249,7 @@
                 <property name="value-pos">right</property>
                 <property name="orientation">horizontal</property>
                 <property name="digits">2</property>
-                <property name="adjustment">bar-icon-size-adjust</property>
+                <property name="adjustment">panel-icon-size-adjust</property>
               </object>
             </child>
           </object>
@@ -311,9 +311,9 @@
             <property name="visible">false</property>
             <property name="title" translatable="yes">Icon Shadow</property>
             <property name="subtitle" translatable="yes">Add icon shadow effect.</property>
-            <property name="activatable-widget">bar-icon-shadow</property>
+            <property name="activatable-widget">panel-icon-shadow</property>
             <child>
-              <object class="GtkSwitch" id="bar-icon-shadow">
+              <object class="GtkSwitch" id="panel-icon-shadow">
                 <property name="valign">center</property>
               </object>
             </child>
@@ -473,12 +473,12 @@
     <property name="upper">1.0</property>
     <property name="step-increment">0.01</property>
   </object>
-  <object class="GtkAdjustment" id="bar-padding-adjust">
+  <object class="GtkAdjustment" id="panel-padding-adjust">
     <property name="lower">0.0</property>
     <property name="upper">1.0</property>
     <property name="step-increment">0.01</property>
   </object>
-  <object class="GtkAdjustment" id="bar-icon-size-adjust">
+  <object class="GtkAdjustment" id="panel-icon-size-adjust">
     <property name="lower">0.0</property>
     <property name="upper">1.0</property>
     <property name="step-increment">0.01</property>
@@ -498,7 +498,7 @@
     <property name="upper">8</property>
     <property name="step-increment">1</property>
   </object>
-  <object class="GtkAdjustment" id="bar-border-radius-adjust">
+  <object class="GtkAdjustment" id="panel-border-radius-adjust">
     <property name="lower">0</property>
     <property name="upper">8</property>
     <property name="step-increment">1</property>
@@ -508,7 +508,7 @@
     <property name="upper">1.0</property>
     <property name="step-increment">0.01</property>
   </object>
-  <object class="GtkAdjustment" id="bar-edge-distance-adjust">
+  <object class="GtkAdjustment" id="panel-edge-distance-adjust">
     <property name="lower">-1.0</property>
     <property name="upper">1.0</property>
     <property name="step-increment">0.01</property>
@@ -594,7 +594,7 @@
       <!-- <item translatable="yes">Custom</item> -->
     </items>
   </object>
-  <object class="GtkStringList" id="bar-location-model">
+  <object class="GtkStringList" id="panel-location-model">
     <items>
       <item translatable="yes">Bottom</item>
       <item translatable="yes">Left</item>

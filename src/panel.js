@@ -6,48 +6,17 @@ import GObject from 'gi://GObject';
 import LayerShell from 'gi://Gtk4LayerShell';
 import { Extension } from './lib/extensionInterface.js';
 
-import { DockPanel } from './dock.js';
+import { DockPanel } from './lib/dock.js';
+import { DockItem, DockAppItem } from './lib/dockItem.js';
 import { getIconInfo } from './lib/iconInfo.js';
 
 const PanelItem = GObject.registerClass(
-  class PanelItem extends Gtk.Box {
-    _init(params) {
-      this.sort_order = params?.sort_order ?? 0;
-      delete params?.sort_order;
-
+  class PanelItem extends DockItem {
+    _init(params = {}) {
       super._init({
-        name: 'PanelItem',
-        ...(params ?? {}),
+        ...params,
+        css: 'panel-item',
       });
-
-      this.add_css_class('panel-item');
-      this.icon = new Gtk.Image();
-      this.icon.add_css_class('icon');
-      this.icon.set_visible(false);
-      this.append(this.icon);
-      this.label = new Gtk.Label();
-      this.label.add_css_class('label');
-      this.label.set_visible(false);
-      this.append(this.label);
-    }
-
-    set_label(label) {
-      this.label.set_label(label);
-      this.label.set_visible(label);
-    }
-
-    set_icon(icon) {
-      this.icon.set_visible(icon);
-      if (icon && icon.startsWith('/')) {
-        this.icon.set_from_file(icon);
-      } else {
-        this.icon.set_from_icon_name(icon);
-        // getIconInfo(icon);
-      }
-    }
-
-    set_icon_size(size) {
-      this.icon?.set_pixel_size(size);
     }
   },
 );
@@ -68,7 +37,7 @@ const Panel = GObject.registerClass(
 
       this.window = new DockPanel({
         title: this.name,
-        name: 'Bar',
+        name: this.name,
         hexpand: true,
         vexpand: true,
         default_width: 20,

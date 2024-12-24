@@ -9,36 +9,33 @@
     opacity: 0;
 }
 
-#DockItem .button {
+.dock-item .button {
     border: none;
     background: rgba(0,0,0,0);
+    padding: 2px;
 }
 
-#DockItem .button image {
+.dock-item .button image {
     color: rgba(255,255,255,1);
 }
 
-#DockItem .button:hover {
+.dock-item .button:hover {
     border: none;
     background: rgba(0,0,0,0.5);
 }
 
 /* Bar */
-#Bar {
+#Panel {
     background: transparent;
     opacity: 1;
     transition: opacity 0.85s ease-in-out;
 }
 
-#Bar.startup {
+#Panel.startup {
     opacity: 0;
 }
 
-#PanelItem.logo * {
-    font-weight: bold;
-}
-
-#PanelItem .icon {
+.panel-item .icon {
     margin: 0px;
     padding: 0px;
     padding-left: 8px;
@@ -47,7 +44,7 @@
 
 /* Separator */
 #Dock separator,
-#Bar separator {
+#Panel separator {
     transform: scale(0.7);
     margin: 4px;
     background: rgba(150, 150, 150, 0.6);
@@ -61,7 +58,7 @@
 }
 
 /* Effects */
-#Dock.startup, #Bar.startup {
+#Dock.startup, #Panel.startup {
     opacity: 0;
 }
 
@@ -190,7 +187,7 @@
     animation: bounce 1s ease 2; /* Play twice */
 }
 
-.with-indicators #container button {
+.with-indicators #container .button {
     padding-bottom: 6px;
 }
 

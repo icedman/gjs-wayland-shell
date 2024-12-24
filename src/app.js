@@ -74,19 +74,15 @@ const App = GObject.registerClass(
         .then((res) => {
           this.loadStyleSheets();
           this.emit('loaded');
-          let _enableModules = this.enableModules();
-          Promises.all(_enableModules)
-            .then(() => {
-              this.emit('ready');
-            })
-            .catch((err) => {
-              console.log(err);
-            });
+          this.enableModules();
+          this.emit('ready');
         })
         .catch((err) => {
           console.log(err);
         });
     }
+
+    shutdown() {}
 
     initTimers() {
       // init timers

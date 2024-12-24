@@ -5,7 +5,7 @@ import Gio from 'gi://Gio';
 import GObject from 'gi://GObject';
 import { Extension } from '../../lib/extensionInterface.js';
 import { PopupMenu } from '../../lib/popupMenu.js';
-import { IconGroups } from '../../dock.js';
+import { IconGroups } from '../../lib/dock.js';
 
 function getOSIcon() {
   let icons = [
@@ -69,49 +69,19 @@ const BarItemsExtension = GObject.registerClass(
     }
 
     enable() {
-      this.name = 'baritems';
-
-      let prefix = 'panel';
-      this.settingsPrefix = prefix;
-      this.settings = Main.settings;
-      this.settingsMap = {
-        [`${prefix}-lead-items`]: () => {
-          this.reattachPanelItems(Main.panel, this);
-        },
-        [`${prefix}-center-items`]: () => {
-          this.reattachPanelItems(Main.panel, this);
-        },
-        [`${prefix}-trail-items`]: () => {
-          this.reattachPanelItems(Main.panel, this);
-        },
-      };
-      this.load_settings(this.setting, this.settingsMap, this.settingsPrefix);
-
-      this.itemsMap = {
-        logo: this.createLogo.bind(this),
-        hello: this.createHello.bind(this),
-        clock: this.createClock.bind(this),
-        network: this.createNetworkIndicator.bind(this),
-        power: this.createPowerIndicator.bind(this),
-        volume: this.createVolumeIndicator.bind(this),
-        mic: this.createMicIndicator.bind(this),
-        brightness: this.createBrightnessIndicator.bind(this),
-        inhibitor: this.createInhibitorIndicator.bind(this),
-      };
-
-      this.attachPanelItems(Main.panel, this);
-      Main.panel.connect('notify::enabled', () => {
-        if (Main.panel.enabled) {
-          this.attachPanelItems(Main.panel, this);
-        } else {
-          Main.panel._panelItems = null;
-        }
-      });
-
+      Main.factory.registerProvider('logo', this.createLogo.bind(this));
+      Main.factory.registerProvider('hello', this.createHello.bind(this));
+      Main.factory.registerProvider('clock', this.createClock.bind(this));
+      Main.factory.registerProvider('network', this.createNetworkIndicator.bind(this));
+      Main.factory.registerProvider('power', this.createPowerIndicator.bind(this));
+      Main.factory.registerProvider('volume', this.createVolumeIndicator.bind(this));
+      Main.factory.registerProvider('mic', this.createMicIndicator.bind(this));
+      Main.factory.registerProvider('brightness', this.createBrightnessIndicator.bind(this));
+      Main.factory.registerProvider('inhibitor', this.createInhibitorIndicator.bind(this));
       super.enable();
     }
 
-    createLogo() {
+    createLogo(config) {
       let logo = new Main.panel.PanelItem();
       logo.add_css_class('logo');
       // logo.set_label(getOSName());
@@ -126,7 +96,7 @@ const BarItemsExtension = GObject.registerClass(
       return item;
     }
 
-    createClock() {
+    createClock(config) {
       // this supports only one clock!
       let clock = new Main.panel.PanelItem();
       clock.add_css_class('clock');
@@ -154,7 +124,7 @@ const BarItemsExtension = GObject.registerClass(
       return clock;
     }
 
-    createNetworkIndicator() {
+    createNetworkIndicator(config) {
       let network = new Main.panel.PanelItem();
       network.add_css_class('network');
       network.set_label('network');
@@ -172,9 +142,8 @@ const BarItemsExtension = GObject.registerClass(
       );
       Main.network.sync();
 
-      let menu = new PopupMenu({
-        has_arrow: true,
-      });
+      let menu = network.menu;
+      menu.has_arrow = true;
 
       // let w = new Gtk.Label();
       // menu.child.append(w);
@@ -189,46 +158,34 @@ const BarItemsExtension = GObject.registerClass(
       widget.parent.remove(widget);
       menu.child.append(widget);
       network.menu = menu;
-      network.append(menu);
+      // network.append(menu);
 
-      let evt = new Gtk.GestureClick();
-      // evt.set_button(3); // right click
-      evt.connect('pressed', (actor, count) => {
+      network.on_click = (count, btn) => {
         let state = Main.network.state;
         let source = Main.network.indicator._primaryIndicatorBinding.source;
+        if (btn == 3 && state.address) {
+          i.set_label(state.address);
+          menu.popup();
+          return;
+        }
         if (source) {
           i.set_label(`${source.title} ${state.id ?? source.subtitle}`);
           menu.popup();
           return;
         }
-      });
-      network.add_controller(evt);
+      };
 
-      {
-        let evt = new Gtk.GestureClick();
-        evt.set_button(3); // right click
-        evt.connect('pressed', (actor, count) => {
-          let state = Main.network.state;
-          if (state.address) {
-            w.set_label(state.address);
-            menu.popup();
-            return;
-          }
-        });
-        network.add_controller(evt);
-      }
       return network;
     }
 
-    createPowerIndicator() {
+    createPowerIndicator(config) {
       let power = new Main.panel.PanelItem();
       power.add_css_class('power');
       power.set_label('power');
       power.onUpdate = (w, s) => {};
 
-      let menu = new PopupMenu({
-        has_arrow: true,
-      });
+      let menu = power.menu;
+      menu.has_arrow = true;
 
       let builder = new Gtk.Builder();
       builder.add_from_file(`${this.path}/ui/power.ui`);
@@ -239,11 +196,8 @@ const BarItemsExtension = GObject.registerClass(
       l.set_size_request(40, -1);
       widget.parent.remove(widget);
       menu.child.append(widget);
-      power.append(menu);
 
-      let evt = new Gtk.GestureClick();
-      // evt.set_button(3); // right click
-      evt.connect('pressed', (actor, count) => {
+      power.on_click = (count, btn) => {
         let state = Main.power.state;
         if (state?.fillLevel) {
           let timeTo = '';
@@ -255,8 +209,7 @@ const BarItemsExtension = GObject.registerClass(
           i.set_label(`${state.fillLevel}% ${state.chargingState} ${timeTo}`);
         }
         menu.popup();
-      });
-      power.add_controller(evt);
+      };
 
       Main.power.connectObject(
         'power-update',
@@ -279,15 +232,14 @@ const BarItemsExtension = GObject.registerClass(
       return power;
     }
 
-    createVolumeIndicator() {
+    createVolumeIndicator(config) {
       let volume = new Main.panel.PanelItem();
       volume.add_css_class('volume');
       volume.set_label('volume');
       volume.onUpdate = (w, s) => {};
 
-      let menu = new PopupMenu({
-        has_arrow: true,
-      });
+      let menu = volume.menu;
+      menu.has_arrow = true;
 
       let builder = new Gtk.Builder();
       builder.add_from_file(`${this.path}/ui/volume.ui`);
@@ -300,14 +252,11 @@ const BarItemsExtension = GObject.registerClass(
       widget.parent.remove(widget);
       menu.child.append(widget);
       volume.menu = menu;
-      volume.append(menu);
+      // volume.append(menu);
 
-      let evt = new Gtk.GestureClick();
-      // evt.set_button(3); // right click
-      evt.connect('pressed', (actor, count) => {
+      volume.on_click = () => {
         menu.popup();
-      });
-      volume.add_controller(evt);
+      };
 
       let updateVolume = () => {
         volume._debounceVolume = Main.loTimer.debounce(
@@ -366,7 +315,7 @@ const BarItemsExtension = GObject.registerClass(
       return volume;
     }
 
-    createMicIndicator() {
+    createMicIndicator(config) {
       let mic = new Main.panel.PanelItem();
       mic.add_css_class('mic');
       mic.set_label('mic');
@@ -388,24 +337,20 @@ const BarItemsExtension = GObject.registerClass(
 
       Main.mic.sync();
 
-      let evt = new Gtk.GestureClick();
-      // evt.set_button(3); // right click
-      evt.connect('pressed', (actor, count) => {
+      mic.on_click = () => {
         Main.mic._stream['is-muted'] = !Main.mic._stream['is-muted'];
-      });
-      mic.add_controller(evt);
+      };
       return mic;
     }
 
-    createBrightnessIndicator() {
+    createBrightnessIndicator(config) {
       let brightness = new Main.panel.PanelItem();
       brightness.add_css_class('brightness');
       brightness.set_label('brightness');
       brightness.onUpdate = (w, s) => {};
 
-      let menu = new PopupMenu({
-        has_arrow: true,
-      });
+      let menu = brightness.menu;
+      menu.has_arrow = true;
 
       let builder = new Gtk.Builder();
       builder.add_from_file(`${this.path}/ui/brightness.ui`);
@@ -417,14 +362,11 @@ const BarItemsExtension = GObject.registerClass(
       l.set_size_request(40, -1);
       widget.parent.remove(widget);
       menu.child.append(widget);
-      brightness.append(menu);
+      // brightness.append(menu);
 
-      let evt = new Gtk.GestureClick();
-      // evt.set_button(3); // right click
-      evt.connect('pressed', (actor, count) => {
+      brightness.on_click = () => {
         menu.popup();
-      });
-      brightness.add_controller(evt);
+      };
 
       let updateBrightness = () => {
         brightness._debounceBrightness = Main.loTimer.debounce(
@@ -474,7 +416,7 @@ const BarItemsExtension = GObject.registerClass(
       return brightness;
     }
 
-    createInhibitorIndicator() {
+    createInhibitorIndicator(config) {
       let inhibitor = new Main.panel.PanelItem();
       inhibitor.add_css_class('inhibitor');
       inhibitor.set_label('inhibitor');
@@ -494,11 +436,9 @@ const BarItemsExtension = GObject.registerClass(
       );
       inhibitorSevice.sync();
 
-      let evt = new Gtk.GestureClick();
-      evt.connect('pressed', (actor, count) => {
+      inhibitor.on_click = () => {
         inhibitorSevice.toggle();
-      });
-      inhibitor.add_controller(evt);
+      };
 
       inhibitor.connect('destroy', () => {
         inhibitorSevice.uninhibit();
@@ -507,71 +447,10 @@ const BarItemsExtension = GObject.registerClass(
       return inhibitor;
     }
 
-    attachPanelItems(targetPanel, itemsList) {
-      if (!itemsList) {
-        itemsList = targetPanel;
-      }
-      if (!targetPanel || !targetPanel.enabled || targetPanel._panelItems)
-        return;
-
-      targetPanel._panelItems = [];
-
-      const areaMap = {
-        lead: 'LEAD_ITEMS',
-        center: 'CENTER_ITEMS',
-        trail: 'TRAIL_ITEMS',
-      };
-
-      try {
-        Object.keys(areaMap).forEach((k) => {
-          let source = itemsList[areaMap[k]] ?? [];
-          source.forEach((item, idx) => {
-            let create = this.externalItemsMap[item] ?? this.itemsMap[item];
-            if (create) {
-              let item = create();
-              if (item.sort_order == undefined) {
-                item.sort_order = idx;
-              }
-              if (item) {
-                targetPanel[k].append(item);
-                targetPanel._panelItems.push(item);
-              }
-            }
-          });
-        });
-      } catch (err) {
-        console.log(err);
-      }
-
-      Main.panel.window.sort_icons();
-    }
-
-    detachPanelItems(targetPanel) {
-      if (!targetPanel || !targetPanel._panelItems) return;
-
-      (targetPanel._panelItems || []).forEach((item) => {
-        item.parent?.remove(item);
-        item.emit('destroy');
-      });
-      targetPanel._panelItems = null;
-    }
-
-    reattachPanelItems(target, itemsList) {
-      this.detachPanelItems(target);
-      this.attachPanelItems(target, itemsList);
-    }
-
-    registerPanelItem(name, createFunc) {
-      this.externalItemsMap[name] = createFunc;
-      if (this.enabled) {
-        this.reattachPanelItems(Main.panel, this);
-      }
-    }
-
     disable() {
       super.disable();
-      this.detachPanelItems(Main.panel);
       Main.settings.disconnectObject(this);
+      Main.factory.unregisterProvider(this);
     }
   },
 );

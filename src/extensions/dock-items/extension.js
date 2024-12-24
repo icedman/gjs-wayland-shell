@@ -5,7 +5,7 @@ import Gio from 'gi://Gio';
 import GObject from 'gi://GObject';
 import { Extension } from '../../lib/extensionInterface.js';
 import { PopupMenu } from '../../lib/popupMenu.js';
-import { IconGroups } from '../../dock.js';
+import { IconGroups } from '../../lib/dock.js';
 import { getAppInfo, getAppInfoFromFile } from '../../lib/appInfo.js';
 
 function add_dock_item(dockItem, target = null) {
@@ -79,11 +79,11 @@ const DockItemsExtension = GObject.registerClass(
     createAppsItem(target) {
       target = target ?? Main.dock.center;
       let appInfo = {
-        id: 'fuzzel',
+        id: 'apps',
         icon_name: 'view-app-grid-symbolic',
-        title: 'Fuzzel',
-        // exec: `fuzzel`,
+        title: 'Apps',
         script: () => {
+          // todo show/create an apps grid
           Main.search.show();
         },
       };
@@ -353,6 +353,7 @@ const DockItemsExtension = GObject.registerClass(
           targetDock._dockItems.push(item);
         }
       }
+      targetDock.window.update_icon_size();
       targetDock.window.sort_icons();
     }
 

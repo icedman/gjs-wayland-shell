@@ -7,11 +7,11 @@ import { getAppInfo, getAppInfoFromFile } from './appInfo.js';
 
 export const PopupMenu = GObject.registerClass(
   class PopupMenu extends Gtk.Popover {
-    _init(params) {
+    _init(params = {}) {
       let appInfo = getAppInfo(params.app);
       let items = params.items ?? appInfo?.menu ?? [];
-      delete params?.app;
-      delete params?.items;
+      delete params.app;
+      delete params.items;
 
       super._init({
         name: 'Menu',
@@ -30,6 +30,17 @@ export const PopupMenu = GObject.registerClass(
 
     setItems(items) {
       let box = this.box;
+
+      let children = [];
+      let n = box.get_first_child();
+      while (n) {
+        children.push(n);
+        n = n.get_next_sibling();
+      }
+      children.forEach((c) => {
+        box.remove(c);
+      });
+
       items.forEach((item) => {
         let button = new Gtk.Box({
           name: 'MenuItem',
@@ -41,6 +52,17 @@ export const PopupMenu = GObject.registerClass(
         let evt = new Gtk.GestureClick();
         // evt.set_button(3);
         evt.connect('pressed', async (actor, count) => {
+          if (item.script) {
+            item.script();
+            this.popdown();
+            return;
+          }
+
+          if (item.action == 'focus' && item.window) {
+            Main.shell.focusWindow(item.window);
+            this.popdown();
+            return;
+          }
           if (item.action == 'open') {
             Main.shell.focusOrSpawn(item.id, item.exec);
             this.popdown();
@@ -65,54 +87,6 @@ export const PopupMenu = GObject.registerClass(
 
         button.label.set_label(item.name);
 
-        box.append(button);
-      });
-    }
-
-    updateWindowItems(windows) {
-      let box = this.box;
-
-      let children = [];
-      let n = box.get_first_child();
-      while (n) {
-        if (n.window) {
-          children.push(n);
-        }
-        n = n.get_next_sibling();
-      }
-
-      children.forEach((c) => {
-        c.parent?.remove(c);
-      });
-
-      windows.forEach((window) => {
-        let button = new Gtk.Box({
-          name: 'MenuItem',
-          orientation: Gtk.Orientation.HORIZONTAL,
-          hexpand: true,
-        });
-
-        button.window = { ...window };
-
-        // make this configurable
-        let evt = new Gtk.GestureClick();
-        evt.connect('pressed', (actor, count) => {
-          Main.shell.focusWindow(button.window);
-          this.popdown();
-        });
-        button.add_controller(evt);
-
-        button.label = new Gtk.Label();
-        button.label.add_css_class('label');
-        button.label.hexpand = true;
-        button.label.halign = Gtk.Align.START;
-        button.append(button.label);
-
-        let title = window.title;
-        if (title.length > 32) {
-          title = title.substring(0, 28) + '...';
-        }
-        button.label.set_label(title);
         box.append(button);
       });
     }

@@ -4,6 +4,7 @@ import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
 import LayerShell from 'gi://Gtk4LayerShell';
+import { DockItem, DockAppItem } from './lib/dockItem.js';
 
 import App from './app.js';
 import Dock from './dock.js';
@@ -23,6 +24,7 @@ import Style from './services/style.js';
 import DBus from './services/dbus.js';
 import SystemApps from './services/systemApps.js';
 import Timer from './lib/timer.js';
+import Factory from './lib/factory.js';
 
 import { Extension } from './lib/extensionInterface.js';
 
@@ -40,6 +42,7 @@ globalThis.Main = {
   hiTimer: new Timer('hi-res timer'),
 
   // ui
+  factory: new Factory(),
   dock: new Dock({ name: 'Dock' }),
   panel: new Panel({ name: 'Panel' }),
   search: new Search({ name: 'Search' }),
@@ -80,6 +83,28 @@ globalThis.Main = {
     LayerShell,
   },
 };
+
+function demo() {
+  {
+    let d = new DockItem({ iconSize: 48 });
+    d.set_label('hello');
+    d.set_icon('user-trash');
+    Main.dock.lead.append(d);
+  }
+
+  {
+    let d = new DockAppItem({
+      app: 'org.gnome.Calculator.desktop',
+      iconSize: 48,
+    });
+    d.set_icon_size(48);
+    Main.dock.lead.append(d);
+  }
+}
+
+// Main.app.connect('ready', () => {
+//   demo();
+// });
 
 Main.app.init();
 Main.app.run([]);

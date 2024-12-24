@@ -210,10 +210,10 @@ const Search = GObject.registerClass(
     }
 
     registerPanelItems() {
-      let barItems = Main.extensions['bar-items'];
-      if (barItems && barItems.enabled) {
-        barItems.registerPanelItem('search', this.createSearchIcon.bind(this));
-      }
+      // let barItems = Main.extensions['bar-items'];
+      // if (barItems && barItems.enabled) {
+      //   barItems.registerPanelItem('search', this.createSearchIcon.bind(this));
+      // }
     }
 
     update_icons() {

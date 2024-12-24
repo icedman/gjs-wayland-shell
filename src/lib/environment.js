@@ -1,3 +1,5 @@
+import Gdk from 'gi://Gdk?version=4.0';
+import Gtk from 'gi://Gtk?version=4.0';
 import GObject from 'gi://GObject';
 import Gio from 'gi://Gio';
 import * as SignalTracker from './signalTracker.js';
@@ -65,7 +67,11 @@ GObject.Object.prototype.load_settings = function (
   settingsMap = settingsMap ?? this.settingsMap ?? {};
   prefix = prefix ?? this.settingsPrefix ?? this.name?.toLowerCase() ?? '';
   Object.keys(settingsMap).forEach((k) => {
-    let _key = k.replace(`${prefix}-`, '').replaceAll('-', '_').toUpperCase();
+    let _key = k;
+    if (prefix != '') {
+      _key = _key.replace(`${prefix}-`, '');
+    }
+    _key = _key.replaceAll('-', '_').toUpperCase();
     try {
       this[_key] = settings.getSetting(k);
     } catch (err) {
@@ -77,19 +83,23 @@ GObject.Object.prototype.load_settings = function (
     if (this.customSettings && this.customSettings[k]) {
       this[_key] = this.customSettings[k];
     }
-    settings.connectObject(
-      `changed::${k}`,
-      () => {
-        this[_key] = settings.getSetting(k);
-        if (Main.userSettings && Main.userSettings[k]) {
-          this[_key] = Main.userSettings[k];
-        }
-        if (this.customSettings && this.customSettings[k]) {
-          this[_key] = this.customSettings[k];
-        }
-        settingsMap[k]();
-      },
-      this,
-    );
+    try {
+      settings.connectObject(
+        `changed::${k}`,
+        () => {
+          this[_key] = settings.getSetting(k);
+          if (Main.userSettings && Main.userSettings[k]) {
+            this[_key] = Main.userSettings[k];
+          }
+          if (this.customSettings && this.customSettings[k]) {
+            this[_key] = this.customSettings[k];
+          }
+          settingsMap[k]();
+        },
+        this,
+      );
+    } catch (err) {
+      // key not in schema
+    }
   });
 };

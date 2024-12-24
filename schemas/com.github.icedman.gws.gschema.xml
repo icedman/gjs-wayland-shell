@@ -101,86 +101,173 @@
         <summary>Dock running-indicator color</summary>
         <description>Set dock running-indicator color.</description>
     </key>
+    <!-- DOCK-ITEMS -->
+    <key type="as" name="dock-items-lead">
+        <default>[]</default>
+        <summary>Items at lead area</summary>
+        <description></description>
+    </key>
+    <key type="as" name="dock-items">
+        <default>[]</default>
+        <summary>Items at the main area</summary>
+        <description></description>
+    </key>
+    <key type="as" name="dock-items-trail">
+        <default>[]</default>
+        <summary>Items at trail area</summary>
+        <description></description>
+    </key>
+    <key type="as" name="dock-favorite-apps">
+        <default>[]</default>
+        <summary>DockItems favorite apps</summary>
+        <description></description>
+    </key>
+    <key type="b" name="dock-show-favorite-apps">
+        <default>true</default>
+        <summary>Show icons of favorite apps</summary>
+        <description></description>
+    </key>
+    <key type="b" name="dock-show-running-apps">
+        <default>false</default>
+        <summary>Show icons of running apps</summary>
+        <description></description>
+    </key>
+    <key type="b" name="dock-show-trash">
+        <default>false</default>
+        <summary>Show trash</summary>
+        <description></description>
+    </key>
+    <key type="b" name="dock-show-separator">
+        <default>false</default>
+        <summary>Show separator</summary>
+        <description></description>
+    </key>
     <!-- PANEL -->
-    <key type="b" name="bar-show">
+    <key type="b" name="panel-show">
         <default>true</default>
         <summary>Show the topbar</summary>
         <description>Show or hide the topbar (it still runs in the background).</description>
     </key>
-    <key type="b" name="bar-enable-animation">
+    <key type="b" name="panel-enable-animation">
         <default>false</default>
         <summary>Animate the topbar</summary>
         <description>Animate the topbar.</description>
     </key>
-    <key type="b" name="bar-enable-autohide">
+    <key type="b" name="panel-enable-autohide">
         <default>false</default>
         <summary>Autohide the topbar</summary>
         <description>Autohide the topbar.</description>
     </key>
-    <key type="i" name="bar-location">
+    <key type="i" name="panel-location">
         <default>3</default>
         <summary>Bar location</summary>
         <description>Set Bar position on the screen.</description>
     </key>
-    <key type="d" name="bar-edge-distance">
+    <key type="d" name="panel-edge-distance">
         <default>0</default>
         <summary>Edge distance</summary>
         <description>Adjust Bar distance from screen edge.</description>
     </key>
-    <key type="(dddd)" name="bar-foreground-color">
+    <key type="(dddd)" name="panel-foreground-color">
         <default>(1.,1.,1.,1.)</default>
         <summary>Bar foreground color</summary>
         <description>Set topbar panel foreground color.</description>
     </key>
-    <key type="d" name="bar-padding">
+    <key type="d" name="panel-padding">
         <default>0.5</default>
         <summary>Bar padding</summary>
         <description>Bar padding.</description>
     </key>
-    <key type="d" name="bar-border-radius">
+    <key type="d" name="panel-border-radius">
         <default>3</default>
         <summary>Border radius</summary>
         <description>Set dash background border radius.</description>
     </key>
-    <key type="(dddd)" name="bar-border-color">
+    <key type="(dddd)" name="panel-border-color">
         <default>(1.,1.,1.,1.)</default>
         <summary>border color</summary>
         <description>Set Bar border color.</description>
     </key>
-    <key type="i" name="bar-border-thickness">
+    <key type="i" name="panel-border-thickness">
         <default>0</default>
         <summary>Border thickness</summary>
         <description>Border thickness.</description>
     </key>
-    <key type="(dddd)" name="bar-background-color">
+    <key type="(dddd)" name="panel-background-color">
         <default>(0.,0.,0.,0.25)</default>
         <summary>Background color</summary>
         <description>Set Bar background color.</description>
     </key>
-    <key type="b" name="bar-panel-mode">
+    <key type="b" name="panel-panel-mode">
         <default>true</default>
         <summary>Panel mode</summary>
         <description>Bar the dash on a full-width panel.</description>
     </key>
-    <key type="i" name="bar-icon-size">
+    <key type="i" name="panel-icon-size">
         <default>0</default>
         <summary>Icon size</summary>
         <description>Set icon size.</description>
     </key>
-    <key type="d" name="bar-icon-scale">
+    <key type="d" name="panel-icon-scale">
         <default>0</default>
         <summary>Icon scale</summary>
         <description>Adjust icon scale.</description>
     </key>
-    <key type="d" name="bar-icon-spacing">
+    <key type="d" name="panel-icon-spacing">
         <default>0.5</default>
         <summary>Icon spacing</summary>
         <description>Icon spacing.</description>
     </key>
-    <key type="b" name="bar-icon-shadow">
+    <key type="b" name="panel-icon-shadow">
         <default>true</default>
         <summary>Icon shadow</summary>
         <description>Add the icon shadow effect.</description>
+    </key>
+    <key type="(dddd)" name="dock-separator-color">
+        <default>(0.5,0.5,0.5,0.5)</default>
+        <summary>Dock separator color</summary>
+        <description>Set separator color.</description>
+    </key>
+    <key type="b" name="dock-show-mounted-volumes">
+        <default>false</default>
+        <summary>Show mounted volumes</summary>
+        <description></description>
+    </key>
+    <key type="b" name="dock-show-apps">
+        <default>false</default>
+        <summary>Show apps icons</summary>
+        <description></description>
+    </key>
+    <key type="i" name="panel-running-indicator">
+        <default>0</default>
+        <summary>Apps running indicator</summary>
+        <description>Show running indicator</description>
+    </key>
+    <key type="(dddd)" name="panel-running-indicator-color">
+        <default>(1.,1.,1.,1.)</default>
+        <summary>Bar running-indicator color</summary>
+        <description>Set topbar panel running-indicator color.</description>
+    </key>
+    <key type="(dddd)" name="panel-notification-badge-color">
+        <default>(1.,1.,1.,1.)</default>
+        <summary>Bar running-indicator color</summary>
+        <description>Set bar running-indicator color.</description>
+    </key>
+    <!-- PANEL ITEMS -->
+    <key type="as" name="panel-items-lead">
+        <default>['logo']</default>
+        <summary>Items at lead area</summary>
+        <description></description>
+    </key>
+    <key type="as" name="panel-items">
+        <default>['clock', 'hello']</default>
+        <summary>Items at main area</summary>
+        <description></description>
+    </key>
+    <key type="as" name="panel-items-trail">
+        <default>['network', 'power', 'volume', 'mic']</default>
+        <summary>Items at trail area</summary>
+        <description></description>
     </key>
     <!-- SEARCH -->
     <key type="d" name="search-border-radius">
@@ -234,93 +321,6 @@
     <key type="b" name="search-show-panel-icon">
         <default>false</default>
         <summary>Show panel icon</summary>
-        <description></description>
-    </key>
-    <!-- DOCK-ITEMS -->
-    <key type="as" name="dock-lead-items">
-        <default>['logo']</default>
-        <summary>Items at lead area</summary>
-        <description></description>
-    </key>
-    <key type="as" name="dock-center-items">
-        <default>['clock', 'hello']</default>
-        <summary>Items at center area</summary>
-        <description></description>
-    </key>
-    <key type="as" name="dock-trail-items">
-        <default>['network', 'power', 'volume', 'mic']</default>
-        <summary>Items at trail area</summary>
-        <description></description>
-    </key>
-    <key type="as" name="dock-favorite-apps">
-        <default>[]</default>
-        <summary>DockItems favorite apps</summary>
-        <description></description>
-    </key>
-    <key type="b" name="dock-show-favorite-apps">
-        <default>true</default>
-        <summary>Show icons of favorite apps</summary>
-        <description></description>
-    </key>
-    <key type="b" name="dock-show-running-apps">
-        <default>false</default>
-        <summary>Show icons of running apps</summary>
-        <description></description>
-    </key>
-    <key type="b" name="dock-show-trash">
-        <default>false</default>
-        <summary>Show trash</summary>
-        <description></description>
-    </key>
-    <key type="b" name="dock-show-separator">
-        <default>false</default>
-        <summary>Show separator</summary>
-        <description></description>
-    </key>
-    <key type="(dddd)" name="dock-separator-color">
-        <default>(0.5,0.5,0.5,0.5)</default>
-        <summary>Dock separator color</summary>
-        <description>Set separator color.</description>
-    </key>
-    <key type="b" name="dock-show-mounted-volumes">
-        <default>false</default>
-        <summary>Show mounted volumes</summary>
-        <description></description>
-    </key>
-    <key type="b" name="dock-show-apps">
-        <default>false</default>
-        <summary>Show apps icons</summary>
-        <description></description>
-    </key>
-    <key type="i" name="bar-running-indicator">
-        <default>0</default>
-        <summary>Apps running indicator</summary>
-        <description>Show running indicator</description>
-    </key>
-    <key type="(dddd)" name="bar-running-indicator-color">
-        <default>(1.,1.,1.,1.)</default>
-        <summary>Bar running-indicator color</summary>
-        <description>Set topbar panel running-indicator color.</description>
-    </key>
-    <key type="(dddd)" name="bar-notification-badge-color">
-        <default>(1.,1.,1.,1.)</default>
-        <summary>Bar running-indicator color</summary>
-        <description>Set bar running-indicator color.</description>
-    </key>
-    <!-- PANEL ITEMS -->
-    <key type="as" name="panel-lead-items">
-        <default>['logo']</default>
-        <summary>Items at lead area</summary>
-        <description></description>
-    </key>
-    <key type="as" name="panel-center-items">
-        <default>['clock', 'hello']</default>
-        <summary>Items at center area</summary>
-        <description></description>
-    </key>
-    <key type="as" name="panel-trail-items">
-        <default>['network', 'power', 'volume', 'mic']</default>
-        <summary>Items at trail area</summary>
         <description></description>
     </key>
   </schema>
