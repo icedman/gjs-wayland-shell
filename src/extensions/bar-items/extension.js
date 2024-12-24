@@ -116,12 +116,10 @@ const BarItemsExtension = GObject.registerClass(
       let clock = new Main.panel.PanelItem();
       clock.add_css_class('clock');
       clock.set_label('Clock');
-      clock.onUpdate = (w, s) => {};
       const updateClock = () => {
         let d = new Date();
         let dt = formatDate(new Date());
         clock.set_label(dt);
-        clock.onUpdate(clock, { date: d });
       };
       clock.clockTimer = Main.timer.runLoop(
         updateClock,
@@ -143,7 +141,6 @@ const BarItemsExtension = GObject.registerClass(
       let network = new Main.panel.PanelItem();
       network.add_css_class('network');
       network.set_label('network');
-      network.onUpdate = (w, s) => {};
       Main.network.connectObject(
         'network-update',
         () => {
@@ -151,7 +148,6 @@ const BarItemsExtension = GObject.registerClass(
           network.set_label(``);
           network.set_icon(state.icon);
           // network.visible = state.visible;
-          network.onUpdate(network, state);
         },
         this,
       );
@@ -197,7 +193,6 @@ const BarItemsExtension = GObject.registerClass(
       let power = new Main.panel.PanelItem();
       power.add_css_class('power');
       power.set_label('power');
-      power.onUpdate = (w, s) => {};
 
       let menu = power.menu;
       menu.has_arrow = true;
@@ -236,7 +231,6 @@ const BarItemsExtension = GObject.registerClass(
           // i.child?.set_from_icon_name(state.icon);
           // i.child.visible = false;
           i.set_child(null);
-          power.onUpdate(power, state);
         },
         power,
       );
@@ -251,7 +245,6 @@ const BarItemsExtension = GObject.registerClass(
       let volume = new Main.panel.PanelItem();
       volume.add_css_class('volume');
       volume.set_label('volume');
-      volume.onUpdate = (w, s) => {};
 
       let menu = volume.menu;
       menu.has_arrow = true;
@@ -313,8 +306,6 @@ const BarItemsExtension = GObject.registerClass(
             l.set_label(`0%`);
           }
           w.set_sensitive(!state.is_muted);
-          // console.log(state);
-          volume.onUpdate(volume, state);
         },
         this,
       );
@@ -362,7 +353,6 @@ const BarItemsExtension = GObject.registerClass(
       let brightness = new Main.panel.PanelItem();
       brightness.add_css_class('brightness');
       brightness.set_label('brightness');
-      brightness.onUpdate = (w, s) => {};
 
       let menu = brightness.menu;
       menu.has_arrow = true;
@@ -415,7 +405,6 @@ const BarItemsExtension = GObject.registerClass(
           w.set_value(state.brightness / 100);
           l.set_label(`${Math.floor(state.brightness)}%`);
           brightness.visible = state.visible;
-          brightness.onUpdate(brightness, state);
         },
         this,
       );
@@ -435,7 +424,6 @@ const BarItemsExtension = GObject.registerClass(
       let inhibitor = new Main.panel.PanelItem();
       inhibitor.add_css_class('inhibitor');
       inhibitor.set_label('inhibitor');
-      inhibitor.onUpdate = (w, s) => {};
 
       let inhibitorSevice = Main.inhibitor;
 
@@ -445,7 +433,6 @@ const BarItemsExtension = GObject.registerClass(
           let state = inhibitorSevice.state;
           inhibitor.set_label(``);
           inhibitor.set_icon(state.icon);
-          inhibitor.onUpdate(inhibitor, state);
         },
         inhibitor,
       );
