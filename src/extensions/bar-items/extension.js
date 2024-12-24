@@ -72,12 +72,27 @@ const BarItemsExtension = GObject.registerClass(
       Main.factory.registerProvider('logo', this.createLogo.bind(this));
       Main.factory.registerProvider('hello', this.createHello.bind(this));
       Main.factory.registerProvider('clock', this.createClock.bind(this));
-      Main.factory.registerProvider('network', this.createNetworkIndicator.bind(this));
-      Main.factory.registerProvider('power', this.createPowerIndicator.bind(this));
-      Main.factory.registerProvider('volume', this.createVolumeIndicator.bind(this));
+      Main.factory.registerProvider(
+        'network',
+        this.createNetworkIndicator.bind(this),
+      );
+      Main.factory.registerProvider(
+        'power',
+        this.createPowerIndicator.bind(this),
+      );
+      Main.factory.registerProvider(
+        'volume',
+        this.createVolumeIndicator.bind(this),
+      );
       Main.factory.registerProvider('mic', this.createMicIndicator.bind(this));
-      Main.factory.registerProvider('brightness', this.createBrightnessIndicator.bind(this));
-      Main.factory.registerProvider('inhibitor', this.createInhibitorIndicator.bind(this));
+      Main.factory.registerProvider(
+        'brightness',
+        this.createBrightnessIndicator.bind(this),
+      );
+      Main.factory.registerProvider(
+        'inhibitor',
+        this.createInhibitorIndicator.bind(this),
+      );
       super.enable();
     }
 

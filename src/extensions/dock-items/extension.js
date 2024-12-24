@@ -26,58 +26,23 @@ const DockItemsExtension = GObject.registerClass(
   class DockItemsExtension extends Extension {
     enable() {
       super.enable();
-
-      this.name = 'dockitems';
-      let target = Main.dock.window;
-      target.favorite_apps = Main.userSettings['favorite-apps'];
-
-      if (!target.favorite_apps) {
-        const settingsShell = new Gio.Settings({
-          schema_id: 'org.gnome.shell',
-        });
-        target.favorite_apps = settingsShell
-          .get_value('favorite-apps')
-          .deepUnpack();
-      }
-
-      let prefix = 'dock';
-      this.settingsPrefix = prefix;
-      this.settings = Main.settings;
-      this.settingsMap = {
-        [`${prefix}-show-separator`]: () => {
-          this.reattachDockItems(Main.dock, this);
-        },
-        [`${prefix}-show-trash`]: () => {
-          this.reattachDockItems(Main.dock, this);
-        },
-        [`${prefix}-show-mounted-volumes`]: () => {
-          this.reattachDockItems(Main.dock, this);
-        },
-        [`${prefix}-show-apps`]: () => {
-          this.reattachDockItems(Main.dock, this);
-        },
-        [`${prefix}-show-favorite-apps`]: () => {
-          this.reattachDockItems(Main.dock, this);
-        },
-        [`${prefix}-show-running-apps`]: () => {
-          this.reattachDockItems(Main.dock, this);
-        },
-      };
-      this.load_settings();
-
-      this.attachDockItems(Main.dock, this);
-
-      Main.dock.connect('notify::enabled', () => {
-        if (Main.dock.enabled) {
-          this.attachDockItems(Main.dock, this);
-        } else {
-          Main.dock._dockItems = null;
-        }
-      });
+      Main.factory.registerProvider('apps', this.createAppsItem.bind(this));
+      Main.factory.registerProvider('trash', this.createTrashItem.bind(this));
+      Main.factory.registerProvider(
+        'favorite_apps',
+        this.createFavoritesItem.bind(this),
+      );
+      Main.factory.registerProvider(
+        'running_apps',
+        this.createRunningApps.bind(this),
+      );
+      Main.factory.registerProvider(
+        'mounted_volumes',
+        this.createMountedVolumes.bind(this),
+      );
     }
 
-    createAppsItem(target) {
-      target = target ?? Main.dock.center;
+    createAppsItem(config) {
       let appInfo = {
         id: 'apps',
         icon_name: 'view-app-grid-symbolic',
@@ -88,16 +53,11 @@ const DockItemsExtension = GObject.registerClass(
         },
       };
       let apps = Main.dock.create_dockitem_from_appinfo(appInfo);
-      if (apps) {
-        add_dock_item(apps, target);
-        apps.group = IconGroups.HEAD;
-      }
+      apps.group = IconGroups.HEAD;
       return apps;
     }
 
-    createTrashItem(target = null) {
-      target = target ?? Main.dock.center;
-
+    createTrashItem(config) {
       let appInfo = {
         id: 'trash',
         icon_name: 'user-trash',
@@ -117,11 +77,7 @@ const DockItemsExtension = GObject.registerClass(
         ],
       };
       let trash = Main.dock.create_dockitem_from_appinfo(appInfo);
-      if (trash) {
-        add_dock_item(trash, target);
-        trash.group = IconGroups.TAIL + 1;
-      }
-
+      trash.group = IconGroups.TAIL + 1;
       Main.trash.connectObject(
         'trash-update',
         () => {
@@ -132,101 +88,124 @@ const DockItemsExtension = GObject.registerClass(
             trash.set_icon('user-trash');
           }
         },
-        this,
+        trash,
       );
+      trash.connect('destroy', () => {
+        Main.trash.disconnectObject(trash);
+      });
       Main.trash.sync();
       return trash;
     }
 
-    createSeparator(target = null) {
-      target = target ?? Main.dock.center;
+    createSeparator(config) {
       let item = new Gtk.Separator({ name: 'separator' });
-      add_dock_item(item, target);
       item.group = IconGroups.SEPARATOR;
       item.add_css_class('separator');
       return item;
     }
 
-    createFavoritesItem(target = null) {
-      target = target ?? Main.dock.center;
-      let window = target.parent?.parent;
-
+    createFavoritesItem(config) {
       let item = new Gtk.Box({ visible: false }); // placeholder
-      item.items = [];
-      target.append(item);
+      item.set_size_request(1, 1);
+      item.favorite_apps = Main.userSettings['favorite-apps'];
 
-      for (let i = 0; i < window.favorite_apps.length; i++) {
-        let app = window.favorite_apps[i];
-        let btn = Main.dock.create_dockitem_from_appinfo(app);
-        if (btn) {
-          add_dock_item(btn, target);
-          item.items.push(btn);
-          btn.group = IconGroups.FAVORITE_APPS;
-        }
+      if (!item.favorite_apps) {
+        const settingsShell = new Gio.Settings({
+          schema_id: 'org.gnome.shell',
+        });
+        item.favorite_apps = settingsShell
+          .get_value('favorite-apps')
+          .deepUnpack();
       }
 
-      Main.dock.window.sort_icons();
-      Main.dock.window.queue_resize();
-      Main.dock.container.queue_resize();
+      function update_favorite_apps() {
+        let container = item.parent;
+        let dock = item.root;
+        if (!dock) return;
+
+        let currentIcons = dock.get_icons(IconGroups.FAVORITE_APPS, container);
+        let currentIconIds = currentIcons.map((icon) => icon.id);
+
+        for (let i = 0; i < item.favorite_apps.length; i++) {
+          let app = item.favorite_apps[i];
+          let appInfo = getAppInfo(app);
+          if (currentIconIds.includes(appInfo.id)) {
+            continue;
+          }
+          let btn = Main.dock.create_dockitem_from_appinfo(app);
+          if (btn) {
+            btn.id = appInfo.id;
+            // console.log(`added ${btn.id}`);
+            container.append(btn);
+            btn.group = IconGroups.FAVORITE_APPS;
+          }
+        }
+
+        dock.update_icon_size();
+        dock.sort_icons();
+      }
+
+      item.connect('show', () => {
+        update_favorite_apps();
+      });
 
       item.connect('destroy', () => {
-        item.items.forEach((dockItem) => {
+        let container = item.parent;
+        let dock = item.root;
+        let currentIcons = dock.get_icons(IconGroups.FAVORITE_APPS, container);
+        currentIcons.forEach((dockItem) => {
           dockItem.parent?.remove(dockItem);
         });
       });
       return item;
     }
 
-    createRunningApps(target = null) {
-      let targetDock = target?.parent.parent ?? Main.dock.window;
-      target = target ?? Main.dock.center;
-
+    createRunningApps(config) {
       let item = new Gtk.Box({ visible: false }); // placeholder
-      item.items = [];
-      target.append(item);
 
       function update_running_apps() {
+        let container = item.parent;
+        let dock = item.root;
+        if (!dock) return;
+
+        let currentIcons = dock.get_icons(IconGroups.RUNNING_APPS, container);
+        let favoriteIcons = dock.get_icons(IconGroups.FAVORITE_APPS, container);
+        let currentIconIds = currentIcons.map((icon) => icon.id);
+        let favoriteIconsIds = favoriteIcons.map((icon) => icon.id);
+
         let windows = Main.shell.windows ?? [];
         let appIds = [];
         windows.forEach((w) => {
+          if (!w.app_id) return;
+
           let appId = w.app_id + '.desktop';
           appIds.push(appId);
 
-          // if (!w.appInfo) {
-          //   let appInfo = getAppInfo(appId);
-          //   w.appInfo = appInfo;
-          // }
+          if (
+            currentIconIds.includes(appId) ||
+            favoriteIconsIds.includes(appId)
+          ) {
+            return;
+          }
 
-          try {
-            let icon = Main.dock.create_dockitem_from_appinfo(appId);
-            if (icon) {
-              add_dock_item(icon, target);
-              // if (w.appInfo?.icon_name) {
-              //   icon.set_icon(w.appInfo.icon_name);
-              // }
-              item.items.push(icon);
-              icon.group = IconGroups.RUNNING_APPS;
-            }
-          } catch (err) {
-            console.log(err);
+          let btn = Main.dock.create_dockitem_from_appinfo(appId);
+          if (btn) {
+            btn.id = appId;
+            // console.log(`added ${btn.id}`);
+            container.append(btn);
+            btn.group = IconGroups.RUNNING_APPS;
           }
         });
 
         // remove closed apps
-        let remove = [];
-        let current = targetDock.get_icons(IconGroups.RUNNING_APPS, target);
-        current.forEach((c) => {
+        currentIcons.forEach((c) => {
           if (!appIds.includes(c.id)) {
-            remove.push(c);
+            c.parent?.remove(c);
           }
         });
 
-        remove.forEach((c) => {
-          c.parent?.remove(c);
-        });
-
-        targetDock.sort_icons();
-        targetDock.update_icon_size();
+        dock.update_icon_size();
+        dock.sort_icons();
       }
 
       Main.shell.connectObject(
@@ -236,60 +215,69 @@ const DockItemsExtension = GObject.registerClass(
         },
         // 'window-opened', this.update_running_apps.bind(this),
         // 'window-closed', this.update_running_apps.bind(this),
-        this,
+        item,
       );
-      update_running_apps();
+
+      item.connect('show', () => {
+        update_running_apps();
+      });
 
       item.connect('destroy', () => {
-        item.items.forEach((dockItem) => {
+        let container = item.parent;
+        let dock = item.root;
+        let currentIcons = dock.get_icons(IconGroups.RUNNING_APPS, container);
+        currentIcons.forEach((dockItem) => {
           dockItem.parent?.remove(dockItem);
         });
-        Main.shell.disconnectObject(this);
+        Main.shell.disconnectObject(item);
       });
 
       return item;
     }
 
-    createMountedVolumes(target) {
-      target = target ?? Main.dock.center;
-
+    createMountedVolumes(config) {
       let item = new Gtk.Box({ visible: false }); // placeholder
-      item.items = [];
-      target.append(item);
 
       function update_mounted_volumes() {
+        console.log('update_mounted_volumes');
+
+        let container = item.parent;
+        let dock = item.root;
+        if (!dock) return;
+
+        let currentIcons = dock.get_icons(IconGroups.VOLUMES, container);
+        let currentIconIds = currentIcons.map((icon) => icon.id);
+
         let mount_ids = Main.mounts.state?.mount_ids ?? [];
         let appIds = [];
         mount_ids.forEach((m) => {
           let appInfo = getAppInfo(m);
           let appId = appInfo.id;
+
+          if (currentIconIds.includes(appId)) {
+            return;
+          }
+
           appIds.push(appId);
-          try {
-            let icon = Main.dock.create_dockitem_from_appinfo(appId);
-            if (icon) {
-              add_dock_item(icon, target);
-              item.items.push(icon);
-              icon.group = IconGroups.VOLUMES;
-            }
-          } catch (err) {
-            console.log(err);
+          let btn = Main.dock.create_dockitem_from_appinfo(appId);
+          if (btn) {
+            btn.id = appId;
+            // console.log(`added ${btn.id}`);
+            container.append(btn);
+            btn.group = IconGroups.VOLUMES;
           }
         });
 
         // remove closed apps
-        let remove = [];
-        let current = Main.dock.window.get_icons(IconGroups.VOLUMES, target);
-        current.forEach((c) => {
+        currentIcons.forEach((c) => {
           if (!appIds.includes(c.id)) {
-            remove.push(c);
+            // console.log(`removed ${c.id}`);
+            c.parent?.remove(c);
           }
         });
 
-        remove.forEach((c) => {
-          c.parent?.remove(c);
-        });
-
-        Main.dock.window.sort_icons();
+        dock.update_icon_size();
+        dock.sort_icons();
       }
       update_mounted_volumes();
 
@@ -298,86 +286,31 @@ const DockItemsExtension = GObject.registerClass(
         () => {
           update_mounted_volumes();
         },
-        this,
+        item,
       );
       Main.mounts.sync();
 
+      item.connect('show', () => {
+        update_mounted_volumes();
+      });
+
       item.connect('destroy', () => {
-        item.items.forEach((dockItem) => {
+        let container = item.parent;
+        let dock = item.root;
+        let currentIcons = dock.get_icons(IconGroups.VOLUMES, container);
+        currentIcons.forEach((dockItem) => {
           dockItem.parent?.remove(dockItem);
         });
-        Main.mounts.disconnectObject(this);
+        Main.mounts.disconnectObject(item);
       });
 
       return item;
     }
 
-    attachDockItems(targetDock, config) {
-      if (!targetDock.enabled || targetDock._dockItems) return;
-      let window = targetDock.window;
-
-      targetDock._dockItems = [];
-
-      if (config.SHOW_FAVORITE_APPS) {
-        let items = this.createFavoritesItem(targetDock.center);
-        targetDock._dockItems.push(items);
-      }
-      if (config.SHOW_RUNNING_APPS) {
-        let items = this.createRunningApps(targetDock.center);
-        targetDock._dockItems.push(items);
-      }
-      if (config.SHOW_APPS) {
-        let item = this.createAppsItem(targetDock.center);
-        targetDock._dockItems.push(item);
-      }
-      if (config.SHOW_TRASH) {
-        let item = this.createTrashItem(targetDock.center);
-        targetDock._dockItems.push(item);
-      }
-      if (config.SHOW_MOUNTED_VOLUMES) {
-        let item = this.createMountedVolumes(targetDock.center);
-        targetDock._dockItems.push(item);
-      }
-      if (
-        config.SHOW_SEPARATOR &&
-        config.SHOW_APPS &&
-        (config.SHOW_RUNNING_APPS || config.SHOW_TRASH)
-      ) {
-        let windows = Main.shell.windows ?? [];
-        if (
-          window.favorite_apps.length > 0 &&
-          (windows.length > 0 || config.SHOW_TRASH)
-        ) {
-          // todo .. hide if nothing after the separator (like no runnings apps, no trash)
-          let item = this.createSeparator(targetDock.center);
-          targetDock._dockItems.push(item);
-        }
-      }
-      targetDock.window.update_icon_size();
-      targetDock.window.sort_icons();
-    }
-
-    detachDockItems(targetDock) {
-      (targetDock._dockItems || []).forEach((item) => {
-        item.parent?.remove(item);
-        item.emit('destroy');
-      });
-      targetDock._dockItems = null;
-    }
-
-    reattachDockItems(targetDock, config) {
-      this.detachDockItems(targetDock);
-      this.attachDockItems(targetDock, config);
-    }
-
     disable() {
       super.disable();
-      this.detachDockItems(Main.dock);
-      Main.settings.disconnectObject(this);
     }
   },
 );
 
 export default DockItemsExtension;
-
-// Main.extensions['dock-items'].disable();

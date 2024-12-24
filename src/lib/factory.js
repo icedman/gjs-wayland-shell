@@ -9,8 +9,8 @@ const providerRegistry = {};
 const Factory = GObject.registerClass(
   {
     Signals: {
-      'registry-update': {}
-    }
+      'registry-update': {},
+    },
   },
   class Factory extends GObject.Object {
     _init(params = {}) {
@@ -22,7 +22,7 @@ const Factory = GObject.registerClass(
       this.providers[id] = {
         id: id,
         create: createFunction,
-        owner: owner
+        owner: owner,
       };
       this.emit('registry-update');
     }
@@ -39,7 +39,7 @@ const Factory = GObject.registerClass(
       if (this.providers[id]) {
         let item = this.providers[id].create(config);
         item.id = config.id ?? id;
-        console.log(config);
+        // console.log(config);
         return item;
       }
       return null;

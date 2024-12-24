@@ -173,10 +173,23 @@ export const DockPanel = GObject.registerClass(
         [`${prefix}-items-trail`]: this.update_items.bind(this),
       };
 
+      if (this.name == 'Dock') {
+        this.settingsMap = {
+          ...this.settingsMap,
+          [`${prefix}-show-separator`]: this.update_dock_items.bind(this),
+          [`${prefix}-show-trash`]: this.update_dock_items.bind(this),
+          [`${prefix}-show-mounted-volumes`]: this.update_dock_items.bind(this),
+          [`${prefix}-show-apps`]: this.update_dock_items.bind(this),
+          [`${prefix}-show-favorite-apps`]: this.update_dock_items.bind(this),
+          [`${prefix}-show-running-apps`]: this.update_dock_items.bind(this),
+        };
+      }
+
       this.load_settings();
       this.update_layout();
       this.update_style();
       this.update_items();
+      this.update_dock_items();
 
       LayerShell.set_keyboard_mode(this, LayerShell.KeyboardMode.ON_DEMAND);
 
@@ -195,10 +208,12 @@ export const DockPanel = GObject.registerClass(
       );
 
       Main.factory.connectObject(
-        'registry-update', () => {
+        'registry-update',
+        () => {
           this.update_items();
         },
-        this);
+        this,
+      );
     }
 
     destroy() {
@@ -527,7 +542,9 @@ export const DockPanel = GObject.registerClass(
     }
 
     _hover(item) {
-      let icons = this.get_icons(null, this.center);
+      let icons = this.get_icons(null, this.center).filter(
+        (icon) => icon.visible,
+      );
       for (let i = 0; i < icons.length; i++) {
         if (icons[i] == item && icons[i].has_css_class('button-hover')) {
           return; // no need to re-hover
@@ -624,7 +641,7 @@ export const DockPanel = GObject.registerClass(
 
     update_items() {
       let items = this.get_icons();
-      let itemIds = items.map((i) => (i.id));
+      let itemIds = items.map((i) => i.id);
 
       const areaMap = {
         lead: 'ITEMS_LEAD',
@@ -636,29 +653,59 @@ export const DockPanel = GObject.registerClass(
         Object.keys(areaMap).forEach((k) => {
           let source = this[areaMap[k]] ?? [];
           source.forEach((item, idx) => {
-            if (typeof(item) == 'string') {
+            if (typeof item == 'string') {
               item = {
-                id: item
-              }
+                id: item,
+              };
             }
             if (itemIds.includes(item.id)) return;
             let newItem = Main.factory.create(item.id, {
               css: `${this.name.toLowerCase()}-item`,
-              ...item
+              ...item,
             });
             if (!newItem) return;
 
             let container = this[k];
             newItem.sort_order = idx;
             container.append(newItem);
+            newItem.show();
           });
         });
-      } catch(err) {
+      } catch (err) {
         console.log(err);
       }
 
       this.update_icon_size();
       this.sort_icons();
+    }
+
+    _removeDockIcons(appId) {
+      let icon = this.get_icons().find((icon) => icon.id == appId);
+      if (icon) {
+        icon.emit('destroy');
+        icon.parent?.remove(icon);
+      }
+    }
+
+    update_dock_items() {
+      if (this.name != 'Dock') {
+        return;
+      }
+      let items = [];
+      if (this.SHOW_APPS) items.push('apps');
+      else this._removeDockIcons('apps');
+      if (this.SHOW_TRASH) items.push('trash');
+      else this._removeDockIcons('trash');
+      if (this.SHOW_SEPARATOR) items.push('separator');
+      else this._removeDockIcons('separator');
+      if (this.SHOW_FAVORITE_APPS) items.push('favorite_apps');
+      else this._removeDockIcons('favorite_apps');
+      if (this.SHOW_MOUNTED_VOLUMES) items.push('mounted_volumes');
+      else this._removeDockIcons('mounted_volumes');
+      if (this.SHOW_RUNNING_APPS) items.push('running_apps');
+      else this._removeDockIcons('running_apps');
+      this.ITEMS = items;
+      this.update_items();
     }
   },
 );
