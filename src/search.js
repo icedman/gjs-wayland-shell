@@ -153,13 +153,6 @@ const Search = GObject.registerClass(
       });
       this.window.add_controller(event);
 
-      // this.overlay = new Gtk.Overlay({ hexpand: true, vexpand: true });
-      // this.background = new Gtk.Box({ hexpand: true, vexpand: true });
-      // this.background.add_css_class('blurred-background');
-      // this.overlay.add_overlay(this.background);
-      // this.overlay.add_overlay(this.widget);
-      // this.window.set_child(this.overlay);
-
       this.container = widget;
       this.window.set_child(this.container);
 
@@ -190,30 +183,17 @@ const Search = GObject.registerClass(
       this.update_layout();
       this.update_style();
 
-      Main.extensions['bar-items'].connectObject('notify::enabled', () => {
-        this.registerPanelItems();
-      });
-      this.registerPanelItems();
+      Main.factory.registerProvider('search', this.createSearchIcon.bind(this));
     }
 
     createSearchIcon() {
       let item = new Main.panel.PanelItem();
       item.set_label('');
       item.set_icon('system-search-symbolic');
-
-      let evt = new Gtk.GestureClick();
-      evt.connect('pressed', (actor, count) => {
+      item.on_click = () => {
         this.toggle();
-      });
-      item.add_controller(evt);
+      };
       return item;
-    }
-
-    registerPanelItems() {
-      // let barItems = Main.extensions['bar-items'];
-      // if (barItems && barItems.enabled) {
-      //   barItems.registerPanelItem('search', this.createSearchIcon.bind(this));
-      // }
     }
 
     update_icons() {
