@@ -68,8 +68,4 @@ const Dock = GObject.registerClass(
   },
 );
 
-Dock.prototype.DockItem = DockItem;
-Dock.prototype.DockAppItem = DockAppItem;
-Dock.prototype.DockPanel = DockPanel;
-
 export default Dock;

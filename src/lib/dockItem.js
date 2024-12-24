@@ -216,3 +216,14 @@ export const DockAppItem = GObject.registerClass(
     }
   },
 );
+
+export const PanelItem = GObject.registerClass(
+  class PanelItem extends DockItem {
+    _init(params = {}) {
+      super._init({
+        ...params,
+        css: 'panel-item',
+      });
+    }
+  },
+);

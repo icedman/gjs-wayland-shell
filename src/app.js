@@ -6,6 +6,8 @@ import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
 
+const SETTINGS_PATH = `${GLib.getenv('HOME')}/.config/gws/settings.json`;
+
 // load and init extensions
 async function loadModule(moduleName) {
   try {
@@ -20,7 +22,7 @@ async function loadModule(moduleName) {
 const App = GObject.registerClass(
   {
     Signals: {
-      loaded: {},
+      'modules-loaded': {},
       ready: {},
     },
   },
@@ -44,6 +46,20 @@ const App = GObject.registerClass(
     async init(main) {
       this.initTimers();
       this.loadCustomSettings();
+
+      const file = Gio.File.new_for_path(SETTINGS_PATH);
+      // Create a file monitor for the file
+      this.monitor = file.monitor(Gio.FileMonitorFlags.CHANGES_ONLY, null);
+
+      // Connect the callback to monitor the file for changes
+      this.monitor.connectObject(
+        'changed',
+        (monitor, file, otherFile, eventType) => {
+          if (eventType != Gio.FileMonitorEvent.CHANGED) return;
+          this.loadCustomSettings(true);
+        },
+        this,
+      );
 
       this.cssSources = [];
       this.modules = [
@@ -73,7 +89,7 @@ const App = GObject.registerClass(
       Promise.all(_loadExtensions)
         .then((res) => {
           this.loadStyleSheets();
-          this.emit('loaded');
+          this.emit('modules-loaded');
           this.enableModules();
           this.emit('ready');
         })
@@ -96,17 +112,27 @@ const App = GObject.registerClass(
       Main.loTimer.initialize(750);
     }
 
-    loadCustomSettings() {
+    loadCustomSettings(emit_update = false) {
+      let prevSettings = Main.userSettings ?? {};
       try {
-        let file_path = `${GLib.getenv('HOME')}/.config/gws/settings.json`;
-        let fn = Gio.File.new_for_path(file_path);
+        let fn = Gio.File.new_for_path(SETTINGS_PATH);
         if (fn.query_exists(null)) {
           const [success, contents] = fn.load_contents(null);
           const decoder = new TextDecoder();
           let contentsString = decoder.decode(contents);
           let json = JSON.parse(contentsString);
           Main.userSettings = json;
-          // console.log(Main.userSettings);
+
+          if (emit_update) {
+            Object.keys(Main.userSettings).forEach((k) => {
+              if (
+                JSON.stringify(Main.userSettings[k] ?? '') !=
+                JSON.stringify(prevSettings[k] ?? '')
+              ) {
+                Main.settings.emit(`changed::${k}`, null);
+              }
+            });
+          }
         }
       } catch (err) {
         console.log(err);

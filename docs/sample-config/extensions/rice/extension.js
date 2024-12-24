@@ -31,7 +31,7 @@ const Rice = GObject.registerClass(
     _enable() {
       super.enable();
 
-      this.dock = new Main.dock.DockPanel({
+      this.dock = new Main.imports.Dock.DockPanel({
         name: 'Dock',
         customSettings: {
           'dock-location': 1,
@@ -39,7 +39,9 @@ const Rice = GObject.registerClass(
         },
       });
       {
-        this.dockItem = new Main.dock.DockItem({ app: 'kitty.desktop' });
+        this.dockItem = new Main.imports.Dock.DockItem({
+          app: 'kitty.desktop',
+        });
         // this.dock.trail.append(this.dockItem);
         this.dock.center.append(this.dockItem);
         Main.extensions['dock-items'].createTrashItem(this.dock.center);
@@ -48,9 +50,9 @@ const Rice = GObject.registerClass(
 
       {
         // let center = new Gtk.Box();
-        // let dockItem = new Main.dock.DockItem({app:'kitty.desktop'});
+        // let dockItem = new Main.imports.Dock.DockItem({app:'kitty.desktop'});
         // center.append(dockItem);
-        // let panelItem = new Main.panel.PanelItem();
+        // let panelItem = new Main.imports.Dock.PanelItem();
         // panelItem.set_label('hellow');
         // center.append(panelItem);
         // Main.dock.lead.append(center);
@@ -59,14 +61,18 @@ const Rice = GObject.registerClass(
       // Main.dock.window.leadSpacer.visible = false;
 
       {
-        this.dockItem = new Main.dock.DockItem({ app: 'kitty.desktop' });
+        this.dockItem = new Main.imports.Dock.DockItem({
+          app: 'kitty.desktop',
+        });
         Main.dock.trail.append(this.dockItem);
         Main.dock.trail.add_css_class('icons-container');
       }
       // for(let i=0;i<8;i++)
       {
         Main.extensions['dock-items'].createRunningApps(Main.dock.lead);
-        this.dockItem = new Main.dock.DockItem({ app: 'kitty.desktop' });
+        this.dockItem = new Main.imports.Dock.DockItem({
+          app: 'kitty.desktop',
+        });
         Main.dock.lead.append(this.dockItem);
         Main.dock.lead.add_css_class('icons-container');
       }

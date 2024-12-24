@@ -4,7 +4,8 @@ import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
 import LayerShell from 'gi://Gtk4LayerShell';
-import { DockItem, DockAppItem } from './lib/dockItem.js';
+import { DockPanel } from './lib/dock.js';
+import { DockItem, DockAppItem, PanelItem } from './lib/dockItem.js';
 
 import App from './app.js';
 import Dock from './dock.js';
@@ -81,6 +82,12 @@ globalThis.Main = {
   imports: {
     Extension,
     LayerShell,
+    Dock: {
+      DockItem,
+      DockAppItem,
+      PanelItem,
+      DockPanel,
+    },
   },
 };
 

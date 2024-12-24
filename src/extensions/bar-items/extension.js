@@ -97,7 +97,7 @@ const BarItemsExtension = GObject.registerClass(
     }
 
     createLogo(config) {
-      let logo = new Main.panel.PanelItem();
+      let logo = Main.panel.create_panelitem();
       logo.add_css_class('logo');
       // logo.set_label(getOSName());
       // logo.set_label(getShorterOSName());
@@ -106,14 +106,14 @@ const BarItemsExtension = GObject.registerClass(
     }
 
     createHello() {
-      let item = new Main.panel.PanelItem();
+      let item = Main.panel.create_panelitem();
       item.set_label('Hello');
       return item;
     }
 
     createClock(config) {
       // this supports only one clock!
-      let clock = new Main.panel.PanelItem();
+      let clock = Main.panel.create_panelitem();
       clock.add_css_class('clock');
       clock.set_label('Clock');
       const updateClock = () => {
@@ -138,7 +138,7 @@ const BarItemsExtension = GObject.registerClass(
     }
 
     createNetworkIndicator(config) {
-      let network = new Main.panel.PanelItem();
+      let network = Main.panel.create_panelitem();
       network.add_css_class('network');
       network.set_label('network');
       Main.network.connectObject(
@@ -190,7 +190,7 @@ const BarItemsExtension = GObject.registerClass(
     }
 
     createPowerIndicator(config) {
-      let power = new Main.panel.PanelItem();
+      let power = Main.panel.create_panelitem();
       power.add_css_class('power');
       power.set_label('power');
 
@@ -242,7 +242,7 @@ const BarItemsExtension = GObject.registerClass(
     }
 
     createVolumeIndicator(config) {
-      let volume = new Main.panel.PanelItem();
+      let volume = Main.panel.create_panelitem();
       volume.add_css_class('volume');
       volume.set_label('volume');
 
@@ -322,7 +322,7 @@ const BarItemsExtension = GObject.registerClass(
     }
 
     createMicIndicator(config) {
-      let mic = new Main.panel.PanelItem();
+      let mic = Main.panel.create_panelitem();
       mic.add_css_class('mic');
       mic.set_label('mic');
       mic.onMicUpdate = (w, s) => {};
@@ -350,7 +350,7 @@ const BarItemsExtension = GObject.registerClass(
     }
 
     createBrightnessIndicator(config) {
-      let brightness = new Main.panel.PanelItem();
+      let brightness = Main.panel.create_panelitem();
       brightness.add_css_class('brightness');
       brightness.set_label('brightness');
 
@@ -421,7 +421,7 @@ const BarItemsExtension = GObject.registerClass(
     }
 
     createInhibitorIndicator(config) {
-      let inhibitor = new Main.panel.PanelItem();
+      let inhibitor = Main.panel.create_panelitem();
       inhibitor.add_css_class('inhibitor');
       inhibitor.set_label('inhibitor');
 

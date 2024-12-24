@@ -177,17 +177,17 @@ const Search = GObject.registerClass(
         );
       }
 
-      super.enable();
-
       this.load_settings();
       this.update_layout();
       this.update_style();
 
       Main.factory.registerProvider('search', this.createSearchIcon.bind(this));
+
+      super.enable();
     }
 
     createSearchIcon() {
-      let item = new Main.panel.PanelItem();
+      let item = Main.panel.create_panelitem();
       item.set_label('');
       item.set_icon('system-search-symbolic');
       item.on_click = () => {

@@ -7,19 +7,8 @@ import LayerShell from 'gi://Gtk4LayerShell';
 import { Extension } from './lib/extensionInterface.js';
 
 import { DockPanel } from './lib/dock.js';
-import { DockItem, DockAppItem } from './lib/dockItem.js';
+import { DockItem, DockAppItem, PanelItem } from './lib/dockItem.js';
 import { getIconInfo } from './lib/iconInfo.js';
-
-const PanelItem = GObject.registerClass(
-  class PanelItem extends DockItem {
-    _init(params = {}) {
-      super._init({
-        ...params,
-        css: 'panel-item',
-      });
-    }
-  },
-);
 
 const Panel = GObject.registerClass(
   class Panel extends Extension {
@@ -53,6 +42,7 @@ const Panel = GObject.registerClass(
 
       this.window.present();
       this.window.update_layout();
+
       super.enable();
     }
 
@@ -66,9 +56,11 @@ const Panel = GObject.registerClass(
       let p = new Panel(params);
       return p;
     }
+
+    create_panelitem() {
+      return new PanelItem();
+    }
   },
 );
-
-Panel.prototype.PanelItem = PanelItem;
 
 export default Panel;

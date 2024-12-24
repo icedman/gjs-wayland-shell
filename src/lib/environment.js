@@ -64,6 +64,9 @@ GObject.Object.prototype.load_settings = function (
   prefix,
 ) {
   settings = settings ?? this.settings;
+  if (settings) {
+    settings.disconnectObject(this);
+  }
   settingsMap = settingsMap ?? this.settingsMap ?? {};
   prefix = prefix ?? this.settingsPrefix ?? this.name?.toLowerCase() ?? '';
   Object.keys(settingsMap).forEach((k) => {

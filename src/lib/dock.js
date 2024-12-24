@@ -129,11 +129,7 @@ export const DockPanel = GObject.registerClass(
       });
       this.container.append(this.lead);
       this.container.append(this.leadSpacer);
-
       this.container.append(this.center);
-      // this.container.append(this.overlay);
-      // this.overlay.put(this.center, 0, 0);
-
       this.container.append(this.trailSpacer);
       this.container.append(this.trail);
 
@@ -185,12 +181,6 @@ export const DockPanel = GObject.registerClass(
         };
       }
 
-      this.load_settings();
-      this.update_layout();
-      this.update_style();
-      this.update_items();
-      this.update_dock_items();
-
       LayerShell.set_keyboard_mode(this, LayerShell.KeyboardMode.ON_DEMAND);
 
       const motionController = new Gtk.EventControllerMotion();
@@ -214,6 +204,9 @@ export const DockPanel = GObject.registerClass(
         },
         this,
       );
+
+      this.load_settings();
+      this.update();
     }
 
     destroy() {
@@ -244,6 +237,13 @@ export const DockPanel = GObject.registerClass(
         this._endAnimation();
         this._leave();
       }
+    }
+
+    async update() {
+      this.update_layout();
+      this.update_style();
+      this.update_items();
+      this.update_dock_items();
     }
 
     async update_layout() {
@@ -433,14 +433,6 @@ export const DockPanel = GObject.registerClass(
         styles.push(
           `#${windowName} #container .animated-container .button-adjacent-2 { ${marginLeft}: ${transforms[2].margin}px; ${marginRight}: ${transforms[2].margin}px; }`,
         );
-
-        // let ss = [
-        //   `#${windowName} #container .animate-adjust-left-1 { ${marginLeft}: ${baseMargin*4.0}px; }`,
-        //   `#${windowName} #container .animate-adjust-left-2 { ${marginLeft}: ${baseMargin*6.0}px; }`,
-        //   `#${windowName} #container .animate-adjust-right-1 { ${marginRight}: ${baseMargin*4.0}px; }`,
-        //   `#${windowName} #container .animate-adjust-right-2 { ${marginRight}: ${baseMargin*6.0}px; }`
-        // ];
-        // styles = [...styles, ...ss];
       } else {
         this.center.remove_css_class('animated-container');
       }
@@ -640,9 +632,6 @@ export const DockPanel = GObject.registerClass(
     }
 
     update_items() {
-      let items = this.get_icons();
-      let itemIds = items.map((i) => i.id);
-
       const areaMap = {
         lead: 'ITEMS_LEAD',
         center: 'ITEMS',
@@ -651,6 +640,10 @@ export const DockPanel = GObject.registerClass(
 
       try {
         Object.keys(areaMap).forEach((k) => {
+          let items = this.get_icons(null, this[k]);
+          let itemIds = items.map((i) => i.id);
+          let attachedIds = [];
+
           let source = this[areaMap[k]] ?? [];
           source.forEach((item, idx) => {
             if (typeof item == 'string') {
@@ -667,9 +660,17 @@ export const DockPanel = GObject.registerClass(
 
             let container = this[k];
             newItem.sort_order = idx;
+            attachedIds.push(newItem.id);
             container.append(newItem);
             newItem.show();
           });
+
+          // mismatched
+          // items.forEach((icon) => {
+          //   if (!attachedIds.includes(icon.id) && !attachedIds.includes(icon.creatorId)) {
+          //     icon.parent?.remove(icon);
+          //   }
+          // });
         });
       } catch (err) {
         console.log(err);

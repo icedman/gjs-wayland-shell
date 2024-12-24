@@ -135,6 +135,7 @@ const DockItemsExtension = GObject.registerClass(
           let btn = Main.dock.create_dockitem_from_appinfo(app);
           if (btn) {
             btn.id = appInfo.id;
+            btn.creatorId = config?.id;
             // console.log(`added ${btn.id}`);
             container.append(btn);
             btn.group = IconGroups.FAVORITE_APPS;
@@ -191,6 +192,7 @@ const DockItemsExtension = GObject.registerClass(
           let btn = Main.dock.create_dockitem_from_appinfo(appId);
           if (btn) {
             btn.id = appId;
+            btn.creatorId = config?.id;
             // console.log(`added ${btn.id}`);
             container.append(btn);
             btn.group = IconGroups.RUNNING_APPS;
@@ -239,8 +241,6 @@ const DockItemsExtension = GObject.registerClass(
       let item = new Gtk.Box({ visible: false }); // placeholder
 
       function update_mounted_volumes() {
-        console.log('update_mounted_volumes');
-
         let container = item.parent;
         let dock = item.root;
         if (!dock) return;
@@ -262,6 +262,7 @@ const DockItemsExtension = GObject.registerClass(
           let btn = Main.dock.create_dockitem_from_appinfo(appId);
           if (btn) {
             btn.id = appId;
+            btn.creatorId = config?.id;
             // console.log(`added ${btn.id}`);
             container.append(btn);
             btn.group = IconGroups.VOLUMES;
