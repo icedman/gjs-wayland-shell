@@ -14,6 +14,7 @@ import Search from './search.js';
 import ShellService from './shell.js';
 
 import Power from './services/power.js';
+import PowerProfiles from './services/powerProfiles.js';
 import Brightness from './services/brightness.js';
 import Inhibitor from './services/inhibitor.js';
 import Login1 from './services/login1.js';
@@ -53,6 +54,7 @@ globalThis.Main = {
   apps: new SystemApps(),
   dbus: new DBus(),
   power: new Power(),
+  powerProfiles: new PowerProfiles(),
   mounts: new Mounts(),
   brightness: new Brightness(),
   network: new Network(),

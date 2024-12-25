@@ -263,13 +263,17 @@ const Search = GObject.registerClass(
       if (!this.terms.length) return;
 
       this.providers.forEach(async (provider) => {
-        this.results[provider.id] = null;
-        let previousProviderResults = this.previousResults[provider.id];
-        this.previousResults[provider.id] = await this._doProviderSearch(
-          provider,
-          previousProviderResults,
-        );
-        this.updateResults();
+        try {
+          this.results[provider.id] = null;
+          let previousProviderResults = this.previousResults[provider.id];
+          this.previousResults[provider.id] = await this._doProviderSearch(
+            provider,
+            previousProviderResults,
+          );
+          this.updateResults();
+        } catch (err) {
+          console.log(err);
+        }
       });
 
       Main.apps

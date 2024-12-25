@@ -9,7 +9,7 @@ import { Extension } from '../lib/extensionInterface.js';
 const BUS_NAME = 'org.freedesktop.UPower';
 const OBJECT_PATH = '/org/freedesktop/UPower/devices/DisplayDevice';
 
-const DisplayDeviceInterface = `<node>
+const PowerDeviceInterface = `<node>
 	  <interface name="org.freedesktop.UPower.Device">
 	    <property name="Type" type="u" access="read"/>
 	    <property name="State" type="u" access="read"/>
@@ -31,15 +31,15 @@ const Power = GObject.registerClass(
   class Power extends Extension {
     _init(params) {
       super._init(params);
+      this.state = {};
     }
 
     async enable() {
       super.enable();
       this.state = {};
 
-      const PowerManagerProxy = Gio.DBusProxy.makeProxyWrapper(
-        DisplayDeviceInterface,
-      );
+      const PowerManagerProxy =
+        Gio.DBusProxy.makeProxyWrapper(PowerDeviceInterface);
 
       this.proxy = new PowerManagerProxy(
         Gio.DBus.system,

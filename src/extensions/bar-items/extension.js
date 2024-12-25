@@ -234,7 +234,15 @@ const BarItemsExtension = GObject.registerClass(
       menu.child.append(widget);
 
       power.on_click = (count, btn) => {
-        let state = { ...(Main.power.state ?? {}) };
+        let state = {
+          ...(Main.power.state ?? {}),
+          profile: Main.powerProfiles.state ?? {},
+        };
+        if (state && state.profile && btn == 3) {
+          i.set_label(state.profile.name ?? '???')
+          menu.popup();
+          return;
+        }
         if (state && state.fillLevel) {
           let fmt = config.formatAlt;
           if (state.timeToFull) {
@@ -253,23 +261,38 @@ const BarItemsExtension = GObject.registerClass(
         }
       };
 
+      function update_power() {
+        let state = {
+          ...(Main.power.state ?? {}),
+          profile: Main.powerProfiles.state ?? {},
+        };
+        let text = formatPowerToString(state, config.format, config);
+        if (text == '') {
+          power.set_label(``);
+        } else {
+          power.set_label(text);
+        }
+        power.set_icon(state.icon);
+        i.set_child(null);
+      }
+
       Main.power.connectObject(
         'power-update',
         () => {
-          let state = Main.power.state;
-          let text = formatPowerToString(state, config.format, config);
-          if (text == '') {
-            power.set_label(``);
-          } else {
-            power.set_label(text);
-          }
-          power.set_icon(state.icon);
-          i.set_child(null);
+          update_power();
+        },
+        power,
+      );
+      Main.powerProfiles.connectObject(
+        'power-profiles-update',
+        () => {
+          update_power();
         },
         power,
       );
       power.connect('destroy', () => {
         Main.power.disconnectObject(power);
+        Main.powerProfiles.disconnectObject(power);
       });
       Main.power.sync();
       return power;
