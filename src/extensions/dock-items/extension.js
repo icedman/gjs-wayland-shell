@@ -177,6 +177,7 @@ const DockItemsExtension = GObject.registerClass(
         let favoriteIcons = dock.get_icons(IconGroups.FAVORITE_APPS, container);
         let currentIconIds = currentIcons.map((icon) => icon.id);
         let favoriteIconsIds = favoriteIcons.map((icon) => icon.id);
+        let newIconIds = [];
 
         let windows = Main.shell.windows ?? [];
         let appIds = [];
@@ -190,7 +191,8 @@ const DockItemsExtension = GObject.registerClass(
 
           if (
             currentIconIds.includes(appId) ||
-            favoriteIconsIds.includes(appId)
+            favoriteIconsIds.includes(appId) ||
+            newIconIds.includes(appId)
           ) {
             return;
           }
@@ -200,6 +202,7 @@ const DockItemsExtension = GObject.registerClass(
             btn.id = appId;
             btn.owner = item;
             item.icons.push(btn);
+            newIconIds.push(appId);
             // console.log(`added ${btn.id}`);
             container.append(btn);
             btn.group = IconGroups.RUNNING_APPS;

@@ -239,7 +239,7 @@ const BarItemsExtension = GObject.registerClass(
           profile: Main.powerProfiles.state ?? {},
         };
         if (state && state.profile && btn == 3) {
-          i.set_label(state.profile.name ?? '???')
+          i.set_label(state.profile.name ?? '???');
           menu.popup();
           return;
         }

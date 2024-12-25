@@ -101,7 +101,7 @@ const HyprShell = GObject.registerClass(
       if (!connection) {
         return;
       }
-      let message = `[j]/dispatch focuswindow ${window['app_id']}`;
+      let message = `[j]/dispatch focuswindow address:${window['address']}`;
       await sendMessage(connection, message);
       let response = await receiveMessage(connection);
       this.disconnect(connection);

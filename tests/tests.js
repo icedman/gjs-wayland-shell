@@ -24,14 +24,17 @@ function test_shell() {
     console.log('--------------------------');
     console.log(s.currentWindows());
   });
-  s.connectObject('window-focused', () => {
+  s.connectObject('window-focused', (w) => {
     console.log('focused...');
+    console.log(w);
   });
-  s.connectObject('window-opened', () => {
+  s.connectObject('window-opened', (w) => {
     console.log('opened...');
+    console.log(w);
   });
-  s.connectObject('window-closed', () => {
+  s.connectObject('window-closed', (w) => {
     console.log('closed...');
+    console.log(w);
   });
 
   s.listen();
