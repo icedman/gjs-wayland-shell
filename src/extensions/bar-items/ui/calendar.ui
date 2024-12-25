@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <object class="GtkBox">
+    <child>
+      <object class="GtkCalendar" id="calendar-widget">
+      </object>
+    </child>
+  </object>
+</interface>

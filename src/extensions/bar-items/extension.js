@@ -154,6 +154,21 @@ const BarItemsExtension = GObject.registerClass(
       );
       updateClock();
 
+      let builder = new Gtk.Builder();
+      builder.add_from_file(`${this.path}/ui/calendar.ui`);
+      let widget = builder.get_object('calendar-widget');
+      widget.add_css_class('calendar-widget');
+      widget.parent?.remove(widget);
+
+      let menu = clock.menu;
+      menu.has_arrow = true;
+
+      menu.child.append(widget);
+
+      clock.on_click = () => {
+        menu.popup();
+      };
+
       clock.connect('destroy', () => {
         if (clock.clockTimer) {
           Main.timer.cancel(clock.clockTimer);
@@ -182,9 +197,6 @@ const BarItemsExtension = GObject.registerClass(
       let menu = network.menu;
       menu.has_arrow = true;
 
-      // let w = new Gtk.Label();
-      // menu.child.append(w);
-      // network.append(menu);
       let builder = new Gtk.Builder();
       builder.add_from_file(`${this.path}/ui/network.ui`);
 
@@ -192,7 +204,7 @@ const BarItemsExtension = GObject.registerClass(
       let i = builder.get_object('network-icon');
       let l = builder.get_object('network-label');
       l.set_size_request(40, -1);
-      widget.parent.remove(widget);
+      widget.parent?.remove(widget);
       menu.child.append(widget);
       network.menu = menu;
       // network.append(menu);
