@@ -16,9 +16,9 @@ function getModifierStates(w) {
     const display = surface?.get_display() ?? Gdk.Display.get_default();
     const seat = display?.get_default_seat();
     const keyboard = seat?.get_keyboard();
-    console.log(seat);
-    console.log(keyboard);
-    console.log(keyboard?.modifier_state);
+    // console.log(seat);
+    // console.log(keyboard);
+    // console.log(keyboard?.modifier_state);
 
     return {
       ctrl:

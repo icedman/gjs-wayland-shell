@@ -466,7 +466,7 @@ export const DockPanel = GObject.registerClass(
       }
 
       try {
-        console.log(styles);
+        // console.log(styles);
         this.style.buildCss(`${this.stylePrefix}-style`, styles);
       } catch (err) {
         console.log(err);
@@ -651,8 +651,12 @@ export const DockPanel = GObject.registerClass(
                 id: item,
               };
             }
-            if (itemIds.includes(item.id)) return;
-            let newItem = Main.factory.create(item.id, {
+
+            attachedIds.push(item.id);
+            if (itemIds.includes(item.id)) {
+              return;
+            }
+            let newItem = Main.factory.create(item.widget ?? item.id, {
               css: `${this.name.toLowerCase()}-item`,
               ...item,
             });
@@ -660,17 +664,21 @@ export const DockPanel = GObject.registerClass(
 
             let container = this[k];
             newItem.sort_order = idx;
-            attachedIds.push(newItem.id);
             container.append(newItem);
             newItem.show();
           });
 
-          // mismatched
-          // items.forEach((icon) => {
-          //   if (!attachedIds.includes(icon.id) && !attachedIds.includes(icon.creatorId)) {
-          //     icon.parent?.remove(icon);
-          //   }
-          // });
+          // remove unconfigured items
+          if (attachedIds.length) {
+            items.forEach((icon) => {
+              if (
+                (!icon.owner && !attachedIds.includes(icon.id)) ||
+                (icon.owner && !attachedIds.includes(icon.owner.id))
+              ) {
+                icon.parent?.remove(icon);
+              }
+            });
+          }
         });
       } catch (err) {
         console.log(err);

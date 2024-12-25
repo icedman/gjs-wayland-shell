@@ -126,6 +126,8 @@ const DockItemsExtension = GObject.registerClass(
         let currentIcons = dock.get_icons(IconGroups.FAVORITE_APPS, container);
         let currentIconIds = currentIcons.map((icon) => icon.id);
 
+        item.icons = [];
+
         for (let i = 0; i < item.favorite_apps.length; i++) {
           let app = item.favorite_apps[i];
           let appInfo = getAppInfo(app);
@@ -135,7 +137,8 @@ const DockItemsExtension = GObject.registerClass(
           let btn = Main.dock.create_dockitem_from_appinfo(app);
           if (btn) {
             btn.id = appInfo.id;
-            btn.creatorId = config?.id;
+            btn.owner = item;
+            item.icons.push(btn);
             // console.log(`added ${btn.id}`);
             container.append(btn);
             btn.group = IconGroups.FAVORITE_APPS;
@@ -163,6 +166,7 @@ const DockItemsExtension = GObject.registerClass(
 
     createRunningApps(config) {
       let item = new Gtk.Box({ visible: false }); // placeholder
+      item.id = config.id;
 
       function update_running_apps() {
         let container = item.parent;
@@ -176,6 +180,8 @@ const DockItemsExtension = GObject.registerClass(
 
         let windows = Main.shell.windows ?? [];
         let appIds = [];
+        item.icons = [];
+
         windows.forEach((w) => {
           if (!w.app_id) return;
 
@@ -192,7 +198,8 @@ const DockItemsExtension = GObject.registerClass(
           let btn = Main.dock.create_dockitem_from_appinfo(appId);
           if (btn) {
             btn.id = appId;
-            btn.creatorId = config?.id;
+            btn.owner = item;
+            item.icons.push(btn);
             // console.log(`added ${btn.id}`);
             container.append(btn);
             btn.group = IconGroups.RUNNING_APPS;
@@ -250,6 +257,8 @@ const DockItemsExtension = GObject.registerClass(
 
         let mount_ids = Main.mounts.state?.mount_ids ?? [];
         let appIds = [];
+        item.icons = [];
+
         mount_ids.forEach((m) => {
           let appInfo = getAppInfo(m);
           let appId = appInfo.id;
@@ -262,7 +271,8 @@ const DockItemsExtension = GObject.registerClass(
           let btn = Main.dock.create_dockitem_from_appinfo(appId);
           if (btn) {
             btn.id = appId;
-            btn.creatorId = config?.id;
+            btn.owner = item;
+            item.icons.push(btn);
             // console.log(`added ${btn.id}`);
             container.append(btn);
             btn.group = IconGroups.VOLUMES;

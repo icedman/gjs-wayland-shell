@@ -132,6 +132,11 @@ const App = GObject.registerClass(
                 Main.settings.emit(`changed::${k}`, null);
               }
             });
+            Object.keys(prevSettings).forEach((k) => {
+              if (!Main.userSettings[k]) {
+                Main.settings.emit(`changed::${k}`, null);
+              }
+            });
           }
         }
       } catch (err) {

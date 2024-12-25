@@ -7,7 +7,7 @@ import { Extension } from '../../lib/extensionInterface.js';
 import { PopupMenu } from '../../lib/popupMenu.js';
 import { IconGroups } from '../../lib/dock.js';
 
-function getOSIcon() {
+function getOSIcon(config = {}) {
   let icons = [
     'archlinux',
     'fedora',
@@ -17,6 +17,7 @@ function getOSIcon() {
     'kalilinux',
     'manjaro',
     'zorin',
+    ...(config.icons ?? []),
   ];
   let os = getShorterOSName().toLowerCase();
   for (let i = 0; i < icons.length; i++) {
@@ -43,21 +44,49 @@ function getShorterOSName() {
   return getOSName().split('(')[0].trim();
 }
 
-function formatDate(date) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0'); // Get month (0-11), add 1 and pad with leading zero
-  const day = String(date.getDate()).padStart(2, '0'); // Get day and pad with leading zero
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-  return `${year}-${month}-${day} ${hours}:${minutes}`;
+function formatDate(date, fmt = '%Y/%m/%d %H:%M') {
+  const components = {
+    '%Y': date.getFullYear(), // Full year
+    '%y': String(date.getFullYear()).slice(-2), // Last two digits of year
+    '%m': String(date.getMonth() + 1).padStart(2, '0'), // Month (01-12)
+    '%d': String(date.getDate()).padStart(2, '0'), // Day of the month (01-31)
+    '%H': String(date.getHours()).padStart(2, '0'), // Hour (00-23)
+    '%I': String(date.getHours() % 12 || 12).padStart(2, '0'), // Hour (01-12)
+    '%M': String(date.getMinutes()).padStart(2, '0'), // Minutes (00-59)
+    '%S': String(date.getSeconds()).padStart(2, '0'), // Seconds (00-59)
+    '%p': date.getHours() < 12 ? 'AM' : 'PM', // AM/PM
+  };
+  return fmt.replace(/%[YymdHIMSip]/g, (match) => components[match] || match);
 }
 
-function formatTimeToString(seconds) {
+function formatTimeToString(seconds, fmt = '%H:%M') {
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
   const remainingSeconds = seconds % 60;
+  const components = {
+    '%H': `${hours}`.padStart(2, '0'),
+    '%M': `${minutes}`.padStart(2, '0'),
+    '%S': `${remainingSeconds}`.padStart(2, '0'),
+  };
+  return fmt.replace(/%[HMS]/g, (match) => components[match] || match);
+}
 
-  return `${hours}h ${minutes}m`;
+function formatPowerToString(state, fmt = '%H:%M', config) {
+  const components = {
+    '%P': state.fillLevel,
+  };
+
+  // "formatAlt": "%level %remaining",
+  // "formatToEmpty": "%R battery remaining",
+  // "formatToFull": "%R left charging time"
+
+  if (state.timeToEmpty) {
+    fmt = formatTimeToString(state.timeToEmpty, fmt);
+  }
+  if (state.timeToFull) {
+    fmt = formatTimeToString(state.timeToFull, fmt);
+  }
+  return fmt.replace(/%[P]/g, (match) => components[match] || match);
 }
 
 const BarItemsExtension = GObject.registerClass(
@@ -70,7 +99,6 @@ const BarItemsExtension = GObject.registerClass(
 
     enable() {
       Main.factory.registerProvider('logo', this.createLogo.bind(this));
-      Main.factory.registerProvider('hello', this.createHello.bind(this));
       Main.factory.registerProvider('clock', this.createClock.bind(this));
       Main.factory.registerProvider(
         'network',
@@ -99,16 +127,14 @@ const BarItemsExtension = GObject.registerClass(
     createLogo(config) {
       let logo = Main.panel.create_panelitem();
       logo.add_css_class('logo');
-      // logo.set_label(getOSName());
-      // logo.set_label(getShorterOSName());
-      logo.set_icon(getOSIcon());
+      if (config.showOSName) {
+        logo.set_label(getOSName());
+      }
+      if (config.showShortOSName) {
+        logo.set_label(getShorterOSName());
+      }
+      logo.set_icon(config.hideIcon ? '' : getOSIcon(config));
       return logo;
-    }
-
-    createHello() {
-      let item = Main.panel.create_panelitem();
-      item.set_label('Hello');
-      return item;
     }
 
     createClock(config) {
@@ -118,7 +144,7 @@ const BarItemsExtension = GObject.registerClass(
       clock.set_label('Clock');
       const updateClock = () => {
         let d = new Date();
-        let dt = formatDate(new Date());
+        let dt = formatDate(new Date(), config.format);
         clock.set_label(dt);
       };
       clock.clockTimer = Main.timer.runLoop(
@@ -208,28 +234,36 @@ const BarItemsExtension = GObject.registerClass(
       menu.child.append(widget);
 
       power.on_click = (count, btn) => {
-        let state = Main.power.state;
-        if (state?.fillLevel) {
-          let timeTo = '';
+        let state = { ...(Main.power.state ?? {}) };
+        if (state && state.fillLevel) {
+          let fmt = config.formatAlt;
           if (state.timeToFull) {
-            timeTo = `${formatTimeToString(state.timeToFull)} to full`;
-          } else if (state.timeToEmpty) {
-            timeTo = `${formatTimeToString(state.timeToEmpty)} to empty`;
+            fmt = config.formatAltToFull;
           }
-          i.set_label(`${state.fillLevel}% ${state.chargingState} ${timeTo}`);
+          if (state.timeToEmpty) {
+            fmt = config.formatAltToEmpty;
+          }
+          if (!fmt) {
+            fmt = config.format;
+          }
+          let text = formatPowerToString(state, fmt, config).trim();
+          if (text == '') return;
+          i.set_label(text);
+          menu.popup();
         }
-        menu.popup();
       };
 
       Main.power.connectObject(
         'power-update',
         () => {
           let state = Main.power.state;
-          // power.set_label(`${state.fillLevel}%`);
-          power.set_label(``);
+          let text = formatPowerToString(state, config.format, config);
+          if (text == '') {
+            power.set_label(``);
+          } else {
+            power.set_label(text);
+          }
           power.set_icon(state.icon);
-          // i.child?.set_from_icon_name(state.icon);
-          // i.child.visible = false;
           i.set_child(null);
         },
         power,
@@ -266,7 +300,7 @@ const BarItemsExtension = GObject.registerClass(
         menu.popup();
       };
 
-      let updateVolume = () => {
+      let setVolume = () => {
         volume._debounceVolume = Main.loTimer.debounce(
           Main.loTimer,
           () => {
@@ -279,7 +313,7 @@ const BarItemsExtension = GObject.registerClass(
       };
 
       w.connect('value-changed', (w) => {
-        updateVolume();
+        setVolume();
       });
       t.connect('clicked', (t) => {
         let stream = Main.volume._stream;
@@ -299,6 +333,7 @@ const BarItemsExtension = GObject.registerClass(
           let state = Main.volume.state;
           volume.set_label(``);
           volume.set_icon(state.icon);
+
           t.set_icon_name(state.icon);
           w.set_value(state.level / 100);
           l.set_label(`${Math.floor(state.level)}%`);
@@ -373,7 +408,7 @@ const BarItemsExtension = GObject.registerClass(
         menu.popup();
       };
 
-      let updateBrightness = () => {
+      let setBrightness = () => {
         brightness._debounceBrightness = Main.loTimer.debounce(
           Main.loTimer,
           () => {
@@ -392,7 +427,7 @@ const BarItemsExtension = GObject.registerClass(
       };
 
       w.connect('value-changed', (w) => {
-        updateBrightness();
+        setBrightness();
       });
 
       Main.brightness.connectObject(
