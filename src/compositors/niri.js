@@ -182,6 +182,18 @@ const NiriShell = GObject.registerClass(
       }
       return Promise.resolve(obj);
     }
+
+    async exit() {
+      let connection = this.connect();
+      if (!connection) {
+        return;
+      }
+      let message =
+        JSON.stringify({ Action: { Quit: { skip_confirmation: false } } }) +
+        '\n';
+      await sendMessage(connection, message);
+      return Promise.resolve(true);
+    }
   },
 );
 

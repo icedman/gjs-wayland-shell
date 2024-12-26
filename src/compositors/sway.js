@@ -214,6 +214,17 @@ const SwayShell = GObject.registerClass(
       let obj = JSON.parse(response);
       return Promise.resolve(obj);
     }
+
+    async exit() {
+      let connection = this.connect();
+      if (!connection) {
+        return;
+      }
+
+      let message = `exit`;
+      await sendI3Message(connection, 0, message);
+      return Promise.resolve(true);
+    }
   },
 );
 

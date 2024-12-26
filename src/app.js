@@ -65,6 +65,9 @@ const App = GObject.registerClass(
       this.modules = [
         Main.shell,
         Main.dbus,
+        Main.dock,
+        Main.panel,
+
         Main.power,
         Main.powerProfiles,
         Main.network,
@@ -75,11 +78,12 @@ const App = GObject.registerClass(
         Main.brightness,
         Main.inhibitor,
         Main.login1,
-        Main.dock,
-        Main.panel,
+
         Main.apps,
         Main.search,
         Main.appsGrid,
+
+        Main.stats,
       ];
 
       let _loadExtensions = [

@@ -135,6 +135,18 @@ const HyprShell = GObject.registerClass(
       };
       return Promise.resolve(obj);
     }
+
+    async exit() {
+      let connection = this.connect();
+      if (!connection) {
+        return;
+      }
+      let message = `[j]/dispatch exit`;
+      let response = await sendMessage(connection, message);
+      this.disconnect(connection);
+
+      return Promise.resolve(true);
+    }
   },
 );
 

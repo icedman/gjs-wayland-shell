@@ -189,7 +189,7 @@ const WindowManagerInterface = GObject.registerClass(
             this.onWindowsUpdated(m);
             break;
           default:
-            console.log(m);
+            this._log(m);
             break;
         }
       });
@@ -328,6 +328,8 @@ const WindowManagerInterface = GObject.registerClass(
 
       return windows;
     }
+
+    exit() {}
   },
 );
 

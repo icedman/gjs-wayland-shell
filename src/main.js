@@ -26,6 +26,7 @@ import Trash from './services/trash.js';
 import Style from './services/style.js';
 import DBus from './services/dbus.js';
 import SystemApps from './services/systemApps.js';
+import SystemStats from './services/systemStats.js';
 import Timer from './lib/timer.js';
 import Factory from './lib/factory.js';
 
@@ -55,6 +56,8 @@ globalThis.Main = {
   shell: new WindowManagerService(),
   apps: new SystemApps(),
   dbus: new DBus(),
+
+  // indicators
   power: new Power(),
   powerProfiles: new PowerProfiles(),
   mounts: new Mounts(),
@@ -65,6 +68,10 @@ globalThis.Main = {
   trash: new Trash(),
   inhibitor: new Inhibitor(),
   login1: new Login1(),
+
+  // stats
+  stats: new SystemStats(),
+
   style: new Style({
     initialStyles: [
       { name: 'app', path: './style.css' },

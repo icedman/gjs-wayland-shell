@@ -121,6 +121,14 @@ const BarItemsExtension = GObject.registerClass(
         'inhibitor',
         this.createInhibitorIndicator.bind(this),
       );
+      Main.factory.registerProvider(
+        'cpu-stats',
+        this.createCpuStats.bind(this),
+      );
+      Main.factory.registerProvider(
+        'memory-stats',
+        this.createMemoryStats.bind(this),
+      );
       super.enable();
     }
 
@@ -517,6 +525,66 @@ const BarItemsExtension = GObject.registerClass(
         inhibitorSevice.disconnectObject(inhibitor);
       });
       return inhibitor;
+    }
+
+    createCpuStats(config) {
+      let cpuStats = Main.panel.create_panelitem();
+      cpuStats.add_css_class('cpu-stats');
+      cpuStats.set_label('cpu-stats');
+
+      let statsService = Main.stats;
+
+      statsService.connectObject(
+        'stats-cpu-update',
+        () => {
+          let state = statsService.state.cpu ?? [];
+          cpuStats.set_icon('cpu-alt-symbolic');
+          if (state[0]) {
+            console.log(state[0]);
+            let usage = Math.round(state[0]['usage'] * 100) / 100;
+            cpuStats.set_label(`${usage}%`);
+          }
+        },
+        cpuStats,
+      );
+      statsService.sync();
+
+      cpuStats.on_click = () => {};
+
+      cpuStats.connect('destroy', () => {
+        statsService.disconnectObject(cpuStats);
+      });
+      return cpuStats;
+    }
+
+    createMemoryStats(config) {
+      let memoryStats = Main.panel.create_panelitem();
+      memoryStats.add_css_class('memory-stats');
+      memoryStats.set_label('memory-stats');
+
+      let statsService = Main.stats;
+
+      statsService.connectObject(
+        'stats-memory-update',
+        () => {
+          let state = statsService.state.memory ?? {};
+          if (state['total'] && state['total'] > 0) {
+            let usage = state['total'] - state['free'];
+            let percent = Math.round((usage / state['total']) * 100) / 100;
+            memoryStats.set_icon('memory-symbolic');
+            memoryStats.set_label(`${percent}%`);
+          }
+        },
+        memoryStats,
+      );
+      statsService.sync();
+
+      memoryStats.on_click = () => {};
+
+      memoryStats.connect('destroy', () => {
+        statsService.disconnectObject(memoryStats);
+      });
+      return memoryStats;
     }
 
     disable() {
