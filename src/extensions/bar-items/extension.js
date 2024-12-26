@@ -129,6 +129,10 @@ const BarItemsExtension = GObject.registerClass(
         'memory-stats',
         this.createMemoryStats.bind(this),
       );
+      Main.factory.registerProvider(
+        'disk-stats',
+        this.createDiskStats.bind(this),
+      );
       super.enable();
     }
 
@@ -540,7 +544,6 @@ const BarItemsExtension = GObject.registerClass(
           let state = statsService.state.cpu ?? [];
           cpuStats.set_icon('cpu-alt-symbolic');
           if (state[0]) {
-            console.log(state[0]);
             let usage = Math.round(state[0]['usage'] * 100) / 100;
             cpuStats.set_label(`${usage}%`);
           }
@@ -585,6 +588,45 @@ const BarItemsExtension = GObject.registerClass(
         statsService.disconnectObject(memoryStats);
       });
       return memoryStats;
+    }
+
+    createDiskStats(config) {
+      let diskStats = Main.panel.create_panelitem();
+      diskStats.add_css_class('disk-stats');
+      diskStats.set_label('disk-stats');
+
+      let statsService = Main.stats;
+
+      statsService.connectObject(
+        'stats-disk-update',
+        () => {
+
+          let state = statsService.state.disk ?? {};
+      // [
+      //     "Filesystem",
+      //     "Size",
+      //     "Used",
+      //     "Avail",
+      //     "Use%",
+      //     "Mounted",
+      //     "on"
+      // ]
+          console.log(state);
+          if (state['Mounted']) {
+            diskStats.set_icon('hard-disk-symbolic');
+            diskStats.set_label(`${state['Mounted']} ${state['Used']}/${state['Size']} ${state['Use%']}`);
+          }
+        },
+        diskStats,
+      );
+      statsService.sync();
+
+      diskStats.on_click = () => {};
+
+      diskStats.connect('destroy', () => {
+        statsService.disconnectObject(diskStats);
+      });
+      return diskStats;
     }
 
     disable() {
