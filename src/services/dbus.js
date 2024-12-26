@@ -12,6 +12,7 @@ const DBusServiceInterface = `
 <node>
   <interface name="${BUS_NAME}">
     <method name="show_search"/>
+    <method name="show_apps"/>
     <method name="show_console"/>
     <method name="key_down">
       <arg name="application_name" type="s" direction="in"/>
@@ -26,6 +27,7 @@ const DBusServiceInterface = `
 const DBus = GObject.registerClass(
   {
     Signals: {
+      'request-apps': {},
       'request-search': {},
       'request-console': {},
     },
@@ -68,6 +70,10 @@ const DBus = GObject.registerClass(
         this.dbus = null;
       }
       super.disable();
+    }
+
+    show_search() {
+      this.emit('request-apps');
     }
 
     show_search() {

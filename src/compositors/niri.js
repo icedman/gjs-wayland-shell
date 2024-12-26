@@ -1,6 +1,6 @@
 import Gio from 'gi://Gio';
 import GObject from 'gi://GObject';
-import { ShellInterface } from './shellInterface.js';
+import { WindowManagerInterface } from './wmInterface.js';
 
 import {
   connectToSocket,
@@ -11,7 +11,7 @@ import {
 } from '../lib/ipc.js';
 
 const NiriShell = GObject.registerClass(
-  class NiriShell extends ShellInterface {
+  class NiriShell extends WindowManagerInterface {
     _init() {
       super._init();
       this.name = 'NIRI';

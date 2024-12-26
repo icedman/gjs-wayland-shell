@@ -1,7 +1,7 @@
 import Gio from 'gi://Gio';
 import GObject from 'gi://GObject';
 import GLib from 'gi://GLib';
-import { ShellInterface } from './shellInterface.js';
+import { WindowManagerInterface } from './wmInterface.js';
 
 import {
   connectToSocket,
@@ -16,7 +16,7 @@ import {
 } from '../lib/ipc.js';
 
 const SwayShell = GObject.registerClass(
-  class SwayShell extends ShellInterface {
+  class SwayShell extends WindowManagerInterface {
     _init() {
       super._init();
       this.name = 'SWAY';

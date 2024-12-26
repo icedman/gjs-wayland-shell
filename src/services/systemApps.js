@@ -43,52 +43,32 @@ const SystemApps = GObject.registerClass(
     }
 
     async collectApps() {
+      this.apps = Gio.app_info_get_all();
       if (this._search) {
-        this._search.refresh();
-      } else {
-        this.apps = Gio.app_info_get_all();
+        this._search.refresh(this.apps);
       }
     }
 
-    async watchAppDirs() {
-      // use appInfoMonitor? ... this is expensive?
+    async findAppDirs() {
       let dataDirs = GLib.get_system_data_dirs();
       dataDirs.unshift(GLib.get_user_data_dir());
 
-      //   this.monitored = [];
+      this.appDirs = [];
       for (let i = 0; i < dataDirs.length; i++) {
         let path = GLib.build_filenamev([dataDirs[i], 'applications']);
-        console.log(path);
-        //     let dir = Gio.File.new_for_path(path);
-        //     let watched = dir.monitor_directory(
-        //       Gio.FileMonitorFlags.WATCH_MOVES,
-        //       null,
-        //     );
-        //     watched.connectObject(
-        //       'changed',
-        //       (fileMonitor, file, otherFile, eventType) => {
-        //         this.collectApps();
-        //       },
-        //       this,
-        //     );
-        //     this.monitored.push(dataDirs);
+        this.appDirs.push(path);
       }
-    }
 
-    // unwatchAppDirs() {
-    //   if (this.monitored) {
-    //     this.monitored.forEach((m) => {
-    //       m.disconnectObject(this);
-    //     });
-    //     this.monitored = null;
-    //   }
-    // }
+      return this.appDirs;
+    }
 
     async enable() {
       super.enable();
       this._search = new Search();
 
-      this.watchAppDirs();
+      // debug only
+      // this.findAppDirs();
+
       this.monitor = Gio.AppInfoMonitor.get();
       this.monitor.connectObject('changed', this.collectApps.bind(this), this);
 
@@ -97,7 +77,7 @@ const SystemApps = GObject.registerClass(
 
     disable() {
       super.disable();
-      // this.unwatchAppDirs();
+      this.unwatchAppDirs();
       if (this.monitor) {
         this.monitor.disconnectObject(this);
         this.monitor = null;

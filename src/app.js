@@ -73,12 +73,13 @@ const App = GObject.registerClass(
         Main.mic,
         Main.trash,
         Main.brightness,
-        Main.panel,
         Main.inhibitor,
         Main.login1,
         Main.dock,
+        Main.panel,
         Main.apps,
         Main.search,
+        Main.appsGrid,
       ];
 
       let _loadExtensions = [

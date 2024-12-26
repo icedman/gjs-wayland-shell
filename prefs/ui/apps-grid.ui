@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <object class="AdwPreferencesPage" id="search">
+  <object class="AdwPreferencesPage" id="apps-grid">
     <property name="name">appearance</property>
-    <property name="title" translatable="yes">Search</property>
+    <property name="title" translatable="yes">Apps Grid</property>
     <property name="icon-name">overview-symbolic</property>
     <child>
       <object class="AdwPreferencesGroup">
-        <property name="title" translatable="yes">Search</property>
+        <property name="title" translatable="yes">Apps</property>
         <property name="description" translatable="yes"/>
         <child>
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Width</property>
             <property name="subtitle" translatable="yes">Set window width rescale.</property>
-            <property name="activatable-widget">search-scale-width</property>
+            <property name="activatable-widget">apps-grid-scale-width</property>
             <child>
-              <object class="GtkScale" id="search-scale-width">
+              <object class="GtkScale" id="apps-grid-scale-width">
                 <property name="valign">center</property>
                 <property name="hexpand">true</property>
                 <property name="width-request">140px</property>
@@ -22,7 +22,7 @@
                 <property name="value-pos">right</property>
                 <property name="orientation">horizontal</property>
                 <property name="digits">2</property>
-                <property name="adjustment">search-scale-width-adjust</property>
+                <property name="adjustment">apps-grid-scale-width-adjust</property>
               </object>
             </child>
           </object>
@@ -31,9 +31,9 @@
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Height</property>
             <property name="subtitle" translatable="yes">Set window height rescale.</property>
-            <property name="activatable-widget">search-scale-height</property>
+            <property name="activatable-widget">apps-grid-scale-height</property>
             <child>
-              <object class="GtkScale" id="search-scale-height">
+              <object class="GtkScale" id="apps-grid-scale-height">
                 <property name="valign">center</property>
                 <property name="hexpand">true</property>
                 <property name="width-request">140px</property>
@@ -41,7 +41,7 @@
                 <property name="value-pos">right</property>
                 <property name="orientation">horizontal</property>
                 <property name="digits">2</property>
-                <property name="adjustment">search-scale-height-adjust</property>
+                <property name="adjustment">apps-grid-scale-height-adjust</property>
               </object>
             </child>
           </object>
@@ -50,9 +50,9 @@
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Border Thickness</property>
             <property name="subtitle" translatable="yes">Set border thickness.</property>
-            <property name="activatable-widget">search-border-thickness</property>
+            <property name="activatable-widget">apps-grid-border-thickness</property>
             <child>
-              <object class="GtkDropDown" id="search-border-thickness">
+              <object class="GtkDropDown" id="apps-grid-border-thickness">
                 <property name="valign">center</property>
                 <property name="model">border-thickness-model</property>
               </object>
@@ -63,9 +63,9 @@
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Border Radius</property>
             <property name="subtitle" translatable="yes">Set window border radius.</property>
-            <property name="activatable-widget">search-border-radius</property>
+            <property name="activatable-widget">apps-grid-border-radius</property>
             <child>
-              <object class="GtkScale" id="search-border-radius">
+              <object class="GtkScale" id="apps-grid-border-radius">
                 <property name="valign">center</property>
                 <property name="hexpand">true</property>
                 <property name="width-request">140px</property>
@@ -73,7 +73,7 @@
                 <property name="value-pos">right</property>
                 <property name="orientation">horizontal</property>
                 <property name="digits">0</property>
-                <property name="adjustment">search-border-radius-adjust</property>
+                <property name="adjustment">apps-grid-border-radius-adjust</property>
               </object>
             </child>
           </object>
@@ -82,9 +82,9 @@
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Border Color</property>
             <property name="subtitle" translatable="yes">Select border color.</property>
-            <property name="activatable-widget">search-border-color</property>
+            <property name="activatable-widget">apps-grid-border-color</property>
             <child>
-              <object class="GtkColorButton" id="search-border-color">
+              <object class="GtkColorButton" id="apps-grid-border-color">
                 <property name="valign">center</property>
                 <property name="hexpand">false</property>
                 <property name="width-request">70px</property>
@@ -99,9 +99,9 @@
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Background Color</property>
             <property name="subtitle" translatable="yes">Set search window background color.</property>
-            <property name="activatable-widget">search-background-color</property>
+            <property name="activatable-widget">apps-grid-background-color</property>
             <child>
-              <object class="GtkColorButton" id="search-background-color">
+              <object class="GtkColorButton" id="apps-grid-background-color">
                 <property name="valign">center</property>
                 <property name="hexpand">false</property>
                 <property name="width-request">70px</property>
@@ -122,9 +122,9 @@
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Entry Text Color</property>
             <property name="subtitle" translatable="yes">Select entry text color. Make value completely transparent to auto-adapt to background color.</property>
-            <property name="activatable-widget">search-entry-text-color</property>
+            <property name="activatable-widget">apps-grid-entry-text-color</property>
             <child>
-              <object class="GtkColorButton" id="search-entry-text-color">
+              <object class="GtkColorButton" id="apps-grid-entry-text-color">
                 <property name="valign">center</property>
                 <property name="hexpand">false</property>
                 <property name="width-request">70px</property>
@@ -139,11 +139,11 @@
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Entry Text Size</property>
             <property name="subtitle" translatable="yes">Set font size of search tex.</property>
-            <property name="activatable-widget">search-entry-font-size</property>
+            <property name="activatable-widget">apps-grid-entry-font-size</property>
             <child>
-              <object class="GtkDropDown" id="search-entry-font-size">
+              <object class="GtkDropDown" id="apps-grid-entry-font-size">
                 <property name="valign">center</property>
-                <property name="model">search-entry-font-size-model</property>
+                <property name="model">apps-grid-entry-font-size-model</property>
               </object>
             </child>
           </object>
@@ -152,9 +152,9 @@
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Text Color</property>
             <property name="subtitle" translatable="yes">Select text color. Make value completely transparent to auto-adapt to background color.</property>
-            <property name="activatable-widget">search-text-color</property>
+            <property name="activatable-widget">apps-grid-text-color</property>
             <child>
-              <object class="GtkColorButton" id="search-text-color">
+              <object class="GtkColorButton" id="apps-grid-text-color">
                 <property name="valign">center</property>
                 <property name="hexpand">false</property>
                 <property name="width-request">70px</property>
@@ -169,11 +169,11 @@
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Text Size</property>
             <property name="subtitle" translatable="yes">Set font size of search text and search result items.</property>
-            <property name="activatable-widget">search-font-size</property>
+            <property name="activatable-widget">apps-grid-font-size</property>
             <child>
-              <object class="GtkDropDown" id="search-font-size">
+              <object class="GtkDropDown" id="apps-grid-font-size">
                 <property name="valign">center</property>
-                <property name="model">search-font-size-model</property>
+                <property name="model">apps-grid-font-size-model</property>
               </object>
             </child>
           </object>
@@ -181,29 +181,29 @@
       </object>
     </child>
   </object>
-  <object class="GtkAdjustment" id="search-border-radius-adjust">
+  <object class="GtkAdjustment" id="apps-grid-border-radius-adjust">
     <property name="lower">0</property>
     <property name="upper">7</property>
     <property name="step-increment">1</property>
   </object>
-  <object class="GtkAdjustment" id="search-scale-width-adjust">
+  <object class="GtkAdjustment" id="apps-grid-scale-width-adjust">
     <property name="lower">0.0</property>
     <property name="upper">1.0</property>
     <property name="step-increment">0.01</property>
   </object>
-  <object class="GtkAdjustment" id="search-scale-height-adjust">
+  <object class="GtkAdjustment" id="apps-grid-scale-height-adjust">
     <property name="lower">0.0</property>
     <property name="upper">1.0</property>
     <property name="step-increment">0.01</property>
   </object>
-  <object class="GtkStringList" id="search-border-thickness-model">
+  <object class="GtkStringList" id="apps-grid-border-thickness-model">
     <items>
       <item translatable="yes">None</item>
       <item>1px</item>
       <item>2px</item>
     </items>
   </object>
-  <object class="GtkStringList" id="search-font-size-model">
+  <object class="GtkStringList" id="apps-grid-font-size-model">
     <items>
       <item translatable="yes">Default</item>
       <item>8pt</item>
@@ -216,7 +216,7 @@
       <item>48pt</item>
     </items>
   </object>
-  <object class="GtkStringList" id="search-entry-font-size-model">
+  <object class="GtkStringList" id="apps-grid-entry-font-size-model">
     <items>
       <item translatable="yes">Default</item>
       <item>8pt</item>

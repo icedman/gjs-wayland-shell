@@ -6,10 +6,70 @@ import GObject from 'gi://GObject';
 import LayerShell from 'gi://Gtk4LayerShell';
 import { Extension } from './lib/extensionInterface.js';
 import { getAppInfo } from './lib/appInfo.js';
-import { loadRemoteSearchProviders } from './services/remoteSearch.js';
 
-const SEARCH_PROVIDERS_SCHEMA = 'org.gnome.desktop.search-providers';
 const SEARCH_ONKEY_DELAY = 750;
+
+// Create a button widget to represent each item in the grid
+function createButtonWidget(item) {
+  const button = new Gtk.Button();
+
+  const vbox = new Gtk.Box({
+    orientation: Gtk.Orientation.VERTICAL,
+    spacing: 5,
+  });
+
+  const icon = new Gtk.Image({
+    icon_name: item.icon_name,
+    pixel_size: 48,
+  });
+
+  const label = new Gtk.Label({ label: item.label });
+
+  vbox.append(icon);
+  vbox.append(label);
+
+  button._icon = icon;
+  button._label = label;
+  button.set_child(vbox);
+  return button;
+}
+
+// Define a simple model for the GridView
+const ListItemModel = GObject.registerClass(
+  {},
+  class ListItemModel extends GObject.Object {
+    static [GObject.properties] = {
+      label: GObject.ParamSpec.string(
+        'label',
+        'Label',
+        'Button Label',
+        GObject.ParamFlags.READWRITE,
+        '',
+      ),
+      icon_name: GObject.ParamSpec.string(
+        'icon_name',
+        'Icon Name',
+        'Icon Name',
+        GObject.ParamFlags.READWRITE,
+        '',
+      ),
+      app_id: GObject.ParamSpec.string(
+        'app_id',
+        'App Id',
+        'App Id',
+        GObject.ParamFlags.READWRITE,
+        '',
+      ),
+    };
+
+    _init(label, icon_name, app_id) {
+      super._init();
+      this.label = label;
+      this.icon_name = icon_name;
+      this.app_id = app_id;
+    }
+  },
+);
 
 function getTermsForSearchString(searchString) {
   searchString = searchString.replace(/^\s+/g, '').replace(/\s+$/g, '');
@@ -17,13 +77,13 @@ function getTermsForSearchString(searchString) {
   return searchString.split(/\s+/);
 }
 
-const Search = GObject.registerClass(
+const AppsGrid = GObject.registerClass(
   {
     Signals: { 'search-updated': {} },
   },
-  class Search extends Extension {
+  class AppsGrid extends Extension {
     _init(params) {
-      this.name = params?.name ?? 'Search';
+      this.name = params?.name ?? 'Apps-Grid';
       delete params?.name;
       super._init({
         ...(params ?? {}),
@@ -31,17 +91,6 @@ const Search = GObject.registerClass(
     }
 
     enable() {
-      let _searchSettings = new Gio.Settings({
-        schema_id: SEARCH_PROVIDERS_SCHEMA,
-      });
-      this.providers = loadRemoteSearchProviders(_searchSettings);
-      this.cancellable = new Gio.Cancellable();
-
-      this.results = {};
-      this.previousResults = {};
-      this.matchedApps = [];
-      this.matchedSearch = [];
-
       this.default_width = 600;
       this.default_height = 400;
 
@@ -54,7 +103,9 @@ const Search = GObject.registerClass(
         default_height: this.default_height,
       });
 
-      let prefix = 'search';
+      this.window.add_css_class('has-results');
+
+      let prefix = 'apps-grid';
       this.stylePrefix = this.name.toLowerCase();
 
       this.settings = Main.settings;
@@ -78,14 +129,14 @@ const Search = GObject.registerClass(
       this.style = Main.style;
 
       let builder = new Gtk.Builder();
-      builder.add_from_file(`./ui/search.ui`);
-      let widget = builder.get_object('search-window');
+      builder.add_from_file(`./ui/apps.ui`);
+      let widget = builder.get_object('apps-window');
       let entry = builder.get_object('entry');
 
       let searchIcon = Gio.ThemedIcon.new('system-search-symbolic');
       // Set the icon to the primary position
       entry.set_icon_from_gicon(Gtk.EntryIconPosition.PRIMARY, searchIcon);
-      entry.set_placeholder_text('Type to search...');
+      entry.set_placeholder_text('Type to search apps...');
 
       let clearIcon = Gio.ThemedIcon.new('edit-clear-symbolic');
       entry.set_icon_from_gicon(Gtk.EntryIconPosition.SECONDARY, clearIcon);
@@ -96,10 +147,30 @@ const Search = GObject.registerClass(
         }
       });
 
-      this.resultsView = builder.get_object('results-view');
-      this.resultsView.add_css_class('results-view');
       this.resultsApps = builder.get_object('results-apps');
       this.resultsApps.add_css_class('results-apps');
+
+      let factory = Gtk.SignalListItemFactory.new();
+      factory.connect('bind', (factory, listItem) => {
+        const item = listItem.get_item();
+        if (item) {
+          // Update the widget's content (e.g., label and icon)
+          let button = listItem.get_child();
+          if (!button) {
+            const button = createButtonWidget(item);
+            button.connect('clicked', () => {
+              this.activateItem(item); // Call activation handler
+            });
+
+            listItem.set_child(button);
+          } else {
+            button._icon.set_from_icon_name(item.icon_name);
+            button._label.set_label(item.label);
+          }
+        }
+      });
+
+      this.resultsApps.set_factory(factory);
 
       let searchOnKeyPress = () => {
         this._debounceSearchOnKeypress = Main.loTimer.debounce(
@@ -163,7 +234,7 @@ const Search = GObject.registerClass(
 
       if (Main?.dbus) {
         Main.dbus.connectObject(
-          'request-search',
+          'request-apps',
           () => {
             if (this.window.visible) {
               this.hide();
@@ -178,20 +249,7 @@ const Search = GObject.registerClass(
       this.load_settings();
       this.update_layout();
       this.update_style();
-
-      Main.factory.registerProvider('search', this.createSearchIcon.bind(this));
-
       super.enable();
-    }
-
-    createSearchIcon() {
-      let item = Main.panel.create_panelitem();
-      item.set_label('');
-      item.set_icon('system-search-symbolic');
-      item.on_click = () => {
-        this.toggle();
-      };
-      return item;
     }
 
     disable() {
@@ -211,63 +269,12 @@ const Search = GObject.registerClass(
       super.disable();
     }
 
-    async _doProviderSearch(provider, previousResults) {
-      provider.searchInProgress = true;
-
-      let _isSubSearch = false;
-
-      try {
-        let results;
-        let resultsMetas;
-        if (_isSubSearch && previousResults) {
-          results = await provider.getSubsearchResultSet(
-            previousResults,
-            this.terms,
-            this.cancellable,
-          );
-        } else {
-          results = await provider.getInitialResultSet(
-            this.terms,
-            this.cancellable,
-          );
-          if (results && results.length) {
-            resultsMetas = await provider.getResultMetas(
-              results,
-              this.cancellable,
-            );
-            this.results[provider.id] = resultsMetas;
-            provider.searchInProgress = false;
-          }
-          // console.log(results);
-          // console.log(resultsMetas);
-          return Promise.resolve(results);
-        }
-      } catch (err) {
-        console.log(err);
-        provider.searchInProgress = false;
-        return Promise.reject(err);
-      }
-    }
-
     async search(terms) {
-      this.cancellable.cancel();
-      this.cancellable.reset();
       this.terms = getTermsForSearchString(terms);
-      if (!this.terms.length) return;
-
-      this.providers.forEach(async (provider) => {
-        try {
-          this.results[provider.id] = null;
-          let previousProviderResults = this.previousResults[provider.id];
-          this.previousResults[provider.id] = await this._doProviderSearch(
-            provider,
-            previousProviderResults,
-          );
-          this.updateResults();
-        } catch (err) {
-          console.log(err);
-        }
-      });
+      if (!this.terms.length) {
+        this.updateApps([]);
+        return;
+      }
 
       Main.apps
         .search(terms)
@@ -365,102 +372,13 @@ const Search = GObject.registerClass(
       // }
 
       try {
-        // console.log(JSON.stringify(styles, null, 4));
+        console.log(JSON.stringify(styles, null, 4));
         this.style.buildCss(`${this.stylePrefix}-style`, styles);
       } catch (err) {
         console.log(err);
       }
 
       // this.window.queue_resize();
-    }
-
-    getCurrentRows() {
-      let res = [];
-      let n = this.resultsView.get_first_child();
-      while (n) {
-        res.push(n);
-        n = n.get_next_sibling();
-      }
-      return res;
-    }
-
-    updateResults() {
-      let res = [];
-      this.providers.forEach(async (provider) => {
-        let results = this.results[provider.id]?.map((r) => {
-          return {
-            ...r,
-            provider,
-          };
-        });
-        if (results) {
-          res = [...res, ...results];
-        }
-      });
-
-      let ids = res.map((r) => r.id);
-      let rows = this.getCurrentRows();
-      let row_ids = rows.map((r) => r.id);
-
-      this.window.remove_css_class('has-results');
-      this.matchedSearch = res;
-      if (this.matchedSearch || this.matchedApps.length) {
-        this.window.add_css_class('has-results');
-      }
-
-      res.forEach((item) => {
-        // too inefficient?
-        let row = null; // check if already in the results-view
-        if (row_ids.includes(item.id)) {
-          return;
-        }
-
-        let appInfo = getAppInfo(item.provider.id);
-
-        let builder = new Gtk.Builder();
-        builder.add_from_file(`./ui/result-row.ui`);
-        row = builder.get_object('result-row');
-        row.add_css_class('result-row');
-        let name = builder.get_object('result-name');
-        name.add_css_class('result-name');
-        let desc = builder.get_object('result-description');
-        desc.add_css_class('result-description');
-        let icon = builder.get_object('result-icon');
-        icon.add_css_class('result-icon');
-
-        if (appInfo.icon_name) {
-          icon.set_from_icon_name(appInfo.icon_name);
-        } else {
-          // icon.set_visible
-        }
-
-        row.connect('activate', () => {
-          this.activateSearchItem(item);
-        });
-        row.connect('clicked', () => {
-          this.activateSearchItem(item);
-        });
-
-        name.set_label(item.name);
-        desc.set_label(item.description);
-
-        desc.set_ellipsize(3);
-        desc.set_max_width_chars(40);
-
-        row.id = item.id;
-        this.resultsView.append(row);
-      });
-
-      // remove
-      rows.forEach((row) => {
-        if (!ids.includes(row.id)) {
-          if (row.parent) {
-            row.parent.remove(row);
-          }
-        }
-      });
-
-      // this.emit('search-updated');
     }
 
     getCurrentApps() {
@@ -474,97 +392,54 @@ const Search = GObject.registerClass(
     }
 
     updateApps(apps) {
-      let currentApps = this.getCurrentApps();
-      let currentApp_ids = currentApps.map((r) => r.id);
+      const items = new Gio.ListStore({ item_type: ListItemModel });
 
-      let ids = [];
-      this.matchedApps = apps;
-      apps.forEach((app) => {
-        ids.push(app.id);
-        if (currentApp_ids.includes(app.id)) {
-          return;
-        }
-        let box = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL });
-        let btn = new Gtk.Button({
-          icon_name: app.icon_name ?? 'applications-symbolic',
+      if (!apps || !apps.length) {
+        apps = Main.apps.apps.map((app) => {
+          return getAppInfo(app.get_id());
         });
-        box.append(btn);
-        let label = new Gtk.Label({ label: app.title ?? '' });
-        label.add_css_class('app-label');
-
-        label.set_ellipsize(3);
-        label.set_max_width_chars(10);
-
-        box.append(label);
-        try {
-          this.resultsApps.append(box);
-          btn.child.set_pixel_size(64);
-          btn.add_css_class('button');
-          btn.id = app.id;
-          btn.item = app;
-          btn.connect('activate', () => {
-            Main.shell.spawn(app.exec);
-            this.hide();
-          });
-        } catch (err) {
-          console.log(err);
-        }
-      });
-
-      this.window.remove_css_class('has-results');
-      if (this.matchedSearch.length || this.matchedApps.length) {
-        this.window.add_css_class('has-results');
+        apps.sort((a, b) => {
+          return a.title > b.title ? 1 : -1;
+        });
       }
 
-      // remove
-      currentApps.forEach((row) => {
-        if (!ids.includes(row.id)) {
-          if (row.parent) {
-            row.parent.remove(row);
-          }
+      apps.forEach((appInfo) => {
+        let title = appInfo.title;
+        if (title.length > 12) {
+          title = title.substr(0, 12) + '...';
         }
+        items.append(
+          new ListItemModel(
+            title,
+            appInfo.icon_name ?? 'emblem-system',
+            appInfo.id,
+          ),
+        );
       });
+
+      this.items = items;
+
+      const selectionModel = new Gtk.SingleSelection({ model: items });
+      this.resultsApps.set_model(selectionModel);
     }
 
     clear() {
-      this.cancellable.cancel();
-      this.matchedApps = [];
-      this.results = {};
-      if (this._debounceSearchOnKeypress) {
-        Main.loTimer.cancel(this._debounceSearchOnKeypress);
-        this._debounceSearchOnKeypress = null;
-      }
       this.updateApps([]);
-      this.updateResults();
     }
 
-    activateSearchItem(item) {
-      if (item.clipboardText && item.clipboardText.length > 0) {
-        let text = item.clipboardText;
-        let clipboard = Gdk.Display.get_default().get_clipboard();
-        if (clipboard) {
-          const data = new TextEncoder().encode(text);
-          let provider = Gdk.ContentProvider.new_for_bytes('text/plain', data);
-          clipboard.set_content(provider);
-        }
-        this.hide();
-        return;
+    activateItem(item) {
+      let appInfo = getAppInfo(item.app_id);
+      if (appInfo.exec) {
+        Main.shell.spawn(appInfo.exec);
       }
-
-      if (item.provider) {
-        let appInfo = getAppInfo(item.provider.id);
-        Main.shell.spawn(appInfo.exec, item.id);
-        this.hide();
-        // console.log(item);
-        // console.log(appInfo);
-      }
+      this.hide();
+      // console.log(item.app_id);
     }
 
     show() {
+      this.updateApps([]);
       this.window.add_css_class('startup');
-      // let { width, height } = this.widget.get_allocation();
-      // this.overlay.set_size_request(width, height);
-      this.window.remove_css_class('has-results');
+      // this.window.remove_css_class('has-results');
       this.window.present();
       this.entry.grab_focus();
 
@@ -583,6 +458,7 @@ const Search = GObject.registerClass(
     }
 
     toggle() {
+      // this.updateApps();
       if (!this.window.visible) {
         this.show();
       } else {
@@ -592,4 +468,4 @@ const Search = GObject.registerClass(
   },
 );
 
-export default Search;
+export default AppsGrid;

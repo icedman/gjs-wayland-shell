@@ -11,7 +11,8 @@ import App from './app.js';
 import Dock from './dock.js';
 import Panel from './panel.js';
 import Search from './search.js';
-import ShellService from './shell.js';
+import AppsGrid from './appsGrid.js';
+import WindowManagerService from './windowManager.js';
 
 import Power from './services/power.js';
 import PowerProfiles from './services/powerProfiles.js';
@@ -48,9 +49,10 @@ globalThis.Main = {
   dock: new Dock({ name: 'Dock' }),
   panel: new Panel({ name: 'Panel' }),
   search: new Search({ name: 'Search' }),
+  appsGrid: new AppsGrid({ name: 'Apps-Grid' }),
 
   // services
-  shell: new ShellService(),
+  shell: new WindowManagerService(),
   apps: new SystemApps(),
   dbus: new DBus(),
   power: new Power(),

@@ -1,9 +1,9 @@
-import { ShellInterface } from './compositors/shellInterface.js';
+import { WindowManagerInterface } from './compositors/wmInterface.js';
 import NiriShell from './compositors/niri.js';
 import HyprShell from './compositors/hyprland.js';
 import SwayShell from './compositors/sway.js';
 
-function ShellService(wm) {
+function WindowManagerService(wm) {
   let supportedWM = {
     niri: NiriShell,
     hyprland: HyprShell,
@@ -25,7 +25,7 @@ function ShellService(wm) {
     }
   }
 
-  return new ShellInterface();
+  return new WindowManagerInterface();
 }
 
-export default ShellService;
+export default WindowManagerService;

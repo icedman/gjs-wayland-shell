@@ -7,6 +7,10 @@ Gtk.init(null);
 const ListModel = GObject.registerClass(
   {},
   class ListModel extends GObject.Object {
+    _init() {
+      super._init();
+    }
+
     static [GObject.properties] = {
       label: GObject.ParamSpec.string(
         'label',

@@ -158,6 +158,48 @@
     padding-right: 4px;
 }
 
+/* Apps-Grid */
+#Apps-Grid {
+    background: transparent;
+    opacity: 1;
+    transition: opacity 0.35s ease-in-out;
+}
+#Apps-Grid.startup {
+    opacity: 0;
+}
+#Apps-Grid .entry-container {
+    padding: 2px;
+    background: rgba(10,10,10,0.95);
+}
+#Apps-Grid.has-results {
+    background: rgba(10,10,10,0.95);
+}
+#Apps-Grid.has-results .entry-container {
+    background: transparent;
+}
+#Apps-Grid scrolledwindow {
+    padding: 4px;
+}
+#Apps-Grid entry {
+    outline: none;
+}
+#Apps-Grid entry {
+    padding: 8px;
+    border: 0px;
+    background: transparent;
+    margin: 4px;
+}
+
+#Apps-Grid gridview {
+    padding: 10px;
+}
+
+#Apps-Grid gridview,
+#Apps-Grid gridview * {
+    background: transparent;
+    border: 0px;
+}
+
 /* animation */
 @keyframes bounce {
     0% {

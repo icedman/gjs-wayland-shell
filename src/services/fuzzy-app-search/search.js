@@ -97,7 +97,7 @@ export class Search {
    *
    * @return {Void}
    */
-  refresh() {
+  refresh(apps) {
     // Prevent multiple calls of refresh() from happening at the same time,
     // since writing index operations aren't thread-safe (for now, at least)
 
@@ -123,7 +123,7 @@ export class Search {
     this.index
       .updateIndex([
         // ...Gio.AppInfo.get_all()
-        ...Gio.app_info_get_all()
+        ...(apps ?? Gio.app_info_get_all())
           .filter((appInfo) => appInfo.should_show())
           .map(this.#appInfoToObj),
         ...systemActionObjects,

@@ -62,6 +62,7 @@ builder.add_from_file('./ui/general.ui');
 builder.add_from_file('./ui/dock.ui');
 builder.add_from_file('./ui/panel.ui');
 builder.add_from_file('./ui/search.ui');
+builder.add_from_file('./ui/apps-grid.ui');
 
 function show_preference_group(widget) {
   widget.set_visible(true);
@@ -248,6 +249,16 @@ class SearchPanel extends Panel {
   }
 }
 
+class AppsGridPanel extends Panel {
+  constructor() {
+    super({
+      title: 'Apps',
+      icon: 'pageview-symbolic',
+    });
+    this.content = builder.get_object('apps-grid');
+  }
+}
+
 class DockItemsPanel extends Panel {
   constructor() {
     super({
@@ -275,6 +286,7 @@ let panelItems = [
   // new DockItemsPanel(),
   new BarPanel(),
   new SearchPanel(),
+  new AppsGridPanel(),
 ];
 panelItems.forEach((item) => {
   items.append(item.build());

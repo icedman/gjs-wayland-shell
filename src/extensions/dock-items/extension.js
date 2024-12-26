@@ -48,8 +48,7 @@ const DockItemsExtension = GObject.registerClass(
         icon_name: 'view-app-grid-symbolic',
         title: 'Apps',
         script: () => {
-          // todo show/create an apps grid
-          Main.search.show();
+          Main.appsGrid.toggle();
         },
       };
       let apps = Main.dock.create_dockitem_from_appinfo(appInfo);

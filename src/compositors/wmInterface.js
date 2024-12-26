@@ -11,7 +11,7 @@ import {
   BYTES_NUM,
 } from '../lib/ipc.js';
 
-const ShellInterface = GObject.registerClass(
+const WindowManagerInterface = GObject.registerClass(
   {
     Signals: {
       'windows-update': {},
@@ -20,7 +20,7 @@ const ShellInterface = GObject.registerClass(
       'window-closed': {}, // param_types: [ GObject.TYPE_STRING ]},
     },
   },
-  class ShellInterface extends Extension {
+  class WindowManagerInterface extends Extension {
     _init() {
       super._init();
       this.name = 'Unknown';
@@ -318,4 +318,4 @@ const ShellInterface = GObject.registerClass(
   },
 );
 
-export { ShellInterface };
+export { WindowManagerInterface };
