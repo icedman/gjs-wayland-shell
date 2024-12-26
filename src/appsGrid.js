@@ -147,8 +147,10 @@ const AppsGrid = GObject.registerClass(
         }
       });
 
-      this.resultsApps = builder.get_object('results-apps');
-      this.resultsApps.add_css_class('results-apps');
+      // this.resultsApps = builder.get_object('results-apps');
+      // this.resultsApps.add_css_class('results-apps');
+      this.resultsView = builder.get_object('results-view');
+      this.resultsView.add_css_class('results-view');
 
       let factory = Gtk.SignalListItemFactory.new();
       factory.connect('bind', (factory, listItem) => {
@@ -170,7 +172,7 @@ const AppsGrid = GObject.registerClass(
         }
       });
 
-      this.resultsApps.set_factory(factory);
+      this.resultsView.set_factory(factory);
 
       let searchOnKeyPress = () => {
         this._debounceSearchOnKeypress = Main.loTimer.debounce(
@@ -381,16 +383,6 @@ const AppsGrid = GObject.registerClass(
       // this.window.queue_resize();
     }
 
-    getCurrentApps() {
-      let res = [];
-      let n = this.resultsApps.get_first_child();
-      while (n) {
-        res.push(n);
-        n = n.get_next_sibling();
-      }
-      return res;
-    }
-
     updateApps(apps) {
       const items = new Gio.ListStore({ item_type: ListItemModel });
 
@@ -420,7 +412,7 @@ const AppsGrid = GObject.registerClass(
       this.items = items;
 
       const selectionModel = new Gtk.SingleSelection({ model: items });
-      this.resultsApps.set_model(selectionModel);
+      this.resultsView.set_model(selectionModel);
     }
 
     clear() {
@@ -437,6 +429,7 @@ const AppsGrid = GObject.registerClass(
     }
 
     show() {
+      Main.search.hide();
       this.updateApps([]);
       this.window.add_css_class('startup');
       // this.window.remove_css_class('has-results');

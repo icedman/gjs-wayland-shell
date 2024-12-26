@@ -191,3 +191,18 @@
     ]
 }
 ```
+
+### Workspace
+```json
+{
+    "event": "unhandled",
+    "raw": "workspace>>1"
+}
+```
+
+```json
+{
+    "event": "unhandled",
+    "raw": "workspacev2>>1,1"
+}
+```

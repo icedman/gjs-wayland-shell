@@ -47,7 +47,13 @@ const HyprShell = GObject.registerClass(
             window: {
               id: line[1],
             },
-            raw: line,
+            raw: l,
+          });
+        } else {
+          res.push({
+            event: 'unhandled',
+            window: {},
+            raw: l,
           });
         }
       });
@@ -71,7 +77,7 @@ const HyprShell = GObject.registerClass(
       if (!w['app_id'] && w['class']) {
         w['app_id'] = w['class'];
       }
-      return w;
+      return super.normalizeWindow(w);
     }
 
     async getWindows() {

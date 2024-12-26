@@ -20,7 +20,6 @@ const DBusServiceInterface = `
     <method name="key_up">
       <arg name="application_name" type="s" direction="in"/>
     </method>
-    <method name="tell_idle"/>
   </interface>
 </node>`;
 
@@ -72,7 +71,7 @@ const DBus = GObject.registerClass(
       super.disable();
     }
 
-    show_search() {
+    show_apps() {
       this.emit('request-apps');
     }
 
@@ -83,8 +82,6 @@ const DBus = GObject.registerClass(
     show_console() {
       this.emit('request-console');
     }
-
-    tell_idle() {}
 
     key_down(key) {
       console.log(key);

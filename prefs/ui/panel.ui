@@ -230,7 +230,7 @@
             <child>
               <object class="GtkDropDown" id="panel-icon-size">
                 <property name="valign">center</property>
-                <property name="model">icon-size-model</property>
+                <property name="model">panel-icon-size-model</property>
               </object>
             </child>
           </object>
@@ -549,7 +549,7 @@
       <!-- <item translatable="yes">(Test)</item> -->
     </items>
   </object>
-  <object class="GtkStringList" id="icon-size-model">
+  <object class="GtkStringList" id="panel-icon-size-model">
     <items>
       <item>16px</item>
       <item>22px</item>

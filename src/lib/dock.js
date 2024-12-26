@@ -242,6 +242,7 @@ export const DockPanel = GObject.registerClass(
     async update() {
       this.update_layout();
       this.update_style();
+      this.update_indicators();
       this.update_items();
       this.update_dock_items();
     }

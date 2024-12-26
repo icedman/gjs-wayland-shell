@@ -561,6 +561,7 @@ const Search = GObject.registerClass(
     }
 
     show() {
+      Main.appsGrid.hide();
       this.window.add_css_class('startup');
       // let { width, height } = this.widget.get_allocation();
       // this.overlay.set_size_request(width, height);

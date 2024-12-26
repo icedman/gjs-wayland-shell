@@ -253,7 +253,7 @@ class AppsGridPanel extends Panel {
   constructor() {
     super({
       title: 'Apps',
-      icon: 'pageview-symbolic',
+      icon: 'applications-symbolic',
     });
     this.content = builder.get_object('apps-grid');
   }

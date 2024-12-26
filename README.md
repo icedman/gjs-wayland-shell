@@ -15,13 +15,24 @@
 
 # Requirements
 1. wayland window manager/compositor
-	* niri (recommended)
+	* niri
 	* sway
-	* hyprland
+	* hyprland (recommended)
+  
+  Partially supported
+  * labwc
+  * dwl
+
 2. gtk4-layer-shell-devel
+  Fedora:
 	```sudo dnf install gtk4-layer-shell-devel```
+
+  Arch:
+  ```sudo dnf install gtk4-layer-shell```
+
 3. gnome-shell
 	```sudo dnf install gnome-shell```
+
 4. udiskie (optiona) for volume mount monitor
   ```sudo dnf install udiskie```
 
@@ -39,9 +50,10 @@ $ gws
 
 # Features
 
-* dash
-* topbar
-* search light
+* Dash
+* Top Panel
+* Apps Grid
+* Search Light
 * animated icons
 * running apps indicator
 * dynamic trash icons
@@ -79,15 +91,9 @@ Functions the same way as Gnome Shell's search, using DBus querying SearchProvid
 * separator
 * volumes mounted
 
-# Customize
-
-Open the preferences app
-
-```sh
-$ gws-prefs
-```
-
 # Config directory
+
+# Customize CSS
 
 Copy ```gws``` from in ```docs/sample-config``` to the ```~/.config``` directory
 
@@ -111,7 +117,15 @@ sample css:
 
 ```
 
-Edit custom settings at ```~/.config/gws/settings.json```
+# Customize Settings
+
+Settings are handled via gnome dconf. A preferences app is provided for safer edits.
+
+```sh
+$ gws-prefs
+```
+
+Alternatively, dconf settings may be overriden by edit a settings file at ```~/.config/gws/settings.json```
 
 sample config:
 
@@ -135,14 +149,13 @@ sample config:
 
 # Extension/Rice
 
-The sample extension at the ```docs``` folder show how to add custom dock. (Requires coding)
+The sample extension at the ```docs``` folder. (Requires coding - and studying the gws code)
 
 # Why is gnome-shell required?
 
 * This shell re-uses some of gnome-shell's dbus interfaces
 * This shell re-uses a lot of gnome-shell's code
 * gnome-shell need not be running
-
 
 # Debugging
 
@@ -167,3 +180,7 @@ Query the Panel
 ```js
 JSON.stringify(Main.panel, null, 4);
 ```
+
+# More screen shots
+
+![Screen Shot](https://raw.githubusercontent.com/icedman/gjs-wayland-shell/main/screenshots/screenshot-2024-12-26-01.png)

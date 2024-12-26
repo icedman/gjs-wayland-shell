@@ -42,7 +42,6 @@ function connectToHyprSocket(num = '') {
     return null;
   }
   let socketPath = `${XDG_RUNTIME_DIR}/hypr/${HYPRLAND_INSTANCE_SIGNATURE}/.socket${num}.sock`;
-
   return connectToSocket(socketPath, 'HYPR');
 }
 

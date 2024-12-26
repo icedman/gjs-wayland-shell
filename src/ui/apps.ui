@@ -22,10 +22,9 @@
             <property name="hexpand">true</property>
             <property name="vexpand">true</property>
             <child>
-              <object class="GtkGridView" id="results-apps">
+              <object class="GtkGridView" id="results-view">
                 <property name="hexpand">true</property>
                 <property name="vexpand">true</property>
-                <property name="halign">center</property>
                 <property name="enable_rubberband">true</property>
               </object>
             </child>

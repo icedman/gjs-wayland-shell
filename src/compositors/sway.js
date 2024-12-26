@@ -34,7 +34,6 @@ const SwayShell = GObject.registerClass(
           obj['container'] = {};
           this.normalizeWindows([obj['window']]);
         }
-
         if (obj['change'] == 'new') {
           return [
             {
@@ -62,7 +61,7 @@ const SwayShell = GObject.registerClass(
             },
           ];
         }
-        // console.log(obj);
+        return [{ event: 'unknown', window: {}, raw: obj }];
       } catch (err) {
         console.log(err);
       }
@@ -75,6 +74,7 @@ const SwayShell = GObject.registerClass(
         return;
       }
 
+      // await sendI3Message(connection, 2, "['window', 'workspace']");
       await sendI3Message(connection, 2, "['window']");
 
       let inputStream = connection.get_input_stream();
@@ -152,7 +152,7 @@ const SwayShell = GObject.registerClass(
       if (!w['title'] && w['name']) {
         w['title'] = w['name'];
       }
-      return w;
+      return super.normalizeWindow(w);
     }
 
     async getWindows() {

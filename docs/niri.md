@@ -103,3 +103,16 @@
     }
 }
 ```
+
+### Workspace
+```json
+{
+    "event": "success",
+    "raw": {
+        "WorkspaceActivated": {
+            "id": 2,
+            "focused": true
+        }
+    }
+}
+```

@@ -9,7 +9,7 @@ import Brightness from '../src/services/brightness.js';
 import Mounts from '../src/services/mounts.js';
 import { Volume, Mic } from '../src/services/volume.js';
 import Trash from '../src/services/trash.js';
-import ShellService from '../src/shell.js';
+import WindowManagerService from '../src/windowManager.js';
 import Search from '../src/search.js';
 import '../src/lib/environment.js';
 import Console from '../src/extensions/console/extension.js';
@@ -17,24 +17,24 @@ import Console from '../src/extensions/console/extension.js';
 globalThis.Main = {};
 
 function test_shell() {
-  let s = ShellService();
+  let s = WindowManagerService();
   s.enable();
   s.connectObject('windows-update', () => {
     console.log('update...');
-    console.log('--------------------------');
-    console.log(s.currentWindows());
+    // console.log('--------------------------');
+    // console.log(s.currentWindows());
   });
   s.connectObject('window-focused', (w) => {
     console.log('focused...');
-    console.log(w);
+    console.log(s.findWindow(s.focused));
   });
   s.connectObject('window-opened', (w) => {
     console.log('opened...');
-    console.log(w);
+    // console.log(w);
   });
   s.connectObject('window-closed', (w) => {
     console.log('closed...');
-    console.log(w);
+    // console.log(w);
   });
 
   s.listen();

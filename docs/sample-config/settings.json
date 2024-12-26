@@ -4,12 +4,39 @@
     "org.gnome.Nautilus.desktop",
     "google-chrome.desktop",
     "org.mozilla.firefox.desktop",
+    "com.spotify.Client.desktop",
     "org.gnome.Calendar.desktop",
     "org.gnome.clocks.desktop",
     "org.gnome.Software.desktop",
     "org.gnome.TextEditor.desktop"
   ],
-  "panel-lead-items": ["logo"],
-  "panel-center-items": ["clock"],
-  "panel-trail-items": ["inhibitor", "brightness", "network", "power", "volume", "mic"]
+  "panel-items-lead": [{
+    "id": "logo",
+    "showOSName": false,
+    "showShortOSName": true,
+    "hideIcon": false
+  }, "search"],
+  "panel-items": [{
+    "id": "clock",
+    "widget": "clock",
+    "format": "%Y-%m-%d %H:%M"
+  }],
+  "panel-items-trail": [
+    "inhibitor",
+    {
+      "id": "brightness",
+      "format": "%P%"
+    },
+    "network", 
+    {
+      "id": "power",
+      "format": "%P%",
+      "formatAlt": "%P%", 
+      "formatAltToEmpty": "%P% %H:%M battery remaining",
+      "formatAltToFull": "%P% %H:%M left charging time"
+    },
+    {
+      "id": "volume",
+      "format": "%P%"
+    }, "mic"]
 }

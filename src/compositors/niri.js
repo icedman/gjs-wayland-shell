@@ -85,6 +85,8 @@ const NiriShell = GObject.registerClass(
         // return generic success event
         res.push({
           event: 'success',
+          window: {},
+          raw: obj,
         });
       });
 
@@ -108,7 +110,7 @@ const NiriShell = GObject.registerClass(
         class: 'windowClass', // optional
       }
       */
-      return w;
+      return super.normalizeWindow(w);
     }
 
     async getWindows() {

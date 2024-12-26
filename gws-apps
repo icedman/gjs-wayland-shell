@@ -1,0 +1,3 @@
+#!/bin/sh
+
+gdbus call --session --dest=com.github.icedman.gws.controller --object-path=/com/github/icedman/gws/controller --method=com.github.icedman.gws.controller.show_apps

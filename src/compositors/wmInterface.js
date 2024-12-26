@@ -29,6 +29,7 @@ const WindowManagerInterface = GObject.registerClass(
     enable() {
       super.enable();
       this.windows = [];
+      this.focused = null;
       this.focusIndex = 0;
       this.verbose = false;
 
@@ -76,10 +77,10 @@ const WindowManagerInterface = GObject.registerClass(
     onWindowFocused(evt) {
       this._log('onWindowFocused');
       this._log(evt);
-
       if (this._appendNewWindow(evt['window'])) {
         return;
       }
+      this.focused = evt['window'];
       this.emit('window-focused');
     }
 
@@ -129,6 +130,15 @@ const WindowManagerInterface = GObject.registerClass(
       );
     }
 
+    findWindow(w) {
+      return this.windows.find((_w) => {
+        if (w['address'] && w['address'] == _w['address']) {
+          return true;
+        }
+        return w['id'] == _w['id'];
+      });
+    }
+
     normalizeWindow(w) {
       /*
       {
@@ -138,6 +148,9 @@ const WindowManagerInterface = GObject.registerClass(
         class: 'windowClass', // optional
       }
       */
+      try {
+        w['title'] = GLib.utf8_to_locale(w['title']);
+      } catch (err) {}
       return w;
     }
 
@@ -176,7 +189,7 @@ const WindowManagerInterface = GObject.registerClass(
             this.onWindowsUpdated(m);
             break;
           default:
-            // console.log('unhandled ' + eventType);
+            console.log(m);
             break;
         }
       });
