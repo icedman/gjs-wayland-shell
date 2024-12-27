@@ -107,7 +107,10 @@ async function receiveMessage(connection, count = BYTES_NUM, loop = 20) {
 
   let inputBytes = inputStream.read_bytes(count, null);
   let byteArray = new Uint8Array(inputBytes.get_data());
-  let response = String.fromCharCode.apply(null, byteArray);
+  // let response = String.fromCharCode.apply(null, byteArray);
+
+  let decoder = new TextDecoder('utf-8'); // Use appropriate encoding if necessary
+  let response = decoder.decode(byteArray);
 
   // consume all
   if (inputBytes.get_size() == count && loop > 0) {
@@ -197,8 +200,12 @@ async function receiveI3Message(connection, count = BYTES_NUM) {
     (headerBytes[13] << 24);
 
   inputBytes = inputStream.read_bytes(payloadLength, null);
-  let responseBytes = new Uint8Array(inputBytes.get_data());
-  let response = String.fromCharCode.apply(null, responseBytes);
+  let byteArray = new Uint8Array(inputBytes.get_data());
+  // let response = String.fromCharCode.apply(null, byteArray);
+
+  let decoder = new TextDecoder('utf-8'); // Use appropriate encoding if necessary
+  let response = decoder.decode(byteArray);
+
   return Promise.resolve(response);
 }
 

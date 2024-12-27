@@ -109,8 +109,11 @@ const SwayShell = GObject.registerClass(
                 (headerBytes[13] << 24);
 
               inputBytes = inputStream.read_bytes(payloadLength, null);
-              let responseBytes = new Uint8Array(inputBytes.get_data());
-              let response = String.fromCharCode.apply(null, responseBytes);
+              let byteArray = new Uint8Array(inputBytes.get_data());
+              // let response = String.fromCharCode.apply(null, byteArray);
+
+              let decoder = new TextDecoder('utf-8'); // Use appropriate encoding if necessary
+              let response = decoder.decode(byteArray);
 
               _broadcast(_parseMessage(response));
 

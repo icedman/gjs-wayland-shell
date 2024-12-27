@@ -220,7 +220,11 @@ const WindowManagerInterface = GObject.registerClass(
               // console.log('incoming...');
 
               let bytes = source.read_bytes_finish(result);
-              let response = String.fromCharCode.apply(null, bytes.get_data());
+              let byteArray = new Uint8Array(bytes.get_data());
+              // let response = String.fromCharCode.apply(null, byteArray);
+
+              let decoder = new TextDecoder('utf-8'); // Use appropriate encoding if necessary
+              let response = decoder.decode(byteArray);
 
               try {
                 let lines = response.split(/\r?\n/);
