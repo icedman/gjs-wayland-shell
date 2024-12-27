@@ -185,8 +185,7 @@ const Search = GObject.registerClass(
     }
 
     createSearchIcon(config) {
-      let item = Main.panel.create_panelitem();
-      item.set_label('');
+      let item = Main.panel.create_panelitem(config);
       item.set_icon(config.icon ?? 'system-search-symbolic');
       item.on_click = () => {
         this.toggle();

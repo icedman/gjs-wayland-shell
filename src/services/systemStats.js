@@ -90,20 +90,28 @@ function getCurrentMemoryStats() {
   const total = memoryStats['MemTotal'];
   const used = total - memoryStats['MemAvailable'];
   const swapUsed = memoryStats['SwapTotal'] - memoryStats['SwapFree'];
-  const swapUsage = swapUsed / memoryStats['SwapTotal'];
+  const swapUsagePercent = Math.round(
+    (swapUsed / memoryStats['SwapTotal']) * 100,
+  );
+  const swapUsage = swapUsagePercent / 100;
+  const usagePercent = Math.round((used / total) * 100);
+  const usage = usagePercent / 100;
+
   return {
     total: total,
     free: memoryStats['MemFree'],
     buffers: memoryStats['Buffers'],
     cached: memoryStats['Cached'],
+    usagePercent: usagePercent,
     used: used,
-    usage: used / total,
+    usage: usage,
     available: memoryStats['MemAvailable'],
     dirty: memoryStats['Dirty'],
     writeback: memoryStats['Writeback'],
     dirtyWriteback: memoryStats['Dirty'] + memoryStats['Writeback'],
     swapFree: memoryStats['SwapFree'],
     swapTotal: memoryStats['SwapTotal'],
+    swapUsagePercent: swapUsagePercent,
     swapUsed: swapUsed,
     swapUsage: swapUsage,
   };
@@ -111,14 +119,23 @@ function getCurrentMemoryStats() {
 
 function getCurrentDiskUsage() {
   try {
-    const [ok, out, err, exit] = GLib.spawn_command_line_sync('df -h /');
+    const [ok, out, err, exit] = GLib.spawn_command_line_sync('df -h');
     const content = new TextDecoder().decode(out);
     const lines = content.split('\n').map((line) => line.split(/\s+/));
     const header = lines[0];
-    const data = lines[1];
     let res = {};
-    for (let i = 0; i < header.length; i++) {
-      res[header[i]] = data[i];
+    for (let i = 1; i < lines.length; i++) {
+      const data = lines[i];
+      if (!data[0].startsWith('/')) {
+        continue;
+      }
+      let mount = {};
+      for (let i = 0; i < header.length; i++) {
+        mount[header[i]] = data[i];
+      }
+      if (mount['Mounted']) {
+        res[mount['Mounted']] = mount;
+      }
     }
     return res;
   } catch (err) {

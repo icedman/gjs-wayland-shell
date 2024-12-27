@@ -45,27 +45,10 @@ function runCommand(command, args) {
 
 // Parse ANSI color codes (basic example, extend as needed)
 function parseAnsiToGtk(textBuffer, text) {
-  const regex = /\x1b\[(\d+;?)*m/g; // Match ANSI escape codes
-  let match;
-  let lastIndex = 0;
-
   const iter = textBuffer.get_end_iter(); // Get iterator for the end of the buffer
-
-  while ((match = regex.exec(text)) !== null) {
-    // Insert plain text up to the match
-    // textBuffer.insert(iter, text.substring(lastIndex, match.index));
-    let t = text.substring(lastIndex, match.index);
-    textBuffer.insert(iter, t, t.length);
-
-    // Handle ANSI escape code (this example skips parsing specific codes)
-    // You would add logic here to interpret the escape sequence and set appropriate text tags.
-    lastIndex = regex.lastIndex;
-  }
-
-  // Insert remaining plain text
-  // textBuffer.insert(iter, text.substring(lastIndex));
-  let t = text.substring(lastIndex);
-  textBuffer.insert(iter, t, t.length);
+  console.log(text);
+  textBuffer.insert(iter, text, text.length);
+  return;
 }
 
 // Insert fastfetch output into text view

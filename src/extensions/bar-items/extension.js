@@ -6,6 +6,11 @@ import GObject from 'gi://GObject';
 import { Extension } from '../../lib/extensionInterface.js';
 import { PopupMenu } from '../../lib/popupMenu.js';
 import { IconGroups } from '../../lib/dock.js';
+import { createClock } from './clock.js';
+import { createVolumeIndicator, createMicIndicator } from './audio.js';
+import { createCpuStats, createMemoryStats, createDiskStats } from './stats.js';
+import { createPowerIndicator, createBrightnessIndicator } from './power.js';
+import { createNetworkIndicator } from './network.js';
 
 function getOSIcon(config = {}) {
   let icons = [
@@ -44,51 +49,6 @@ function getShorterOSName() {
   return getOSName().split('(')[0].trim();
 }
 
-function formatDate(date, fmt = '%Y/%m/%d %H:%M') {
-  const components = {
-    '%Y': date.getFullYear(), // Full year
-    '%y': String(date.getFullYear()).slice(-2), // Last two digits of year
-    '%m': String(date.getMonth() + 1).padStart(2, '0'), // Month (01-12)
-    '%d': String(date.getDate()).padStart(2, '0'), // Day of the month (01-31)
-    '%H': String(date.getHours()).padStart(2, '0'), // Hour (00-23)
-    '%I': String(date.getHours() % 12 || 12).padStart(2, '0'), // Hour (01-12)
-    '%M': String(date.getMinutes()).padStart(2, '0'), // Minutes (00-59)
-    '%S': String(date.getSeconds()).padStart(2, '0'), // Seconds (00-59)
-    '%p': date.getHours() < 12 ? 'AM' : 'PM', // AM/PM
-  };
-  return fmt.replace(/%[YymdHIMSip]/g, (match) => components[match] || match);
-}
-
-function formatTimeToString(seconds, fmt = '%H:%M') {
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  const remainingSeconds = seconds % 60;
-  const components = {
-    '%H': `${hours}`.padStart(2, '0'),
-    '%M': `${minutes}`.padStart(2, '0'),
-    '%S': `${remainingSeconds}`.padStart(2, '0'),
-  };
-  return fmt.replace(/%[HMS]/g, (match) => components[match] || match);
-}
-
-function formatPowerToString(state, fmt = '%H:%M', config) {
-  const components = {
-    '%P': state.fillLevel,
-  };
-
-  // "formatAlt": "%level %remaining",
-  // "formatToEmpty": "%R battery remaining",
-  // "formatToFull": "%R left charging time"
-
-  if (state.timeToEmpty) {
-    fmt = formatTimeToString(state.timeToEmpty, fmt);
-  }
-  if (state.timeToFull) {
-    fmt = formatTimeToString(state.timeToFull, fmt);
-  }
-  return fmt.replace(/%[P]/g, (match) => components[match] || match);
-}
-
 const BarItemsExtension = GObject.registerClass(
   class BarItemsExtension extends Extension {
     _init(params) {
@@ -102,41 +62,38 @@ const BarItemsExtension = GObject.registerClass(
         'icon-label',
         this.createIconLabel.bind(this),
       );
-      Main.factory.registerProvider('logo', this.createLogo.bind(this));
-      Main.factory.registerProvider('clock', this.createClock.bind(this));
-      Main.factory.registerProvider(
-        'network',
-        this.createNetworkIndicator.bind(this),
-      );
-      Main.factory.registerProvider(
-        'power',
-        this.createPowerIndicator.bind(this),
-      );
-      Main.factory.registerProvider(
-        'volume',
-        this.createVolumeIndicator.bind(this),
-      );
-      Main.factory.registerProvider('mic', this.createMicIndicator.bind(this));
-      Main.factory.registerProvider(
-        'brightness',
-        this.createBrightnessIndicator.bind(this),
-      );
+      Main.factory.registerProvider('logo', this.createOSLogo.bind(this));
+      Main.factory.registerProvider('clock', createClock.bind(this));
+
       Main.factory.registerProvider(
         'inhibitor',
         this.createInhibitorIndicator.bind(this),
       );
+
+      // network
       Main.factory.registerProvider(
-        'cpu-stats',
-        this.createCpuStats.bind(this),
+        'network',
+        createNetworkIndicator.bind(this),
       );
+
+      // audio
+      Main.factory.registerProvider('volume', createVolumeIndicator.bind(this));
+      Main.factory.registerProvider('mic', createMicIndicator.bind(this));
+
+      // power
+      Main.factory.registerProvider('power', createPowerIndicator.bind(this));
+      Main.factory.registerProvider(
+        'brightness',
+        createBrightnessIndicator.bind(this),
+      );
+
+      // stats
+      Main.factory.registerProvider('cpu-stats', createCpuStats.bind(this));
       Main.factory.registerProvider(
         'memory-stats',
-        this.createMemoryStats.bind(this),
+        createMemoryStats.bind(this),
       );
-      Main.factory.registerProvider(
-        'disk-stats',
-        this.createDiskStats.bind(this),
-      );
+      Main.factory.registerProvider('disk-stats', createDiskStats.bind(this));
       super.enable();
     }
 
@@ -150,7 +107,7 @@ const BarItemsExtension = GObject.registerClass(
       return item;
     }
 
-    createLogo(config) {
+    createOSLogo(config) {
       let logo = Main.panel.create_panelitem(config);
       if (config.showOSName) {
         logo.set_label(getOSName());
@@ -160,355 +117,6 @@ const BarItemsExtension = GObject.registerClass(
       }
       logo.set_icon(config.hideIcon ? '' : getOSIcon(config));
       return logo;
-    }
-
-    createClock(config) {
-      // this supports only one clock!
-      let clock = Main.panel.create_panelitem(config);
-      const updateClock = () => {
-        let d = new Date();
-        let dt = formatDate(new Date(), config.format);
-        clock.set_label(dt);
-      };
-      clock.clockTimer = Main.timer.runLoop(
-        updateClock,
-        1000 * 5, // << todo!
-        'clockTimer',
-      );
-      updateClock();
-
-      let builder = new Gtk.Builder();
-      builder.add_from_file(`${this.path}/ui/calendar.ui`);
-      let widget = builder.get_object('calendar-widget');
-      widget.add_css_class('calendar-widget');
-      widget.parent?.remove(widget);
-
-      let menu = clock.menu;
-      menu.has_arrow = true;
-
-      menu.child.append(widget);
-
-      clock.on_click = () => {
-        menu.popup();
-      };
-
-      clock.connect('destroy', () => {
-        if (clock.clockTimer) {
-          Main.timer.cancel(clock.clockTimer);
-          clock.clockTimer = null;
-        }
-      });
-      return clock;
-    }
-
-    createNetworkIndicator(config) {
-      let network = Main.panel.create_panelitem(config);
-      Main.network.connectObject(
-        'network-update',
-        () => {
-          let state = Main.network.state;
-          network.set_label(``);
-          network.set_icon(state.icon);
-          // network.visible = state.visible;
-        },
-        this,
-      );
-      Main.network.sync();
-
-      let menu = network.menu;
-      menu.has_arrow = true;
-
-      let builder = new Gtk.Builder();
-      builder.add_from_file(`${this.path}/ui/network.ui`);
-
-      let widget = builder.get_object('network-widget');
-      let i = builder.get_object('network-icon');
-      let l = builder.get_object('network-label');
-      l.set_size_request(40, -1);
-      widget.parent?.remove(widget);
-      menu.child.append(widget);
-      network.menu = menu;
-      // network.append(menu);
-
-      network.on_click = (count, btn) => {
-        let state = Main.network.state;
-        let source = Main.network.indicator._primaryIndicatorBinding.source;
-        if (btn == 3 && state.address) {
-          i.set_label(state.address);
-          menu.popup();
-          return;
-        }
-        if (source) {
-          i.set_label(`${source.title} ${state.id ?? source.subtitle}`);
-          menu.popup();
-          return;
-        }
-      };
-
-      return network;
-    }
-
-    createPowerIndicator(config) {
-      let power = Main.panel.create_panelitem(config);
-      let menu = power.menu;
-      menu.has_arrow = true;
-
-      let builder = new Gtk.Builder();
-      builder.add_from_file(`${this.path}/ui/power.ui`);
-
-      let widget = builder.get_object('power-widget');
-      let i = builder.get_object('power-icon');
-      let l = builder.get_object('power-label');
-      l.set_size_request(40, -1);
-      widget.parent.remove(widget);
-      menu.child.append(widget);
-
-      power.on_click = (count, btn) => {
-        let state = {
-          ...(Main.power.state ?? {}),
-          profile: Main.powerProfiles.state ?? {},
-        };
-        if (state && state.profile && btn == 3) {
-          i.set_label(state.profile.name ?? '???');
-          menu.popup();
-          return;
-        }
-        if (state && state.fillLevel) {
-          let fmt = config.formatAlt;
-          if (state.timeToFull) {
-            fmt = config.formatAltToFull;
-          }
-          if (state.timeToEmpty) {
-            fmt = config.formatAltToEmpty;
-          }
-          if (!fmt) {
-            fmt = config.format;
-          }
-          let text = formatPowerToString(state, fmt, config).trim();
-          if (text == '') return;
-          i.set_label(text);
-          menu.popup();
-        }
-      };
-
-      function update_power() {
-        let state = {
-          ...(Main.power.state ?? {}),
-          profile: Main.powerProfiles.state ?? {},
-        };
-        let text = formatPowerToString(state, config.format, config);
-        if (text == '') {
-          power.set_label(``);
-        } else {
-          power.set_label(text);
-        }
-        // power.set_icon(state.icon);
-        if (config.icons) {
-          power.set_icon(config.icons[state.icon_index] ?? state.icon);
-        } else {
-          power.set_icon(state.icon);
-        }
-
-        i.set_child(null);
-      }
-
-      Main.power.connectObject(
-        'power-update',
-        () => {
-          update_power();
-        },
-        power,
-      );
-      Main.powerProfiles.connectObject(
-        'power-profiles-update',
-        () => {
-          update_power();
-        },
-        power,
-      );
-      power.connect('destroy', () => {
-        Main.power.disconnectObject(power);
-        Main.powerProfiles.disconnectObject(power);
-      });
-      Main.power.sync();
-      return power;
-    }
-
-    createVolumeIndicator(config) {
-      let volume = Main.panel.create_panelitem(config);
-
-      let menu = volume.menu;
-      menu.has_arrow = true;
-
-      let builder = new Gtk.Builder();
-      builder.add_from_file(`${this.path}/ui/volume.ui`);
-
-      let widget = builder.get_object('volume-widget');
-      let w = builder.get_object('volume');
-      let l = builder.get_object('volume-label');
-      let t = builder.get_object('volume-toggle');
-      l.set_size_request(40, -1);
-      widget.parent.remove(widget);
-      menu.child.append(widget);
-      volume.menu = menu;
-      // volume.append(menu);
-
-      volume.on_click = () => {
-        menu.popup();
-      };
-
-      let setVolume = () => {
-        volume._debounceVolume = Main.loTimer.debounce(
-          Main.loTimer,
-          () => {
-            let value = w.get_value();
-            Main.volume._stream.volume = Main.volume.state.max_volume * value;
-          },
-          5,
-          volume._debounceVolume,
-        );
-      };
-
-      w.connect('value-changed', (w) => {
-        setVolume();
-      });
-      t.connect('clicked', (t) => {
-        let stream = Main.volume._stream;
-        let control = Main.volume._control;
-        if (!stream || !control) return;
-        const { isMuted } = stream;
-        if (isMuted && stream.volume === 0) {
-          stream.volume = 0.4 * control.get_vol_max_norm();
-          stream.push_volume();
-        }
-        stream.change_is_muted(!isMuted);
-      });
-
-      Main.volume.connectObject(
-        'volume-update',
-        () => {
-          let state = Main.volume.state;
-          volume.set_label(``);
-          volume.set_icon(state.icon);
-
-          t.set_icon_name(state.icon);
-          w.set_value(state.level / 100);
-          l.set_label(`${Math.floor(state.level)}%`);
-          if (state.is_muted) {
-            l.set_label(`0%`);
-          }
-          w.set_sensitive(!state.is_muted);
-        },
-        this,
-      );
-      volume.connect('destroy', () => {
-        if (volume._debounceVolume) {
-          Main.loTimer.cancel(volume._debounceVolume);
-          volume._debounceVolume = null;
-        }
-        Main.volume.disconnectObject(volume);
-      });
-
-      Main.volume.sync();
-      return volume;
-    }
-
-    createMicIndicator(config) {
-      let mic = Main.panel.create_panelitem(config);
-      mic.onMicUpdate = (w, s) => {};
-
-      Main.mic.connectObject(
-        'mic-update',
-        () => {
-          let state = Main.mic.state;
-          mic.set_label(``);
-          if (config.icons) {
-            mic.set_icon(config.icons[state.icon_index] ?? state.icon);
-          } else {
-            mic.set_icon(state.icon);
-          }
-          mic.onMicUpdate(mic, state);
-        },
-        this,
-      );
-      mic.connect('destroy', () => {
-        Main.mic.disconnectObject(mic);
-      });
-
-      Main.mic.sync();
-
-      mic.on_click = () => {
-        Main.mic._stream['is-muted'] = !Main.mic._stream['is-muted'];
-      };
-      return mic;
-    }
-
-    createBrightnessIndicator(config) {
-      let brightness = Main.panel.create_panelitem(config);
-      let menu = brightness.menu;
-      menu.has_arrow = true;
-
-      let builder = new Gtk.Builder();
-      builder.add_from_file(`${this.path}/ui/brightness.ui`);
-
-      let widget = builder.get_object('brightness-widget');
-      let w = builder.get_object('brightness');
-      let l = builder.get_object('brightness-label');
-      // let t = builder.get_object('brightness-toggle');
-      l.set_size_request(40, -1);
-      widget.parent.remove(widget);
-      menu.child.append(widget);
-      // brightness.append(menu);
-
-      brightness.on_click = () => {
-        menu.popup();
-      };
-
-      let setBrightness = () => {
-        brightness._debounceBrightness = Main.loTimer.debounce(
-          Main.loTimer,
-          () => {
-            let value = w.get_value() * 100;
-            if (value < 5) {
-              value = 5;
-            }
-            if (value > 100) {
-              value = 100;
-            }
-            Main.brightness._proxy.Brightness = value;
-          },
-          5,
-          brightness._debounceBrightness,
-        );
-      };
-
-      w.connect('value-changed', (w) => {
-        setBrightness();
-      });
-
-      Main.brightness.connectObject(
-        'brightness-update',
-        () => {
-          let state = Main.brightness.state;
-          brightness.set_label(``);
-          brightness.set_icon(config.icon ?? state.icon);
-          // brightness.icon.opacity = (state.brightness / 100);
-          w.set_value(state.brightness / 100);
-          l.set_label(`${Math.floor(state.brightness)}%`);
-          brightness.visible = state.visible;
-        },
-        this,
-      );
-      brightness.connect('destroy', () => {
-        if (brightness._debounceBrightness) {
-          Main.loTimer.cancel(brightness._debounceBrightness);
-          brightness._debounceBrightness = null;
-        }
-        Main.brightness.disconnectObject(brightness);
-      });
-      Main.brightness.sync();
-      // brightness.visible = false;
-      return brightness;
     }
 
     createInhibitorIndicator(config) {
@@ -539,95 +147,6 @@ const BarItemsExtension = GObject.registerClass(
         inhibitorSevice.disconnectObject(inhibitor);
       });
       return inhibitor;
-    }
-
-    createCpuStats(config) {
-      let cpuStats = Main.panel.create_panelitem(config);
-      let statsService = Main.stats;
-
-      statsService.connectObject(
-        'stats-cpu-update',
-        () => {
-          let state = statsService.state.cpu ?? [];
-          cpuStats.set_icon(config.icon ?? 'cpu-alt-symbolic');
-          if (state[0]) {
-            let usage = Math.round(state[0]['usage'] * 100) / 100;
-            cpuStats.set_label(`${usage}%`);
-          }
-        },
-        cpuStats,
-      );
-      statsService.sync();
-
-      cpuStats.on_click = () => {};
-
-      cpuStats.connect('destroy', () => {
-        statsService.disconnectObject(cpuStats);
-      });
-      return cpuStats;
-    }
-
-    createMemoryStats(config) {
-      let memoryStats = Main.panel.create_panelitem(config);
-      let statsService = Main.stats;
-
-      statsService.connectObject(
-        'stats-memory-update',
-        () => {
-          let state = statsService.state.memory ?? {};
-          if (state['total'] && state['total'] > 0) {
-            let usage = state['total'] - state['free'];
-            let percent = Math.round((usage / state['total']) * 100) / 100;
-            memoryStats.set_icon(config.icon ?? 'memory-symbolic');
-            memoryStats.set_label(`${percent}%`);
-          }
-        },
-        memoryStats,
-      );
-      statsService.sync();
-
-      memoryStats.on_click = () => {};
-
-      memoryStats.connect('destroy', () => {
-        statsService.disconnectObject(memoryStats);
-      });
-      return memoryStats;
-    }
-
-    createDiskStats(config) {
-      let diskStats = Main.panel.create_panelitem(config);
-      let statsService = Main.stats;
-
-      statsService.connectObject(
-        'stats-disk-update',
-        () => {
-          let state = statsService.state.disk ?? {};
-          // [
-          //     "Filesystem",
-          //     "Size",
-          //     "Used",
-          //     "Avail",
-          //     "Use%",
-          //     "Mounted",
-          //     "on"
-          // ]
-          if (state['Mounted']) {
-            diskStats.set_icon(config.icon ?? 'hard-disk-symbolic');
-            diskStats.set_label(
-              `${state['Filesystem']} ${state['Used']}/${state['Size']} ${state['Use%']}`,
-            );
-          }
-        },
-        diskStats,
-      );
-      statsService.sync();
-
-      diskStats.on_click = () => {};
-
-      diskStats.connect('destroy', () => {
-        statsService.disconnectObject(diskStats);
-      });
-      return diskStats;
     }
 
     disable() {
