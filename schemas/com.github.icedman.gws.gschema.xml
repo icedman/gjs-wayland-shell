@@ -219,7 +219,7 @@
         <description>Icon spacing.</description>
     </key>
     <key type="b" name="panel-icon-shadow">
-        <default>true</default>
+        <default>false</default>
         <summary>Icon shadow</summary>
         <description>Add the icon shadow effect.</description>
     </key>

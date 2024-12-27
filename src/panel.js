@@ -57,8 +57,21 @@ const Panel = GObject.registerClass(
       return p;
     }
 
-    create_panelitem() {
-      return new PanelItem();
+    create_panelitem(config = {}) {
+      let item = new PanelItem();
+      if (config.id) {
+        item.add_css_class(config.id);
+      }
+      if (config.widget && config.id != config.widget) {
+        item.add_css_class(config.widget);
+      }
+
+      if (config.width || config.height) {
+        item.set_size_request(config.width ?? -1, config.height ?? -1);
+      }
+      item.set_icon(config.icon);
+      item.set_label(config.label);
+      return item;
     }
   },
 );

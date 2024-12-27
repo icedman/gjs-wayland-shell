@@ -98,6 +98,10 @@ const BarItemsExtension = GObject.registerClass(
     }
 
     enable() {
+      Main.factory.registerProvider(
+        'icon-label',
+        this.createIconLabel.bind(this),
+      );
       Main.factory.registerProvider('logo', this.createLogo.bind(this));
       Main.factory.registerProvider('clock', this.createClock.bind(this));
       Main.factory.registerProvider(
@@ -136,9 +140,18 @@ const BarItemsExtension = GObject.registerClass(
       super.enable();
     }
 
+    createIconLabel(config) {
+      let item = Main.panel.create_panelitem(config);
+      if (config['class-name']) {
+        item.add_css_class(config['class-name']);
+      }
+      item.set_icon(config.icon);
+      item.set_label(config.label);
+      return item;
+    }
+
     createLogo(config) {
-      let logo = Main.panel.create_panelitem();
-      logo.add_css_class('logo');
+      let logo = Main.panel.create_panelitem(config);
       if (config.showOSName) {
         logo.set_label(getOSName());
       }
@@ -151,9 +164,7 @@ const BarItemsExtension = GObject.registerClass(
 
     createClock(config) {
       // this supports only one clock!
-      let clock = Main.panel.create_panelitem();
-      clock.add_css_class('clock');
-      clock.set_label('Clock');
+      let clock = Main.panel.create_panelitem(config);
       const updateClock = () => {
         let d = new Date();
         let dt = formatDate(new Date(), config.format);
@@ -191,9 +202,7 @@ const BarItemsExtension = GObject.registerClass(
     }
 
     createNetworkIndicator(config) {
-      let network = Main.panel.create_panelitem();
-      network.add_css_class('network');
-      network.set_label('network');
+      let network = Main.panel.create_panelitem(config);
       Main.network.connectObject(
         'network-update',
         () => {
@@ -240,10 +249,7 @@ const BarItemsExtension = GObject.registerClass(
     }
 
     createPowerIndicator(config) {
-      let power = Main.panel.create_panelitem();
-      power.add_css_class('power');
-      power.set_label('power');
-
+      let power = Main.panel.create_panelitem(config);
       let menu = power.menu;
       menu.has_arrow = true;
 
@@ -296,7 +302,13 @@ const BarItemsExtension = GObject.registerClass(
         } else {
           power.set_label(text);
         }
-        power.set_icon(state.icon);
+        // power.set_icon(state.icon);
+        if (config.icons) {
+          power.set_icon(config.icons[state.icon_index] ?? state.icon);
+        } else {
+          power.set_icon(state.icon);
+        }
+
         i.set_child(null);
       }
 
@@ -323,9 +335,7 @@ const BarItemsExtension = GObject.registerClass(
     }
 
     createVolumeIndicator(config) {
-      let volume = Main.panel.create_panelitem();
-      volume.add_css_class('volume');
-      volume.set_label('volume');
+      let volume = Main.panel.create_panelitem(config);
 
       let menu = volume.menu;
       menu.has_arrow = true;
@@ -404,9 +414,7 @@ const BarItemsExtension = GObject.registerClass(
     }
 
     createMicIndicator(config) {
-      let mic = Main.panel.create_panelitem();
-      mic.add_css_class('mic');
-      mic.set_label('mic');
+      let mic = Main.panel.create_panelitem(config);
       mic.onMicUpdate = (w, s) => {};
 
       Main.mic.connectObject(
@@ -414,7 +422,11 @@ const BarItemsExtension = GObject.registerClass(
         () => {
           let state = Main.mic.state;
           mic.set_label(``);
-          mic.set_icon(state.icon);
+          if (config.icons) {
+            mic.set_icon(config.icons[state.icon_index] ?? state.icon);
+          } else {
+            mic.set_icon(state.icon);
+          }
           mic.onMicUpdate(mic, state);
         },
         this,
@@ -432,10 +444,7 @@ const BarItemsExtension = GObject.registerClass(
     }
 
     createBrightnessIndicator(config) {
-      let brightness = Main.panel.create_panelitem();
-      brightness.add_css_class('brightness');
-      brightness.set_label('brightness');
-
+      let brightness = Main.panel.create_panelitem(config);
       let menu = brightness.menu;
       menu.has_arrow = true;
 
@@ -482,7 +491,7 @@ const BarItemsExtension = GObject.registerClass(
         () => {
           let state = Main.brightness.state;
           brightness.set_label(``);
-          brightness.set_icon(state.icon);
+          brightness.set_icon(config.icon ?? state.icon);
           // brightness.icon.opacity = (state.brightness / 100);
           w.set_value(state.brightness / 100);
           l.set_label(`${Math.floor(state.brightness)}%`);
@@ -503,10 +512,7 @@ const BarItemsExtension = GObject.registerClass(
     }
 
     createInhibitorIndicator(config) {
-      let inhibitor = Main.panel.create_panelitem();
-      inhibitor.add_css_class('inhibitor');
-      inhibitor.set_label('inhibitor');
-
+      let inhibitor = Main.panel.create_panelitem(config);
       let inhibitorSevice = Main.inhibitor;
 
       inhibitorSevice.connectObject(
@@ -514,7 +520,11 @@ const BarItemsExtension = GObject.registerClass(
         () => {
           let state = inhibitorSevice.state;
           inhibitor.set_label(``);
-          inhibitor.set_icon(state.icon);
+          if (config.icons) {
+            inhibitor.set_icon(config.icons[state.icon_index] ?? state.icon);
+          } else {
+            inhibitor.set_icon(state.icon);
+          }
         },
         inhibitor,
       );
@@ -532,17 +542,14 @@ const BarItemsExtension = GObject.registerClass(
     }
 
     createCpuStats(config) {
-      let cpuStats = Main.panel.create_panelitem();
-      cpuStats.add_css_class('cpu-stats');
-      cpuStats.set_label('cpu-stats');
-
+      let cpuStats = Main.panel.create_panelitem(config);
       let statsService = Main.stats;
 
       statsService.connectObject(
         'stats-cpu-update',
         () => {
           let state = statsService.state.cpu ?? [];
-          cpuStats.set_icon('cpu-alt-symbolic');
+          cpuStats.set_icon(config.icon ?? 'cpu-alt-symbolic');
           if (state[0]) {
             let usage = Math.round(state[0]['usage'] * 100) / 100;
             cpuStats.set_label(`${usage}%`);
@@ -561,10 +568,7 @@ const BarItemsExtension = GObject.registerClass(
     }
 
     createMemoryStats(config) {
-      let memoryStats = Main.panel.create_panelitem();
-      memoryStats.add_css_class('memory-stats');
-      memoryStats.set_label('memory-stats');
-
+      let memoryStats = Main.panel.create_panelitem(config);
       let statsService = Main.stats;
 
       statsService.connectObject(
@@ -574,7 +578,7 @@ const BarItemsExtension = GObject.registerClass(
           if (state['total'] && state['total'] > 0) {
             let usage = state['total'] - state['free'];
             let percent = Math.round((usage / state['total']) * 100) / 100;
-            memoryStats.set_icon('memory-symbolic');
+            memoryStats.set_icon(config.icon ?? 'memory-symbolic');
             memoryStats.set_label(`${percent}%`);
           }
         },
@@ -591,30 +595,27 @@ const BarItemsExtension = GObject.registerClass(
     }
 
     createDiskStats(config) {
-      let diskStats = Main.panel.create_panelitem();
-      diskStats.add_css_class('disk-stats');
-      diskStats.set_label('disk-stats');
-
+      let diskStats = Main.panel.create_panelitem(config);
       let statsService = Main.stats;
 
       statsService.connectObject(
         'stats-disk-update',
         () => {
-
           let state = statsService.state.disk ?? {};
-      // [
-      //     "Filesystem",
-      //     "Size",
-      //     "Used",
-      //     "Avail",
-      //     "Use%",
-      //     "Mounted",
-      //     "on"
-      // ]
-          console.log(state);
+          // [
+          //     "Filesystem",
+          //     "Size",
+          //     "Used",
+          //     "Avail",
+          //     "Use%",
+          //     "Mounted",
+          //     "on"
+          // ]
           if (state['Mounted']) {
-            diskStats.set_icon('hard-disk-symbolic');
-            diskStats.set_label(`${state['Mounted']} ${state['Used']}/${state['Size']} ${state['Use%']}`);
+            diskStats.set_icon(config.icon ?? 'hard-disk-symbolic');
+            diskStats.set_label(
+              `${state['Filesystem']} ${state['Used']}/${state['Size']} ${state['Use%']}`,
+            );
           }
         },
         diskStats,

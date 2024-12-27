@@ -10,7 +10,7 @@ import { Extension } from '../lib/extensionInterface.js';
 
 const CPU_REFRESH_INTERVAL = 3000; // in milliseconds
 const MEMORY_REFRESH_INTERVAL = 6000; // in milliseconds
-const DISK_REFRESH_INTERVAL = (1000 * 60 * 3); // in milliseconds
+const DISK_REFRESH_INTERVAL = 1000 * 60 * 3; // in milliseconds
 
 let cpuUsage = []; // first line represents the total CPU usage, next - consecutive cores
 
@@ -113,18 +113,18 @@ function getCurrentDiskUsage() {
   try {
     const [ok, out, err, exit] = GLib.spawn_command_line_sync('df -h /');
     const content = new TextDecoder().decode(out);
-    const lines = content.split('\n').map(line => line.split(/\s+/));
+    const lines = content.split('\n').map((line) => line.split(/\s+/));
     const header = lines[0];
     const data = lines[1];
-    let res = {}
-    for(let i=0; i<header.length; i++) {
+    let res = {};
+    for (let i = 0; i < header.length; i++) {
       res[header[i]] = data[i];
     }
     return res;
-  } catch(err) {
+  } catch (err) {
     //
   }
-  return {}
+  return {};
 }
 
 function formatBytes(kbs) {

@@ -62,7 +62,7 @@ const Volume = GObject.registerClass(
       super.disable();
     }
 
-    get_icon() {
+    get_icon_index() {
       if (!this._stream) return null;
 
       let volume = this._stream.volume;
@@ -73,7 +73,11 @@ const Volume = GObject.registerClass(
         n = Math.ceil((3 * volume) / this._control.get_vol_max_norm());
         n = Math.clamp(n, 1, this._icons.length - 1);
       }
-      return this._icons[n];
+      return n;
+    }
+
+    get_icon() {
+      return this._icons[this.get_icon_index()];
     }
 
     sync() {
@@ -92,6 +96,7 @@ const Volume = GObject.registerClass(
       this.state = {
         ready: this._control?.get_state() === Gvc.MixerControlState.READY,
         icon: this.get_icon(),
+        icon_index: this.get_icon_index(),
         is_muted: this._stream.is_muted,
         volume: this._stream.volume,
         max_volume: this._control.get_vol_max_norm(),
@@ -142,7 +147,7 @@ const Mic = GObject.registerClass(
 
     disable() {}
 
-    get_icon() {
+    get_icon_index() {
       if (!this._stream) return null;
 
       let volume = this._stream.volume;
@@ -153,7 +158,11 @@ const Mic = GObject.registerClass(
         n = Math.ceil((3 * volume) / this._control.get_vol_max_norm());
         n = Math.clamp(n, 1, this._icons.length - 1);
       }
-      return this._icons[n];
+      return n;
+    }
+
+    get_icon() {
+      return this._icons[this.get_icon_index()];
     }
 
     sync() {

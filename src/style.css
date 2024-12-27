@@ -2,7 +2,7 @@
 #Dock {
     background: transparent;
     opacity: 1;
-    transition: opacity 0.85s ease-in-out;
+    transition: opacity 0.45s ease-in-out;
 }
 
 #Dock.startup {
@@ -28,7 +28,7 @@
 #Panel {
     background: transparent;
     opacity: 1;
-    transition: opacity 0.85s ease-in-out;
+    transition: opacity 0.45s ease-in-out;
 }
 
 #Panel.startup {
@@ -99,7 +99,7 @@
 #Search {
     background: transparent;
     opacity: 1;
-    transition: opacity 0.35s ease-in-out;
+    transition: opacity 0.25s ease-in-out;
 }
 #Search.startup {
     opacity: 0;
@@ -162,7 +162,7 @@
 #Apps-Grid {
     background: transparent;
     opacity: 1;
-    transition: opacity 0.35s ease-in-out;
+    transition: opacity 0.25s ease-in-out;
 }
 #Apps-Grid.startup {
     opacity: 0;

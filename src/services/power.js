@@ -71,6 +71,7 @@ const Power = GObject.registerClass(
       const charged =
         _proxy.State === UPower.DeviceState.FULLY_CHARGED ||
         (_proxy.State === UPower.DeviceState.CHARGING && fillLevel === 100);
+
       const icon = charged
         ? 'battery-level-100-charged-symbolic'
         : `battery-level-${fillLevel}${chargingState}-symbolic`;

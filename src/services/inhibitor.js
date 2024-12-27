@@ -7,10 +7,6 @@ import { Extension } from '../lib/extensionInterface.js';
 
 const BUS_NAME = 'org.freedesktop.ScreenSaver';
 const OBJECT_PATH = '/org/freedesktop/ScreenSaver';
-const ACTIVE_ICON = 'caffeine-on';
-const INACTIVE_ICON = 'caffeine-off';
-// const ACTIVE_ICON = 'caffeine-cup-full';
-// const INACTIVE_ICON = 'caffeine-cup-empty';
 
 const GTK_APPLICATION_INHIBIT_IDLE = 8;
 
@@ -42,11 +38,14 @@ const Inhibitor = GObject.registerClass(
 
     async enable() {
       super.enable();
+      this._icons = ['caffeine-cup-empty', 'caffeine-cup-full'];
+      this._cookie = null;
       this.state = {
         active: false,
-        icon: INACTIVE_ICON,
+        cookie: null,
+        icon: this.get_icon(),
+        icon_index: this.get_icon_index(),
       };
-      this._cookie = null;
 
       // const InhibitorProxy = Gio.DBusProxy.makeProxyWrapper(InhibitorInterface);
       // this._proxy = new InhibitorProxy(
@@ -70,12 +69,21 @@ const Inhibitor = GObject.registerClass(
       super.disable();
     }
 
+    get_icon_index() {
+      return this._cookie == null ? 0 : 1;
+    }
+
+    get_icon() {
+      return this._icons[this.get_icon_index()];
+    }
+
     sync() {
       this.state = {
         active: this._cookie != null,
         cookie: this._cookie,
+        icon: this.get_icon(),
+        icon_index: this.get_icon_index(),
       };
-      this.state.icon = this.state.active ? ACTIVE_ICON : INACTIVE_ICON;
 
       // todo ... check for other inhibitors
 
