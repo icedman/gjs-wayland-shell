@@ -65,6 +65,27 @@ builder.add_from_file('./ui/search.ui');
 builder.add_from_file('./ui/apps-grid.ui');
 builder.add_from_file('./ui/services.ui');
 
+let _monitors = Gdk.Display.get_default().get_monitors();
+let _monitorIds = [];
+
+function update_monitors() {
+  _monitorIds = ['primary'];
+  let dockMonitors = new Gtk.StringList();
+  dockMonitors.append('Primary Monitor');
+  for (let i = 0; i < _monitors.get_n_items(); i++) {
+    let m = _monitors.get_item(i);
+    _monitorIds.push(m.connector);
+    dockMonitors.append(
+      m.description ?? _monitors.get_item(i).connector ?? `monitor ${i}`,
+    );
+  }
+  builder.get_object('dock-preferred-monitor-index').set_model(dockMonitors);
+  builder.get_object('panel-preferred-monitor-index').set_model(dockMonitors);
+}
+
+_monitors.connect('items-changed', update_monitors);
+update_monitors();
+
 function show_preference_group(widget) {
   widget.set_visible(true);
   if (widget.get_name() == 'AdwPreferencesGroup') {
@@ -81,6 +102,11 @@ function show_preference_group(widget) {
   keys.forEach((k) => {
     console.log(k);
     let widget = builder.get_object(k);
+
+    if (k.includes('preferred-monitor')) {
+      widget = builder.get_object(k + '-index');
+    }
+
     if (!widget) {
       console.log('----no widget');
       return;
@@ -92,10 +118,23 @@ function show_preference_group(widget) {
     let widgetType = widget.get_name();
     switch (widgetType) {
       case 'GtkDropDown':
+        if (k.includes('preferred-monitor')) {
+          value = _monitorIds.indexOf(value);
+          if (value < 0) value = 0;
+        }
         widget.set_selected(value);
         widget.connect('notify::selected-item', (w) => {
           let index = w.get_selected();
-          settings.set_int(k, index);
+
+          if (k.includes('preferred-monitor')) {
+            let m = _monitorIds[index];
+            if (!m) {
+              m = _monitors.get_item(index - 1)?.connector;
+            }
+            settings.set_string(k, m ?? '');
+          } else {
+            settings.set_int(k, index);
+          }
         });
         break;
       case 'GtkScale':

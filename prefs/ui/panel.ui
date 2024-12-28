@@ -21,6 +21,19 @@
           </object>
         </child>
         <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="yes">Preferred Monitor</property>
+            <property name="subtitle" translatable="yes">Show dock on selected monitor.</property>
+            <property name="activatable-widget">panel-preferred-monitor-index</property>
+            <child>
+              <object class="GtkDropDown" id="panel-preferred-monitor-index">
+                <property name="valign">center</property>
+                <property name="model">panel-preferred-monitor-model</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
           <object class="AdwActionRow" id="panel-location-row">
             <property name="visible">true</property>
             <property name="title" translatable="yes">Bar Location</property>
@@ -600,6 +613,16 @@
       <item translatable="yes">Left</item>
       <item translatable="yes">Right</item>
       <item translatable="yes">Top</item>
+    </items>
+  </object>
+  <object class="GtkStringList" id="panel-preferred-monitor-model">
+    <items>
+      <item translatable="yes">Primary Monitor</item>
+      <item translatable="yes">Secondary Monitor</item>
+      <item translatable="yes">Monitor 3</item>
+      <item translatable="yes">Monitor 4</item>
+      <item translatable="yes">Monitor 5</item>
+      <item translatable="yes">Monitor 6</item>
     </items>
   </object>
 </interface>
