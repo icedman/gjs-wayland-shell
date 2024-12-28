@@ -20,6 +20,10 @@ const Mounts = GObject.registerClass(
     }
 
     async enable() {
+      if (!Main.settings.get_boolean('service-mounts')) {
+        return;
+      }
+
       super.enable();
       this.state = {
         mounts: {},
@@ -118,6 +122,7 @@ const Mounts = GObject.registerClass(
     }
 
     checkMounts() {
+      if (!this._volumeMonitor) return;
       let mounts = this._volumeMonitor.get_mounts();
       let mount_ids = mounts.map((mount) => {
         this._setupMountIcon(mount);

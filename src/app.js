@@ -65,6 +65,7 @@ const App = GObject.registerClass(
       this.modules = [
         Main.shell,
         Main.dbus,
+        Main.monitors,
         Main.dock,
         Main.panel,
 

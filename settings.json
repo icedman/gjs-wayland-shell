@@ -1,0 +1,172 @@
+{
+   "dock-items-lead" : [],
+   "favorite-apps" : [
+      "kitty.desktop",
+      "org.gnome.Nautilus.desktop",
+      "google-chrome.desktop",
+      "org.mozilla.firefox.desktop",
+      "com.spotify.Client.desktop",
+      "org.gnome.Calendar.desktop",
+      "org.gnome.clocks.desktop",
+      "org.gnome.Software.desktop",
+      "org.gnome.TextEditor.desktop"
+   ],
+   "panel-items" : [],
+   "panel-items-lead" : [
+      {
+         "hideIcon" : false,
+         "id" : "logo",
+         "showOSName" : true,
+         "showShortOSName" : false,
+         "widget" : "logo"
+      },
+      "search"
+   ],
+   "panel-items-trail" : [
+      {
+         "_icons" : [
+            "caffeine-off",
+            "caffeine-on"
+         ],
+         "id" : "inhibitor"
+      },
+      {
+         "format" : "%P%",
+         "id" : "brightness"
+      },
+      {
+         "-widget" : "icon-label",
+         "icon" : "triangle-left",
+         "id" : "arrow-inhibitor-network"
+      },
+      "network",
+      "--bluetooth",
+      {
+         "-widget" : "icon-label",
+         "icon" : "triangle-left",
+         "id" : "arrow-network-power"
+      },
+      {
+         "format" : "%P%",
+         "formatAlt" : "%P%",
+         "formatAltToEmpty" : "%P% %H:%M battery remaining",
+         "formatAltToFull" : "%P% %H:%M left charging time",
+         "id" : "power",
+         "width" : 80
+      },
+      {
+         "format" : "%P%",
+         "id" : "volume"
+      },
+      "mic",
+      {
+         "format" : "%Mounted %Used/%Size (%Use%)",
+         "id" : "disk-stats-root",
+         "on" : "/",
+         "widget" : "disk-stats"
+      },
+      {
+         "format" : "%usagePercent% 󰓢 %swapUsagePercent% ",
+         "id" : "memory-stats",
+         "width" : 84
+      },
+      {
+         "id" : "cpu-stats",
+         "width" : 84
+      },
+      {
+         "-format" : "%Y-%m-%d %H:%M %p",
+         "-interval" : 750,
+         "format" : "󰸗 %a, %b %d, %Y %H%:%M %p ",
+         "icon" : "",
+         "id" : "clock",
+         "widget" : "clock"
+      }
+   ]
+}
+{
+   "dock-items-lead" : [],
+   "favorite-apps" : [
+      "kitty.desktop",
+      "org.gnome.Nautilus.desktop",
+      "google-chrome.desktop",
+      "org.mozilla.firefox.desktop",
+      "com.spotify.Client.desktop",
+      "org.gnome.Calendar.desktop",
+      "org.gnome.clocks.desktop",
+      "org.gnome.Software.desktop",
+      "org.gnome.TextEditor.desktop"
+   ],
+   "panel-items" : [],
+   "panel-items-lead" : [
+      {
+         "hideIcon" : false,
+         "id" : "logo",
+         "showOSName" : true,
+         "showShortOSName" : false,
+         "widget" : "logo"
+      },
+      "search"
+   ],
+   "panel-items-trail" : [
+      {
+         "_icons" : [
+            "caffeine-off",
+            "caffeine-on"
+         ],
+         "id" : "inhibitor"
+      },
+      {
+         "format" : "%P%",
+         "id" : "brightness"
+      },
+      {
+         "-widget" : "icon-label",
+         "icon" : "triangle-left",
+         "id" : "arrow-inhibitor-network"
+      },
+      "network",
+      "--bluetooth",
+      {
+         "-widget" : "icon-label",
+         "icon" : "triangle-left",
+         "id" : "arrow-network-power"
+      },
+      {
+         "format" : "%P%",
+         "formatAlt" : "%P%",
+         "formatAltToEmpty" : "%P% %H:%M battery remaining",
+         "formatAltToFull" : "%P% %H:%M left charging time",
+         "id" : "power",
+         "width" : 80
+      },
+      {
+         "format" : "%P%",
+         "id" : "volume"
+      },
+      "mic",
+      {
+         "format" : "%Mounted %Used/%Size (%Use%)",
+         "id" : "disk-stats-root",
+         "on" : "/",
+         "widget" : "disk-stats"
+      },
+      {
+         "format" : "%usagePercent% 󰓢 %swapUsagePercent% ",
+         "id" : "memory-stats",
+         "width" : 84
+      },
+      {
+         "id" : "cpu-stats",
+         "width" : 84
+      },
+      {
+         "-format" : "%Y-%m-%d %H:%M %p",
+         "-interval" : 750,
+         "format" : "󰸗 %a, %b %d, %Y %H%:%M %p ",
+         "icon" : "",
+         "id" : "clock",
+         "widget" : "clock"
+      }
+   ]
+}

@@ -17,6 +17,7 @@ import WindowManagerService from './windowManager.js';
 import Power from './services/power.js';
 import PowerProfiles from './services/powerProfiles.js';
 import Brightness from './services/brightness.js';
+import Monitors from './services/monitors.js';
 import Inhibitor from './services/inhibitor.js';
 import Login1 from './services/login1.js';
 import Network from './services/network.js';
@@ -56,6 +57,7 @@ globalThis.Main = {
   // services
   shell: new WindowManagerService(),
   apps: new SystemApps(),
+  monitors: new Monitors(),
   dbus: new DBus(),
 
   // indicators

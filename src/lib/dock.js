@@ -148,6 +148,7 @@ export const DockPanel = GObject.registerClass(
       this.settingsMap = {
         [`${prefix}-show`]: _updateLayout,
         [`${prefix}-edge-distance`]: _updateLayout,
+        [`${prefix}-preferred-monitor`]: _updateAnimation,
 
         // settings affecting animation or affected by animation
         [`${prefix}-location`]: _updateAnimation,
@@ -206,6 +207,14 @@ export const DockPanel = GObject.registerClass(
         this,
       );
 
+      Main.monitors.connectObject(
+        'monitors-update',
+        () => {
+          this.update_animation();
+        },
+        this,
+      );
+
       this.load_settings();
       this.update();
     }
@@ -216,6 +225,7 @@ export const DockPanel = GObject.registerClass(
       Main.settings.disconnectObject(this);
       Main.shell.disconnectObject(this);
       Main.factory.disconnectObject(this);
+      Main.monitors.disconnectObject(this);
       super.destroy();
     }
 
@@ -256,6 +266,23 @@ export const DockPanel = GObject.registerClass(
       this.lead.orientation = dockOrientation[this.LOCATION];
       this.trail.orientation = dockOrientation[this.LOCATION];
       this.container.orientation = dockOrientation[this.LOCATION];
+
+      // monitor
+      this.monitor = Main.monitors.getMonitor(this.PREFERRED_MONITOR);
+      if (!this.monitor || !this.monitor.valid) {
+        if (
+          Main.monitors.state.count > 1 &&
+          this.monitor &&
+          !this.monitor.valid
+        ) {
+          if (this != Main.dock.window && this != Main.panel.window) {
+            // hide!
+            // return
+          }
+        }
+        this.monitor = Main.monitors.getPrimaryMonitor();
+      }
+      LayerShell.set_monitor(this, this.monitor);
 
       // clear
       for (let i = 0; i < 4; i++) {
@@ -611,9 +638,9 @@ export const DockPanel = GObject.registerClass(
     }
 
     update_animation() {
-      this.sort_icons();
       this.update_layout();
       this.update_style();
+      this.sort_icons();
       this.update_icon_size();
     }
 

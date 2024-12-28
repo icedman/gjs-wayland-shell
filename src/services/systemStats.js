@@ -165,12 +165,16 @@ const SystemStats = GObject.registerClass(
   class SystemStats extends Extension {
     _init(params) {
       super._init(params);
+      this.state = {};
     }
 
     async enable() {
+      if (!Main.settings.get_boolean('service-system-stats')) {
+        return;
+      }
+
       super.enable();
       this.verbose = false;
-      this.state = {};
 
       this._cpuRefreshId = setInterval(() => {
         this.updateCpuUsage();
@@ -206,6 +210,10 @@ const SystemStats = GObject.registerClass(
     }
 
     updateCpuUsage() {
+      if (!this._cpuRefreshId) {
+        return;
+      }
+
       let cpu = getCurrentCpuUsage();
       this.state['cpu'] = cpu;
       if (this.verbose) {
@@ -215,6 +223,10 @@ const SystemStats = GObject.registerClass(
     }
 
     updateMemoryStats() {
+      if (!this._memoryRefreshId) {
+        return;
+      }
+
       let mem = getCurrentMemoryStats();
       this.state['memory'] = mem;
       if (this.verbose) {
@@ -224,6 +236,10 @@ const SystemStats = GObject.registerClass(
     }
 
     updateDiskUsage() {
+      if (!this._diskRefreshId) {
+        return;
+      }
+
       let disk = getCurrentDiskUsage();
       this.state['disk'] = disk;
       if (this.verbose) {

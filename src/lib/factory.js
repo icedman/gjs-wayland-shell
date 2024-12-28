@@ -38,9 +38,11 @@ const Factory = GObject.registerClass(
     create(id, config = {}) {
       if (this.providers[id]) {
         let item = this.providers[id].create(config);
-        item.id = config.id ?? id;
-        // console.log(config);
-        return item;
+        if (item) {
+          item.id = config.id ?? id;
+          // console.log(config);
+          return item;
+        }
       }
       return null;
     }

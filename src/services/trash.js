@@ -17,11 +17,15 @@ const Trash = GObject.registerClass(
   class Trash extends Extension {
     _init(params) {
       super._init(params);
+      this.state = {};
     }
 
     async enable() {
+      if (!Main.settings.get_boolean('service-trash')) {
+        return;
+      }
+
       super.enable();
-      this.state = {};
       this.monitorTrash();
       this.sync();
     }
@@ -55,6 +59,10 @@ const Trash = GObject.registerClass(
     }
 
     checkTrash() {
+      if (!this._trashDir) {
+        return false;
+      }
+
       let prevFull = this.state.full ?? false;
       let iter = this._trashDir.enumerate_children(
         'standard::*',

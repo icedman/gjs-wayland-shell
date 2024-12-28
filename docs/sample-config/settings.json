@@ -1,42 +1,92 @@
 {
-  "favorite-apps": [
-    "kitty.desktop",
-    "org.gnome.Nautilus.desktop",
-    "google-chrome.desktop",
-    "org.mozilla.firefox.desktop",
-    "com.spotify.Client.desktop",
-    "org.gnome.Calendar.desktop",
-    "org.gnome.clocks.desktop",
-    "org.gnome.Software.desktop",
-    "org.gnome.TextEditor.desktop"
-  ],
-  "panel-items-lead": [{
-    "id": "logo",
-    "showOSName": false,
-    "showShortOSName": true,
-    "hideIcon": false
-  }, "search"],
-  "panel-items": [{
-    "id": "clock",
-    "widget": "clock",
-    "format": "%Y-%m-%d %H:%M"
-  }],
-  "panel-items-trail": [
-    "inhibitor",
-    {
-      "id": "brightness",
-      "format": "%P%"
-    },
-    "network", 
-    {
-      "id": "power",
-      "format": "%P%",
-      "formatAlt": "%P%", 
-      "formatAltToEmpty": "%P% %H:%M battery remaining",
-      "formatAltToFull": "%P% %H:%M left charging time"
-    },
-    {
-      "id": "volume",
-      "format": "%P%"
-    }, "mic"]
+    "favorite-apps": [
+        "kitty.desktop",
+        "org.gnome.Nautilus.desktop",
+        "google-chrome.desktop",
+        "org.mozilla.firefox.desktop",
+        "com.spotify.Client.desktop",
+        "org.gnome.Calendar.desktop",
+        "org.gnome.clocks.desktop",
+        "org.gnome.Software.desktop",
+        "org.gnome.TextEditor.desktop"
+    ],
+    "dock-items-lead": [
+
+    ],
+    "panel-items-lead": [
+        {
+            "id": "logo",
+            "widget": "logo",
+            "showOSName": true,
+            "showShortOSName": false,
+            "hideIcon": false
+        },
+        "search"
+    ],
+    "panel-items": [
+
+    ],
+    "panel-items-trail": [
+        {
+            "id": "inhibitor",
+            "_icons": [
+                "caffeine-off",
+                "caffeine-on"
+            ]
+        },
+        {
+            "id": "brightness",
+            "format": "%P%"
+        },
+        {
+            "id": "arrow-inhibitor-network",
+            "-widget": "icon-label",
+            "icon": "triangle-left"
+        },
+        "network",
+        "--bluetooth",
+        {
+            "id": "arrow-network-power",
+            "-widget": "icon-label",
+            "icon": "triangle-left"
+        },
+        {
+            "id": "power",
+            "width": 80,
+            "format": "%P%",
+            "formatAlt": "%P%",
+            "formatAltToEmpty": "%P% %H:%M battery remaining",
+            "formatAltToFull": "%P% %H:%M left charging time"
+        },
+        {
+            "id": "volume",
+            "format": "%P%"
+        },
+        "mic",
+        {
+            "id": "disk-stats-root",
+            "widget": "disk-stats",
+            "format": "%Mounted %Used/%Size (%Use%)",
+            "on": "/"
+        },
+        {
+            "id": "memory-stats",
+            "format": "%usagePercent% 󰓢 %swapUsagePercent% ",
+            "width": 84
+        },
+        {
+            "id": "cpu-stats",
+            "width": 84
+        },
+        {
+            "id": "clock",
+            "icon": "",
+            "widget": "clock",
+            "format": "󰸗 %a, %b %d, %Y %H:%M %p ",
+            "-format": "󰸗 %a, %b %d, %Y %H%:%M %p ",
+            "-interval": 750,
+            "format": "󰸗 %a, %b %d, %Y %H%:%M %p ",
+            "-format": "%Y-%m-%d %H:%M %p"
+        }
+    ]
 }

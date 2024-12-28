@@ -1,4 +1,5 @@
 export function createCpuStats(config) {
+  if (!Main.settings.get_boolean('service-system-stats')) return null;
   let cpuStats = Main.panel.create_panelitem(config);
   let statsService = Main.stats;
 
@@ -33,6 +34,7 @@ function formatMemory(state, fmt = '%usage%', config) {
 }
 
 export function createMemoryStats(config) {
+  if (!Main.settings.get_boolean('service-system-stats')) return null;
   let memoryStats = Main.panel.create_panelitem(config);
   let statsService = Main.stats;
 
@@ -66,6 +68,7 @@ function formatDisk(state, fmt = '%Filesystem %Used/%Size %Use%', config) {
 }
 
 export function createDiskStats(config) {
+  if (!Main.settings.get_boolean('service-system-stats')) return null;
   let diskStats = Main.panel.create_panelitem(config);
   let statsService = Main.stats;
 

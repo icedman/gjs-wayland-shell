@@ -5,7 +5,28 @@
       <summary>"Dark or Light</summary>
       <description>Application theme (dark, light, or auto)</description>
     </key>
+    <!-- SERVICES -->
+    <key type="b" name="service-system-stats">
+        <default>false</default>
+        <summary></summary>
+        <description></description>
+    </key>
+    <key type="b" name="service-trash">
+        <default>true</default>
+        <summary></summary>
+        <description></description>
+    </key>
+    <key type="b" name="service-mounts">
+        <default>true</default>
+        <summary></summary>
+        <description></description>
+    </key>
     <!-- DOCK -->
+    <key type="s" name="dock-preferred-monitor">
+      <default>""</default>
+      <summary>"Preferred monitor</summary>
+      <description>Show dock at a preferred monitor</description>
+    </key>
     <key type="b" name="dock-show">
         <default>true</default>
         <summary>Show the dock</summary>
@@ -143,6 +164,11 @@
         <description></description>
     </key>
     <!-- PANEL -->
+    <key type="s" name="panel-preferred-monitor">
+      <default>""</default>
+      <summary>"Preferred monitor</summary>
+      <description>Show panel at a preferred monitor</description>
+    </key>
     <key type="b" name="panel-show">
         <default>true</default>
         <summary>Show the topbar</summary>

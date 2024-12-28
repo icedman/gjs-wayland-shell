@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <object class="AdwPreferencesPage" id="services">
+    <property name="name">appearance</property>
+    <property name="title" translatable="yes">Services</property>
+    <property name="icon-name">dash-symbolic</property>
+    <child>
+      <object class="AdwPreferencesGroup">
+        <property name="title" translatable="yes">Services</property>
+        <property name="description" translatable="yes"/>
+        <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="yes"/>
+            <property name="subtitle" translatable="yes">These services may take system resources. Enable only ones that are needed. Requires starting the Shell.</property>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="yes">System Stats</property>
+            <property name="subtitle" translatable="yes">Monitor system stats. Used by disk, cpu, and memory Panel indicators.</property>
+            <property name="activatable-widget">service-system-stats</property>
+            <child>
+              <object class="GtkSwitch" id="service-system-stats">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="yes">Trash</property>
+            <property name="subtitle" translatable="yes">Monitor trash for dynamic trash icon. Used by the Dash.</property>
+            <property name="activatable-widget">service-trash</property>
+            <child>
+              <object class="GtkSwitch" id="service-trash">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="yes">Mounted Volumes</property>
+            <property name="subtitle" translatable="yes">Monitor volumes for mount and unmount. Used by the Dash.</property>
+            <property name="activatable-widget">service-mounts</property>
+            <child>
+              <object class="GtkSwitch" id="service-mounts">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

@@ -63,6 +63,7 @@ builder.add_from_file('./ui/dock.ui');
 builder.add_from_file('./ui/panel.ui');
 builder.add_from_file('./ui/search.ui');
 builder.add_from_file('./ui/apps-grid.ui');
+builder.add_from_file('./ui/services.ui');
 
 function show_preference_group(widget) {
   widget.set_visible(true);
@@ -269,6 +270,17 @@ class DockItemsPanel extends Panel {
   }
 }
 
+class ServicesPanel extends Panel {
+  constructor() {
+    super({
+      title: 'Services',
+      icon: 'pulse-symbolic',
+    });
+
+    this.content = builder.get_object('services');
+  }
+}
+
 class ExtensionPanel extends Panel {
   constructor() {
     super({
@@ -287,6 +299,7 @@ let panelItems = [
   new BarPanel(),
   new SearchPanel(),
   new AppsGridPanel(),
+  new ServicesPanel(),
 ];
 panelItems.forEach((item) => {
   items.append(item.build());
