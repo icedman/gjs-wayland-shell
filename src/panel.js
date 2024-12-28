@@ -38,8 +38,6 @@ const Panel = GObject.registerClass(
       this.trail = this.window.trail;
       this.center = this.window.center;
 
-      // this.container.set_homogeneous(true);
-
       this.window.present();
       this.window.update_layout();
 

@@ -12,6 +12,18 @@ import * as Util from '../lib/misc.js';
 
 import { registerDestroyableType } from '../lib/signalTracker.js';
 
+import {
+  Icon,
+  Label,
+  Switch,
+  Spinner,
+  PopupMenu,
+  ItemSorter,
+  QuickMenuToggle,
+  SystemIndicator,
+  _,
+} from '../lib/gnomeShellMonkeyPatches.js';
+
 Gio._promisify(Gio.DBusConnection.prototype, 'call');
 Gio._promisify(NM.Client, 'new_async');
 Gio._promisify(NM.Client.prototype, 'check_connectivity_async');
@@ -55,346 +67,6 @@ function launchSettingsPanel(panel, ...args) {
   // app.activate_action('launch-panel', param, 0, -1, null).catch(error => {
   //     log(`Failed to launch Settings panel: ${error.message}`);
   // });
-}
-
-const _ = (t) => {
-  return t;
-};
-
-const PopupBaseMenuItem = GObject.registerClass(
-  {
-    Properties: {
-      active: GObject.ParamSpec.boolean(
-        'active',
-        null,
-        null,
-        GObject.ParamFlags.READWRITE,
-        false,
-      ),
-      sensitive: GObject.ParamSpec.boolean(
-        'sensitive',
-        null,
-        null,
-        GObject.ParamFlags.READWRITE,
-        true,
-      ),
-      // added
-      activate: GObject.ParamSpec.boolean(
-        'activate',
-        null,
-        null,
-        GObject.ParamFlags.READWRITE,
-        false,
-      ),
-      can_focus: GObject.ParamSpec.boolean(
-        'can_focus',
-        null,
-        null,
-        GObject.ParamFlags.READWRITE,
-        false,
-      ),
-      style_class: GObject.ParamSpec.string(
-        'style_class',
-        null,
-        null,
-        GObject.ParamFlags.READWRITE,
-        '',
-      ),
-    },
-    Signals: {
-      activate: {}, //  param_types: [Clutter.Event.$gtype] },
-      destroy: {},
-    },
-  },
-  class PopupBaseMenuItem extends GObject.Object {
-    activate() {}
-    add_child(child) {}
-    show() {}
-    hide() {}
-    destroy() {}
-  },
-);
-const PopupMenuSection = GObject.registerClass(
-  {
-    Properties: {
-      actor: GObject.ParamSpec.boolean(
-        'actor',
-        null,
-        null,
-        GObject.ParamFlags.READWRITE,
-        false,
-      ),
-    },
-    Signals: {
-      'open-state-changed': {},
-    },
-  },
-  class PopupMenuSection extends GObject.Object {
-    _init() {
-      super._init();
-      this.icon = new Icon();
-      this.label = '';
-      this.children = [];
-    }
-
-    addMenuItem(item) {
-      this.children.push(item);
-    }
-
-    setHeader(icon, header) {
-      // console.log({ icon, header });
-      this.icon['icon-name'] = icon;
-      this.label = header;
-    }
-    addHeaderSuffix(spinner__) {
-      // console.log(spinner__);
-    }
-    addSettingsAction() {}
-  },
-);
-const PopupSubMenuMenuItem = GObject.registerClass(
-  {},
-  class PopupSubMenuMenuItem extends PopupBaseMenuItem {
-    constructor(name, subMenu__) {
-      super();
-    }
-  },
-);
-const Switch = GObject.registerClass(
-  {},
-  class Switch extends PopupBaseMenuItem {},
-);
-const PopupSeparatorMenuItem = GObject.registerClass(
-  {},
-  class PopupSeparatorMenuItem extends PopupBaseMenuItem {},
-);
-
-const PopupMenu = {
-  PopupBaseMenuItem,
-  PopupMenuSection,
-  PopupSubMenuMenuItem,
-  Switch,
-  PopupSeparatorMenuItem,
-};
-
-const Icon = GObject.registerClass(
-  {
-    Properties: {
-      'icon-name': GObject.ParamSpec.string(
-        'icon-name',
-        null,
-        null,
-        GObject.ParamFlags.READWRITE,
-        '',
-      ),
-      title: GObject.ParamSpec.string(
-        'title',
-        null,
-        null,
-        GObject.ParamFlags.READWRITE,
-        '',
-      ),
-    },
-  },
-  class Icon extends GObject.Object {
-    _init() {
-      super._init();
-    }
-  },
-);
-
-const Spinner = GObject.registerClass(
-  class Spinner extends GObject.Object {
-    _init(size, params) {
-      super._init();
-    }
-    play() {}
-    stop() {}
-  },
-);
-
-const QuickMenuToggle = GObject.registerClass(
-  {
-    Properties: {
-      'icon-name': GObject.ParamSpec.string(
-        'icon-name',
-        null,
-        null,
-        GObject.ParamFlags.READWRITE,
-        '',
-      ),
-      title: GObject.ParamSpec.string(
-        'title',
-        null,
-        null,
-        GObject.ParamFlags.READWRITE,
-        '',
-      ),
-      subtitle: GObject.ParamSpec.string(
-        'subtitle',
-        null,
-        null,
-        GObject.ParamFlags.READWRITE,
-        '',
-      ),
-      gicon: GObject.ParamSpec.object(
-        'gicon',
-        null,
-        null,
-        GObject.ParamFlags.READWRITE,
-        Gio.Icon,
-      ),
-      'menu-enabled': GObject.ParamSpec.boolean(
-        'menu-enabled',
-        null,
-        null,
-        GObject.ParamFlags.READWRITE,
-        true,
-      ),
-      visible: GObject.ParamSpec.boolean(
-        'visible',
-        null,
-        null,
-        GObject.ParamFlags.READWRITE,
-        false,
-      ),
-      reactive: GObject.ParamSpec.boolean(
-        'reactive',
-        null,
-        null,
-        GObject.ParamFlags.READWRITE,
-        false,
-      ),
-      checked: GObject.ParamSpec.boolean(
-        'checked',
-        null,
-        null,
-        GObject.ParamFlags.READWRITE,
-        false,
-      ),
-    },
-    Signals: {
-      clicked: {},
-    },
-  },
-  class QuickMenuToggle extends GObject.Object {
-    _init() {
-      super._init();
-
-      this.menu = new PopupMenu.PopupMenuSection();
-    }
-  },
-);
-
-const SystemIndicator = GObject.registerClass(
-  {
-    Properties: {
-      visible: GObject.ParamSpec.boolean(
-        'visible',
-        null,
-        null,
-        GObject.ParamFlags.READWRITE,
-        false,
-      ),
-      reactive: GObject.ParamSpec.boolean(
-        'reactive',
-        null,
-        null,
-        GObject.ParamFlags.READWRITE,
-        false,
-      ),
-    },
-  },
-  class SystemIndicator extends GObject.Object {
-    _init() {
-      super._init();
-      this.quickSettingsItems = [];
-    }
-
-    _addIndicator() {
-      return new Icon();
-    }
-  },
-);
-
-class ItemSorter {
-  [Symbol.iterator] = this.items;
-
-  /**
-   * Maintains a list of sorted items. By default, items are
-   * assumed to be objects with a name property.
-   *
-   * Optionally items can have a secondary sort order by
-   * recency. If used, items must by objects with a timestamp
-   * property that can be used in substraction, and "bigger"
-   * must mean "more recent". Number and Date both qualify.
-   *
-   * @param {object=} options - property object with options
-   * @param {Function} options.sortFunc - a custom sort function
-   * @param {bool} options.trackMru - whether to track MRU order as well
-   **/
-  constructor(options = {}) {
-    const { sortFunc, trackMru } = {
-      sortFunc: this._sortByName.bind(this),
-      trackMru: false,
-      ...options,
-    };
-
-    this._trackMru = trackMru;
-    this._sortFunc = sortFunc;
-    this._sortFuncMru = this._sortByMru.bind(this);
-
-    this._itemsOrder = [];
-    this._itemsMruOrder = [];
-  }
-
-  *items() {
-    yield* this._itemsOrder;
-  }
-
-  *itemsByMru() {
-    console.assert(this._trackMru, 'itemsByMru: MRU tracking is disabled');
-    yield* this._itemsMruOrder;
-  }
-
-  _sortByName(one, two) {
-    return GLib.utf8_collate(one.name, two.name);
-  }
-
-  _sortByMru(one, two) {
-    return two.timestamp - one.timestamp;
-  }
-
-  _upsert(array, item, sortFunc) {
-    this._delete(array, item);
-    return Util.insertSorted(array, item, sortFunc);
-  }
-
-  _delete(array, item) {
-    const pos = array.indexOf(item);
-    if (pos >= 0) array.splice(pos, 1);
-  }
-
-  /**
-   * Insert or update item.
-   *
-   * @param {any} item - the item to upsert
-   * @returns {number} - the sorted position of item
-   */
-  upsert(item) {
-    if (this._trackMru)
-      this._upsert(this._itemsMruOrder, item, this._sortFuncMru);
-
-    return this._upsert(this._itemsOrder, item, this._sortFunc);
-  }
-
-  /**
-   * @param {any} item - item to remove
-   */
-  delete(item) {
-    if (this._trackMru) this._delete(this._itemsMruOrder, item);
-    this._delete(this._itemsOrder, item);
-  }
 }
 
 const NMMenuItem = GObject.registerClass(
@@ -727,8 +399,11 @@ const NMDeviceItem = GObject.registerClass(
       this._itemSorter = new ItemSorter({ trackMru: true });
 
       // Item shown in the 0-connections case
-      // this._autoConnectItem =
-      //     this.section.addAction(_('Connect'), () => this._autoConnect(), '');
+      this._autoConnectItem = this.section.addAction(
+        _('Connect'),
+        () => this._autoConnect(),
+        '',
+      );
 
       // Represents the device as a whole when shown
       // this.bind_property('name',
@@ -738,8 +413,9 @@ const NMDeviceItem = GObject.registerClass(
       //     this._autoConnectItem._icon, 'icon-name',
       //     GObject.BindingFlags.SYNC_CREATE);
 
-      // this._deactivateItem =
-      //     this.section.addAction(_('Turn Off'), () => this.deactivateConnection());
+      this._deactivateItem = this.section.addAction(_('Turn Off'), () =>
+        this.deactivateConnection(),
+      );
 
       this._client.connectObject(
         'notify::connectivity',

@@ -72,7 +72,6 @@ export function createDiskStats(config) {
   statsService.connectObject(
     'stats-disk-update',
     () => {
-      console.log(statsService.state);
       let disk = statsService.state.disk ?? {};
       let state = disk[config.on ?? '/'];
       if (!state) return;

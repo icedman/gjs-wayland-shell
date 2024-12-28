@@ -71,6 +71,7 @@ const App = GObject.registerClass(
         Main.power,
         Main.powerProfiles,
         Main.network,
+        Main.bluetooth,
         Main.mounts,
         Main.volume,
         Main.mic,

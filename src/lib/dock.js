@@ -132,6 +132,7 @@ export const DockPanel = GObject.registerClass(
       this.container.append(this.center);
       this.container.append(this.trailSpacer);
       this.container.append(this.trail);
+      this.container.set_homogeneous(false);
 
       this.set_child(this.container);
 

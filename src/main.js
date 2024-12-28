@@ -20,6 +20,7 @@ import Brightness from './services/brightness.js';
 import Inhibitor from './services/inhibitor.js';
 import Login1 from './services/login1.js';
 import Network from './services/network.js';
+import Bluetooth from './services/bluetooth.js';
 import Mounts from './services/mounts.js';
 import { Volume, Mic } from './services/volume.js';
 import Trash from './services/trash.js';
@@ -63,6 +64,7 @@ globalThis.Main = {
   mounts: new Mounts(),
   brightness: new Brightness(),
   network: new Network(),
+  bluetooth: new Bluetooth(),
   volume: new Volume(),
   mic: new Mic(),
   trash: new Trash(),

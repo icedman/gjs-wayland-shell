@@ -75,6 +75,10 @@ const BarItemsExtension = GObject.registerClass(
         'network',
         createNetworkIndicator.bind(this),
       );
+      Main.factory.registerProvider(
+        'bluetooth',
+        this.createBluetoothIndicator.bind(this),
+      );
 
       // audio
       Main.factory.registerProvider('volume', createVolumeIndicator.bind(this));
@@ -147,6 +151,49 @@ const BarItemsExtension = GObject.registerClass(
         inhibitorSevice.disconnectObject(inhibitor);
       });
       return inhibitor;
+    }
+
+    createBluetoothIndicator(config) {
+      let bluetooth = Main.panel.create_panelitem(config);
+      let bluetoothSevice = Main.bluetooth;
+      // bluetoothSevice.indicator._indicator.connect('notify::visible', () => {
+      //   let icon = bluetoothSevice.indicator._primaryIndicator['icon-name'];
+      //   bluetooth.set_icon(icon ?? bluetoothSevice.indicator._indicator.icon_name);
+      // });
+
+      function updateBluetooth() {
+        // find any connected
+        let icon = bluetoothSevice.indicator._primaryIndicator['icon-name'];
+        let devices =
+          Main.bluetooth.indicator.quickSettingsItems[0]._getSortedDevices();
+        bluetooth.set_icon(icon);
+        bluetooth.set_label('');
+        devices.forEach((dev) => {
+          if (dev.connected) {
+            bluetooth.set_label(dev.name ?? '');
+          }
+        });
+      }
+
+      bluetoothSevice.indicator._primaryIndicator.connect(
+        'notify::icon-name',
+        () => {
+          updateBluetooth();
+        },
+      );
+
+      bluetoothSevice.indicator._primaryIndicator._client.connect(
+        'devices-changed',
+        () => {
+          updateBluetooth();
+        },
+      );
+
+      bluetooth.on_click = () => {
+        // show menu
+      };
+
+      return bluetooth;
     }
 
     disable() {
