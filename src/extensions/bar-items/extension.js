@@ -175,31 +175,37 @@ const BarItemsExtension = GObject.registerClass(
         });
       }
 
-      bluetoothSevice.indicator._primaryIndicator.connect(
+      bluetoothSevice.indicator._primaryIndicator.connectObject(
         'notify::icon-name',
         () => {
           updateBluetooth();
         },
+        bluetooth
       );
 
-      bluetoothSevice.indicator._primaryIndicator._client.connect(
+      bluetoothSevice.indicator._primaryIndicator._client.connectObject(
         'devices-changed',
         () => {
           updateBluetooth();
         },
+        bluetooth
       );
 
       bluetooth.on_click = () => {
         // show menu
       };
 
+      bluetooth.connect('destroy', () => {
+        Main.bluetooth.disconnectObject(bluetooth);
+      });
+
       return bluetooth;
     }
 
     disable() {
       super.disable();
-      Main.settings.disconnectObject(this);
-      Main.factory.unregisterProvider(this);
+      bluetoothSevice.indicator._primaryIndicator.disconnectObject(bluetooth);
+      bluetoothSevice.indicator._primaryIndicator._client.disconnectObject(bluetooth);
     }
   },
 );

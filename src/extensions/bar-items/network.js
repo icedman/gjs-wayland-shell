@@ -11,7 +11,7 @@ export function createNetworkIndicator(config) {
       network.set_icon(state.icon);
       // network.visible = state.visible;
     },
-    this,
+    network,
   );
   Main.network.sync();
 
@@ -44,6 +44,10 @@ export function createNetworkIndicator(config) {
       return;
     }
   };
+
+  network.connect('destroy', () => {
+    Main.network.disconnectObject(network);
+  });
 
   return network;
 }
