@@ -95,7 +95,10 @@ export function createDiskStats(config) {
   );
   statsService.sync();
 
-  diskStats.on_click = () => {};
+  diskStats.on_click = () => {
+    if (config.formatAlt) {
+    }
+  };
 
   diskStats.connect('destroy', () => {
     statsService.disconnectObject(diskStats);

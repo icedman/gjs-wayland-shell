@@ -676,6 +676,7 @@ export const DockPanel = GObject.registerClass(
                 (!icon.owner && !attachedIds.includes(icon.id)) ||
                 (icon.owner && !attachedIds.includes(icon.owner.id))
               ) {
+                icon.emit('destroy');
                 icon.parent?.remove(icon);
               }
             });

@@ -71,57 +71,66 @@ export function formatDate(date, fmt = '%Y/%m/%d %H:%M') {
   const shortMonthNames = monthNames.map((name) => name.slice(0, 3));
 
   const components = {
-    '%Y': date.getFullYear(), // Full year
-    '%y': String(date.getFullYear()).slice(-2), // Last two digits of the year
-    '%C': String(Math.floor(date.getFullYear() / 100)).padStart(2, '0'), // Century
-    '%m': String(date.getMonth() + 1).padStart(2, '0'), // Month (01-12)
-    '%b': shortMonthNames[date.getMonth()], // Abbreviated month name
-    '%B': monthNames[date.getMonth()], // Full month name
-    '%d': String(date.getDate()).padStart(2, '0'), // Day of the month (01-31)
-    '%e': String(date.getDate()).padStart(2, ' '), // Day of the month (1-31, space-padded)
-    '%H': String(date.getHours()).padStart(2, '0'), // Hour (00-23)
-    '%I': String(date.getHours() % 12 || 12).padStart(2, '0'), // Hour (01-12)
-    '%M': String(date.getMinutes()).padStart(2, '0'), // Minutes (00-59)
-    '%S': String(date.getSeconds()).padStart(2, '0'), // Seconds (00-59)
-    '%p': date.getHours() < 12 ? 'AM' : 'PM', // AM/PM
-    '%a': shortWeekdayNames[date.getDay()], // Abbreviated weekday name
-    '%A': weekdayNames[date.getDay()], // Full weekday name
-    '%w': String(date.getDay()), // Weekday as a number (0-6, Sunday = 0)
-    '%u': String(date.getDay() === 0 ? 7 : date.getDay()), // ISO weekday (1-7, Monday = 1)
-    '%j': String(
-      Math.floor((date - new Date(date.getFullYear(), 0, 0)) / 86400000),
-    ).padStart(3, '0'), // Day of the year (001-366)
-    '%U': String(
-      Math.floor((date - new Date(date.getFullYear(), 0, 1)) / 604800000),
-    ).padStart(2, '0'), // Week of the year (Sunday start)
-    '%W': String(
-      Math.floor((date - new Date(date.getFullYear(), 0, 1)) / 604800000) +
-        (date.getDay() ? 0 : 1),
-    ).padStart(2, '0'), // Week of the year (Monday start)
-    '%V': String(
-      Math.floor((date - new Date(date.getFullYear(), 0, 4)) / 604800000) + 1,
-    ).padStart(2, '0'), // ISO week number
-    '%z': ((offset) =>
-      `${offset >= 0 ? '+' : '-'}${String(Math.floor(Math.abs(offset) / 60)).padStart(2, '0')}${String(Math.abs(offset) % 60).padStart(2, '0')}`)(
-      date.getTimezoneOffset(),
-    ), // Timezone offset
-    '%Z': Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC', // Timezone abbreviation
-    '%c': date.toString(), // Locale-specific date and time
-    '%x': date.toLocaleDateString(), // Locale-specific date
-    '%X': date.toLocaleTimeString(), // Locale-specific time
-    '%r': `${String(date.getHours() % 12 || 12).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')} ${date.getHours() < 12 ? 'AM' : 'PM'}`, // 12-hour clock time
-    '%R': `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`, // Hour:Minute
-    '%T': `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`, // Hour:Minute:Second
-    '%D': `${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}/${String(date.getFullYear()).slice(-2)}`, // mm/dd/yy
-    '%F': `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`, // ISO 8601 date
-    '%n': '\n', // Newline
-    '%t': '\t', // Tab
-    '%%': '%', // Percent sign
+    '%Y': () => date.getFullYear(), // Full year
+    '%y': () => String(date.getFullYear()).slice(-2), // Last two digits of the year
+    '%C': () => String(Math.floor(date.getFullYear() / 100)).padStart(2, '0'), // Century
+    '%m': () => String(date.getMonth() + 1).padStart(2, '0'), // Month (01-12)
+    '%b': () => shortMonthNames[date.getMonth()], // Abbreviated month name
+    '%B': () => monthNames[date.getMonth()], // Full month name
+    '%d': () => String(date.getDate()).padStart(2, '0'), // Day of the month (01-31)
+    '%e': () => String(date.getDate()).padStart(2, ' '), // Day of the month (1-31, space-padded)
+    '%H': () => String(date.getHours()).padStart(2, '0'), // Hour (00-23)
+    '%I': () => String(date.getHours() % 12 || 12).padStart(2, '0'), // Hour (01-12)
+    '%M': () => String(date.getMinutes()).padStart(2, '0'), // Minutes (00-59)
+    '%S': () => String(date.getSeconds()).padStart(2, '0'), // Seconds (00-59)
+    '%p': () => (date.getHours() < 12 ? 'AM' : 'PM'), // AM/PM
+    '%a': () => shortWeekdayNames[date.getDay()], // Abbreviated weekday name
+    '%A': () => weekdayNames[date.getDay()], // Full weekday name
+    '%w': () => String(date.getDay()), // Weekday as a number (0-6, Sunday = 0)
+    '%u': () => String(date.getDay() === 0 ? 7 : date.getDay()), // ISO weekday (1-7, Monday = 1)
+    '%j': () =>
+      String(
+        Math.floor((date - new Date(date.getFullYear(), 0, 0)) / 86400000),
+      ).padStart(3, '0'), // Day of the year (001-366)
+    '%U': () =>
+      String(
+        Math.floor((date - new Date(date.getFullYear(), 0, 1)) / 604800000),
+      ).padStart(2, '0'), // Week of the year (Sunday start)
+    '%W': () =>
+      String(
+        Math.floor((date - new Date(date.getFullYear(), 0, 1)) / 604800000) +
+          (date.getDay() ? 0 : 1),
+      ).padStart(2, '0'), // Week of the year (Monday start)
+    '%V': () =>
+      String(
+        Math.floor((date - new Date(date.getFullYear(), 0, 4)) / 604800000) + 1,
+      ).padStart(2, '0'), // ISO week number
+    '%z': () => {
+      const offset = date.getTimezoneOffset();
+      return `${offset >= 0 ? '+' : '-'}${String(Math.floor(Math.abs(offset) / 60)).padStart(2, '0')}${String(Math.abs(offset) % 60).padStart(2, '0')}`;
+    }, // Timezone offset
+    '%Z': () => Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC', // Timezone abbreviation
+    '%c': () => date.toString(), // Locale-specific date and time
+    '%x': () => date.toLocaleDateString(), // Locale-specific date
+    '%X': () => date.toLocaleTimeString(), // Locale-specific time
+    '%r': () =>
+      `${String(date.getHours() % 12 || 12).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')} ${date.getHours() < 12 ? 'AM' : 'PM'}`, // 12-hour clock time
+    '%R': () =>
+      `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`, // Hour:Minute
+    '%T': () =>
+      `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`, // Hour:Minute:Second
+    '%D': () =>
+      `${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}/${String(date.getFullYear()).slice(-2)}`, // mm/dd/yy
+    '%F': () =>
+      `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`, // ISO 8601 date
+    '%n': () => '\n', // Newline
+    '%t': () => '\t', // Tab
+    '%%': () => '%', // Percent sign
+    '%:': () => (date.getSeconds() % 2 ? ':' : ' '),
   };
 
-  return fmt.replace(
-    /%[YyCmdbBdHeIpaAwujUWVzZXcRTDrFnM%]/g,
-    (match) => components[match] || match,
+  return fmt.replace(/%[a-zA-Z%:]/g, (match) =>
+    (components[match] || match).call(),
   );
 }
 
@@ -132,9 +141,9 @@ export function createClock(config) {
     let dt = formatDate(new Date(), config.format);
     clock.set_label(dt);
   };
-  clock.clockTimer = Main.timer.runLoop(
+  clock.clockTimer = Main.loTimer.runLoop(
     updateClock,
-    config.interval ?? 5000, // << todo!
+    config.interval ?? 5000,
     'clockTimer',
   );
   updateClock();
