@@ -61,8 +61,8 @@ const Search = GObject.registerClass(
       this.settingsMap = {
         // [`${prefix}-padding`]: this.update_style.bind(this),
         // [`${prefix}-icon-shadow`]: this.update_style.bind(this),
-        // [`${prefix}-icon-size`]: this.update_icon_size.bind(this),
-        // [`${prefix}-icon-scale`]: this.update_icon_size.bind(this),
+        [`${prefix}-icon-size`]: this.update_icon_size.bind(this),
+        [`${prefix}-icon-scale`]: this.update_icon_size.bind(this),
         [`${prefix}-scale-width`]: this.update_layout.bind(this),
         [`${prefix}-scale-height`]: this.update_layout.bind(this),
         [`${prefix}-border-radius`]: this.update_style.bind(this),
@@ -208,6 +208,14 @@ const Search = GObject.registerClass(
       this.providers = null;
       this.cancellable = null;
       super.disable();
+    }
+
+    get_icon_size() {
+      const baseIconSizes = [16, 22, 24, 32, 48, 64];
+      let iconSize =
+        (baseIconSizes[this.ICON_SIZE] ?? 48) *
+        (1 + 2 * (this.ICON_SCALE ?? 0));
+      return iconSize;
     }
 
     async _doProviderSearch(provider, previousResults) {
@@ -524,6 +532,8 @@ const Search = GObject.registerClass(
         }
       });
     }
+
+    update_icon_size() {}
 
     clear() {
       this.cancellable.cancel();

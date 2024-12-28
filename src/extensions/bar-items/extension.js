@@ -180,7 +180,7 @@ const BarItemsExtension = GObject.registerClass(
         () => {
           updateBluetooth();
         },
-        bluetooth
+        bluetooth,
       );
 
       bluetoothSevice.indicator._primaryIndicator._client.connectObject(
@@ -188,7 +188,7 @@ const BarItemsExtension = GObject.registerClass(
         () => {
           updateBluetooth();
         },
-        bluetooth
+        bluetooth,
       );
 
       bluetooth.on_click = () => {
@@ -205,7 +205,9 @@ const BarItemsExtension = GObject.registerClass(
     disable() {
       super.disable();
       bluetoothSevice.indicator._primaryIndicator.disconnectObject(bluetooth);
-      bluetoothSevice.indicator._primaryIndicator._client.disconnectObject(bluetooth);
+      bluetoothSevice.indicator._primaryIndicator._client.disconnectObject(
+        bluetooth,
+      );
     }
   },
 );

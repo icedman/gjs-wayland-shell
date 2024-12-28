@@ -112,8 +112,8 @@ const AppsGrid = GObject.registerClass(
       this.settingsMap = {
         // [`${prefix}-padding`]: this.update_style.bind(this),
         // [`${prefix}-icon-shadow`]: this.update_style.bind(this),
-        // [`${prefix}-icon-size`]: this.update_icon_size.bind(this),
-        // [`${prefix}-icon-scale`]: this.update_icon_size.bind(this),
+        [`${prefix}-icon-size`]: this.update_icon_size.bind(this),
+        [`${prefix}-icon-scale`]: this.update_icon_size.bind(this),
         [`${prefix}-scale-width`]: this.update_layout.bind(this),
         [`${prefix}-scale-height`]: this.update_layout.bind(this),
         [`${prefix}-border-radius`]: this.update_style.bind(this),
@@ -159,15 +159,18 @@ const AppsGrid = GObject.registerClass(
           // Update the widget's content (e.g., label and icon)
           let button = listItem.get_child();
           if (!button) {
-            const button = createButtonWidget(item);
+            button = createButtonWidget(item);
             button.connect('clicked', () => {
               this.activateItem(item); // Call activation handler
             });
-
             listItem.set_child(button);
           } else {
             button._icon.set_from_icon_name(item.icon_name);
             button._label.set_label(item.label);
+          }
+
+          if (button) {
+            button._icon.set_pixel_size(this.get_icon_size());
           }
         }
       });
@@ -414,6 +417,16 @@ const AppsGrid = GObject.registerClass(
       const selectionModel = new Gtk.SingleSelection({ model: items });
       this.resultsView.set_model(selectionModel);
     }
+
+    get_icon_size() {
+      const baseIconSizes = [16, 22, 24, 32, 48, 64];
+      let iconSize =
+        (baseIconSizes[this.ICON_SIZE] ?? 48) *
+        (1 + 2 * (this.ICON_SCALE ?? 0));
+      return iconSize;
+    }
+
+    update_icon_size() {}
 
     clear() {
       this.updateApps([]);
