@@ -70,6 +70,10 @@ const WindowManagerInterface = GObject.registerClass(
         }
         this.emit('windows-update');
         return true;
+      } else {
+        Object.keys(window).forEach((k) => {
+          oldWindow[k] = window[k];
+        });
       }
       return false;
     }

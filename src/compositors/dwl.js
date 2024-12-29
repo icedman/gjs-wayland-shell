@@ -59,7 +59,7 @@ const DwlShell = GObject.registerClass(
                     window: w,
                   },
                 ]);
-                // console.log({proxy, t, window});
+                console.log(w);
               });
               this.proxy.connectSignal('WindowClosed', (proxy, t, window) => {
                 // console.log('closed')
@@ -70,7 +70,7 @@ const DwlShell = GObject.registerClass(
                     window: w,
                   },
                 ]);
-                // console.log({proxy, t, window});
+                console.log(w);
               });
               this.proxy.connectSignal('WindowOpened', (proxy, t, window) => {
                 // console.log('opened')
@@ -81,7 +81,7 @@ const DwlShell = GObject.registerClass(
                     window: w,
                   },
                 ]);
-                // console.log({proxy, t, window});
+                console.log(w);
               });
             }
           },
