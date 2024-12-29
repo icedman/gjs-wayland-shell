@@ -17,11 +17,11 @@
 1. wayland window manager/compositor
 	* niri
 	* sway
-	* hyprland (recommended)
+	* hyprland
   
-  Partially supported
-  * labwc
-  * dwl
+  need patching for DBus access to windows list and events
+  * labwc (https://github.com/icedman/labwc/tree/dbus-patch)
+  * dwl (https://codeberg.org/icedman/dwl/src/branch/dbus-patch)
 
 2. gtk4-layer-shell-devel
   Fedora:
