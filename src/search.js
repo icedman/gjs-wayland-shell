@@ -61,6 +61,7 @@ const Search = GObject.registerClass(
       this.settingsMap = {
         // [`${prefix}-padding`]: this.update_style.bind(this),
         // [`${prefix}-icon-shadow`]: this.update_style.bind(this),
+        [`${prefix}-preferred-monitor`]: () => {},
         [`${prefix}-icon-size`]: this.update_icon_size.bind(this),
         [`${prefix}-icon-scale`]: this.update_icon_size.bind(this),
         [`${prefix}-scale-width`]: this.update_layout.bind(this),
@@ -571,6 +572,14 @@ const Search = GObject.registerClass(
 
     show() {
       Main.appsGrid.hide();
+
+      // monitor
+      this.monitor = Main.monitors.getMonitor(this.PREFERRED_MONITOR);
+      if (!this.monitor || !this.monitor.valid) {
+        this.monitor = Main.monitors.getPrimaryMonitor();
+      }
+      LayerShell.set_monitor(this.window, this.monitor);
+
       this.window.add_css_class('startup');
       // let { width, height } = this.widget.get_allocation();
       // this.overlay.set_size_request(width, height);

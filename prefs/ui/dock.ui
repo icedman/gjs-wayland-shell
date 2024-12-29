@@ -28,7 +28,7 @@
             <child>
               <object class="GtkDropDown" id="dock-preferred-monitor-index">
                 <property name="valign">center</property>
-                <property name="model">dock-preferred-monitor-model</property>
+                <!-- <property name="model">dock-preferred-monitor-model</property> -->
               </object>
             </child>
           </object>

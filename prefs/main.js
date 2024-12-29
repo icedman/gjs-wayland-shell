@@ -81,6 +81,10 @@ function update_monitors() {
   }
   builder.get_object('dock-preferred-monitor-index').set_model(dockMonitors);
   builder.get_object('panel-preferred-monitor-index').set_model(dockMonitors);
+  builder.get_object('search-preferred-monitor-index').set_model(dockMonitors);
+  builder
+    .get_object('apps-grid-preferred-monitor-index')
+    .set_model(dockMonitors);
 }
 
 _monitors.connect('items-changed', update_monitors);

@@ -79,10 +79,10 @@ globalThis.Main = {
   style: new Style({
     initialStyles: [
       { name: 'app', path: './style.css' },
-      {
-        name: 'user',
-        path: `${GLib.getenv('HOME')}/.config/gws/style.css`,
-      },
+      // {
+      //   name: 'user',
+      //   path: `${GLib.getenv('HOME')}/.config/gws/style.css`,
+      // },
     ],
   }),
 

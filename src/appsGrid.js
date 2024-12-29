@@ -112,6 +112,7 @@ const AppsGrid = GObject.registerClass(
       this.settingsMap = {
         // [`${prefix}-padding`]: this.update_style.bind(this),
         // [`${prefix}-icon-shadow`]: this.update_style.bind(this),
+        [`${prefix}-preferred-monitor`]: () => {},
         [`${prefix}-icon-size`]: this.update_icon_size.bind(this),
         [`${prefix}-icon-scale`]: this.update_icon_size.bind(this),
         [`${prefix}-scale-width`]: this.update_layout.bind(this),
@@ -443,6 +444,14 @@ const AppsGrid = GObject.registerClass(
 
     show() {
       Main.search.hide();
+
+      // monitor
+      this.monitor = Main.monitors.getMonitor(this.PREFERRED_MONITOR);
+      if (!this.monitor || !this.monitor.valid) {
+        this.monitor = Main.monitors.getPrimaryMonitor();
+      }
+      LayerShell.set_monitor(this.window, this.monitor);
+
       this.updateApps([]);
       this.window.add_css_class('startup');
       // this.window.remove_css_class('has-results');

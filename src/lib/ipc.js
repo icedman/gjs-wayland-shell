@@ -7,7 +7,7 @@ function connectToSocket(socketPath, identifier) {
   try {
     // Check if the socket file exists
     if (!GLib.file_test(socketPath, GLib.FileTest.EXISTS)) {
-      logError(new Error(`${identifier} socket not found at ${socketPath}`));
+      // logError(new Error(`${identifier} socket not found at ${socketPath}`));
       return null;
     }
 

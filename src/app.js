@@ -235,6 +235,11 @@ const App = GObject.registerClass(
       this.cssSources.forEach((style) => {
         Main.style.loadCssFile(style.name, style.path);
       });
+
+      Main.style.loadCssFile(
+        'user',
+        `${GLib.getenv('HOME')}/.config/gws/style.css`,
+      );
     }
   },
 );

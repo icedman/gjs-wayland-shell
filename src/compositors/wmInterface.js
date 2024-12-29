@@ -196,6 +196,7 @@ const WindowManagerInterface = GObject.registerClass(
     }
 
     async listen(connection, msg) {
+      if (!connection) return;
       if (msg) {
         await sendMessage(connection, msg);
         let response = await receiveMessage(connection);
