@@ -6,9 +6,9 @@ import DwlShell from './compositors/dwl.js';
 
 function WindowManagerService(wm) {
   let supportedWM = {
-    // niri: NiriShell,
-    // hyprland: HyprShell,
-    // sway: SwayShell,
+    niri: NiriShell,
+    hyprland: HyprShell,
+    sway: SwayShell,
     dwl: DwlShell,
   };
 
