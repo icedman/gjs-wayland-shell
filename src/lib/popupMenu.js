@@ -5,6 +5,8 @@ import Gio from 'gi://Gio';
 import GObject from 'gi://GObject';
 import { getAppInfo, getAppInfoFromFile } from './appInfo.js';
 
+// todo .. use model
+
 export const PopupMenu = GObject.registerClass(
   class PopupMenu extends Gtk.Popover {
     _init(params = {}) {

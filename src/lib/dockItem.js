@@ -178,6 +178,7 @@ export const DockAppItem = GObject.registerClass(
         (w) => w.app_id == appInfo.id.replace('.desktop', ''),
       );
 
+      let appId = null;
       let items = [
         ...(appInfo.menu ?? []),
         ...windows.map((w) => {
@@ -185,6 +186,7 @@ export const DockAppItem = GObject.registerClass(
           if (title.length >= 30) {
             title = title.substring(0, 28) + '...';
           }
+          appId = w.app_id;
           return {
             name: title,
             action: 'focus',
@@ -193,10 +195,12 @@ export const DockAppItem = GObject.registerClass(
         }),
       ];
 
-      if (windows.length) {
+      if (appId) {
         items.push({
           name: 'Quit',
-          script: () => {},
+          script: () => {
+            Main.shell.quitApp(appId);
+          },
         });
       }
 

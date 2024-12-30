@@ -10,6 +10,14 @@ const DwlInterface = `
           <arg type='s' name='window' direction='in'/>
           <arg type='s' name='window' direction='out'/>"
         </method>
+        <method name='CloseWindow'>
+          <arg type='s' name='window' direction='in'/>
+          <arg type='s' name='window' direction='out'/>"
+        </method>
+        <method name='QuitApp'>
+          <arg type='s' name='appid' direction='in'/>
+          <arg type='s' name='appid' direction='out'/>"
+        </method>
         <method name='GetWindows'>
           <arg type='s' name='windows' direction='out'/>
         </method>
@@ -184,6 +192,58 @@ const DwlShell = GObject.registerClass(
               console.log(response.deep_unpack());
             } catch (e) {
               console.error('FocusWindow:', e.message);
+            }
+          },
+        );
+      } catch (err) {
+        console.log(err);
+      }
+      return Promise.resolve(true);
+    }
+
+    async closeWindow(window) {
+      try {
+        if (!window || !window['id']) return;
+
+        console.log(window);
+        this.proxy.call(
+          'CloseWindow',
+          new GLib.Variant('(s)', [window['id']]),
+          Gio.DBusCallFlags.NONE,
+          -1, // Timeout (-1 for default)
+          null, // No cancellable
+          (proxy, result) => {
+            try {
+              // Call completed successfully, you can handle any return value if necessary
+              let response = proxy.call_finish(result);
+              console.log(response.deep_unpack());
+            } catch (e) {
+              console.error('CloseWindow:', e.message);
+            }
+          },
+        );
+      } catch (err) {
+        console.log(err);
+      }
+      return Promise.resolve(true);
+    }
+
+    async quitApp(appid) {
+      try {
+        if (!appid) return;
+        this.proxy.call(
+          'QuitApp',
+          new GLib.Variant('(s)', [appid]),
+          Gio.DBusCallFlags.NONE,
+          -1, // Timeout (-1 for default)
+          null, // No cancellable
+          (proxy, result) => {
+            try {
+              // Call completed successfully, you can handle any return value if necessary
+              let response = proxy.call_finish(result);
+              console.log(response.deep_unpack());
+            } catch (e) {
+              console.error('QuitApp:', e.message);
             }
           },
         );

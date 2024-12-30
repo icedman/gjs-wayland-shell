@@ -260,7 +260,9 @@ const WindowManagerInterface = GObject.registerClass(
     }
 
     async getWindows() {}
-    async focusWindow(id) {}
+    async focusWindow(window) {}
+    async closeWindow(window) {}
+    async quitApp(appid) {}
 
     async focusOrSpawn(className, cmd, arg = '', modifiers = {}) {
       let openedWindow = null;
