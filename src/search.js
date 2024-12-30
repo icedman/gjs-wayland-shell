@@ -510,7 +510,7 @@ const Search = GObject.registerClass(
           btn.add_css_class('button');
           btn.id = app.id;
           btn.item = app;
-          btn.connect('activate', () => {
+          btn.connect('clicked', () => {
             Main.shell.spawn(app.exec);
             this.hide();
           });
