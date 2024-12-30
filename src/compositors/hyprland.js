@@ -118,6 +118,30 @@ const HyprShell = GObject.registerClass(
       return Promise.resolve(obj);
     }
 
+    async closeWindow(window) {
+      let connection = this.connect();
+      if (!connection) {
+        return;
+      }
+      let message = `[j]/dispatch closewindow address:${window['address']}`;
+      await sendMessage(connection, message);
+      let response = await receiveMessage(connection);
+      this.disconnect(connection);
+
+      let obj = {
+        event: response == 'ok' ? 'success' : 'fail',
+      };
+      return Promise.resolve(obj);
+    }
+
+    async quitApp(app_id) {
+      let ads = this.windows.filter((w) => w.app_id == app_id);
+      ads.forEach((w) => {
+        this.closeWindow(w);
+      });
+      return Promise.resolve(true);
+    }
+
     async spawn(cmd, arg = '') {
       cmd = cmd.replace('%U', arg);
       cmd = cmd.replace('%u', arg);
