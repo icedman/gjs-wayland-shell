@@ -336,7 +336,7 @@
         <summary>Text size</summary>
     </key>
     <key type="i" name="search-entry-font-size">
-        <default>1</default>
+        <default>2</default>
         <summary>Entry text size</summary>
     </key>
     <key type="(dddd)" name="search-text-color">
