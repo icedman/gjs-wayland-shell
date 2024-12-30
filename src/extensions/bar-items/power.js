@@ -8,14 +8,14 @@ function formatTimeToString(seconds, fmt = '%H:%M') {
   const components = {
     '%H': `${hours}`.padStart(2, '0'),
     '%M': `${minutes}`.padStart(2, '0'),
-    '%S': `${remainingSeconds}`.padStart(2, '0'),
+    '%S': `${remainingSeconds}`.padStart(2, '0')
   };
-  return fmt.replace(/%[HMS]/g, (match) => components[match] || match);
+  return fmt.replace(/%[HMS]/g, match => components[match] || match);
 }
 
 function formatPowerToString(state, fmt = '%H:%M', config) {
   const components = {
-    '%P': state.fillLevel,
+    '%P': state.fillLevel
   };
 
   // "formatAlt": "%level %remaining",
@@ -28,7 +28,7 @@ function formatPowerToString(state, fmt = '%H:%M', config) {
   if (state.timeToFull) {
     fmt = formatTimeToString(state.timeToFull, fmt);
   }
-  return fmt.replace(/%[P]/g, (match) => components[match] || match);
+  return fmt.replace(/%[P]/g, match => components[match] || match);
 }
 
 export function createPowerIndicator(config) {
@@ -49,7 +49,7 @@ export function createPowerIndicator(config) {
   power.on_click = (count, btn) => {
     let state = {
       ...(Main.power.state ?? {}),
-      profile: Main.powerProfiles.state ?? {},
+      profile: Main.powerProfiles.state ?? {}
     };
     if (state && state.profile && btn == 3) {
       i.set_label(state.profile.name ?? '???');
@@ -57,15 +57,12 @@ export function createPowerIndicator(config) {
       return;
     }
     if (state && state.fillLevel) {
-      let fmt = config.formatAlt;
+      let fmt = config.formatAlt ?? '';
       if (state.timeToFull) {
         fmt = config.formatAltToFull;
       }
       if (state.timeToEmpty) {
         fmt = config.formatAltToEmpty;
-      }
-      if (!fmt) {
-        fmt = config.format;
       }
       let text = formatPowerToString(state, fmt, config).trim();
       if (text == '') return;
@@ -77,9 +74,18 @@ export function createPowerIndicator(config) {
   function update_power() {
     let state = {
       ...(Main.power.state ?? {}),
-      profile: Main.powerProfiles.state ?? {},
+      profile: Main.powerProfiles.state ?? {}
     };
-    let text = formatPowerToString(state, config.format, config);
+
+    let fmt = config.format ?? '';
+    if (state.timeToFull) {
+      fmt = config.formatAltToFull;
+    }
+    if (state.timeToEmpty) {
+      fmt = config.formatAltToEmpty;
+    }
+
+    let text = formatPowerToString(state, fmt, config);
     if (text == '') {
       power.set_label(``);
     } else {
@@ -100,14 +106,14 @@ export function createPowerIndicator(config) {
     () => {
       update_power();
     },
-    power,
+    power
   );
   Main.powerProfiles.connectObject(
     'power-profiles-update',
     () => {
       update_power();
     },
-    power,
+    power
   );
   power.connect('destroy', () => {
     Main.power.disconnectObject(power);
@@ -152,11 +158,11 @@ export function createBrightnessIndicator(config) {
         Main.brightness._proxy.Brightness = value;
       },
       5,
-      brightness._debounceBrightness,
+      brightness._debounceBrightness
     );
   };
 
-  w.connect('value-changed', (w) => {
+  w.connect('value-changed', w => {
     setBrightness();
   });
 
@@ -171,7 +177,7 @@ export function createBrightnessIndicator(config) {
       l.set_label(`${Math.floor(state.brightness)}%`);
       brightness.visible = state.visible;
     },
-    this,
+    this
   );
   brightness.connect('destroy', () => {
     if (brightness._debounceBrightness) {

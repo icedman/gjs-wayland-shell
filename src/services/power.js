@@ -10,23 +10,23 @@ const BUS_NAME = 'org.freedesktop.UPower';
 const OBJECT_PATH = '/org/freedesktop/UPower/devices/DisplayDevice';
 
 const PowerDeviceInterface = `<node>
-	  <interface name="org.freedesktop.UPower.Device">
-	    <property name="Type" type="u" access="read"/>
-	    <property name="State" type="u" access="read"/>
-	    <property name="Percentage" type="d" access="read"/>
-	    <property name="TimeToEmpty" type="x" access="read"/>
-	    <property name="TimeToFull" type="x" access="read"/>
-	    <property name="IsPresent" type="b" access="read"/>
-	    <property name="IconName" type="s" access="read"/>
-	  </interface>
-	</node>
-	`;
+    <interface name="org.freedesktop.UPower.Device">
+      <property name="Type" type="u" access="read"/>
+      <property name="State" type="u" access="read"/>
+      <property name="Percentage" type="d" access="read"/>
+      <property name="TimeToEmpty" type="x" access="read"/>
+      <property name="TimeToFull" type="x" access="read"/>
+      <property name="IsPresent" type="b" access="read"/>
+      <property name="IconName" type="s" access="read"/>
+    </interface>
+  </node>
+  `;
 
 const Power = GObject.registerClass(
   {
     Signals: {
-      'power-update': { param_types: [GObject.TYPE_OBJECT] },
-    },
+      'power-update': { param_types: [GObject.TYPE_OBJECT] }
+    }
   },
   class Power extends Extension {
     _init(params) {
@@ -38,8 +38,9 @@ const Power = GObject.registerClass(
       super.enable();
       this.state = {};
 
-      const PowerManagerProxy =
-        Gio.DBusProxy.makeProxyWrapper(PowerDeviceInterface);
+      const PowerManagerProxy = Gio.DBusProxy.makeProxyWrapper(
+        PowerDeviceInterface
+      );
 
       this.proxy = new PowerManagerProxy(
         Gio.DBus.system,
@@ -52,7 +53,7 @@ const Power = GObject.registerClass(
               this.sync();
             });
           this.sync();
-        },
+        }
       );
     }
 
@@ -79,7 +80,7 @@ const Power = GObject.registerClass(
       this.state = {
         chargingState,
         fillLevel,
-        icon,
+        icon
       };
 
       if (_proxy.State === UPower.DeviceState.FULLY_CHARGED) {
@@ -95,7 +96,7 @@ const Power = GObject.registerClass(
 
       this.emit('power-update', this);
     }
-  },
+  }
 );
 
 export default Power;
