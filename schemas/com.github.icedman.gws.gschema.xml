@@ -302,7 +302,7 @@
       <description>Show search light at a preferred monitor</description>
     </key>
     <key type="d" name="search-border-radius">
-        <default>0</default>
+        <default>3</default>
         <summary>Border radius</summary>
         <description>Set dash background border radius.</description>
     </key>
