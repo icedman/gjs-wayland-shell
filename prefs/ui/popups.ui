@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <object class="AdwPreferencesPage" id="popups">
+    <property name="name">appearance</property>
+    <property name="title" translatable="yes">Style</property>
+    <property name="icon-name">dash-symbolic</property>
+    <child>
+      <object class="AdwPreferencesGroup">
+        <property name="title" translatable="yes">Popups</property>
+        <property name="description" translatable="yes"/>
+        <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="yes">Popups padding</property>
+            <property name="subtitle" translatable="yes">Set padding size.</property>
+            <property name="activatable-widget">popup-padding</property>
+            <child>
+              <object class="GtkScale" id="popup-padding">
+                <property name="valign">center</property>
+                <property name="hexpand">true</property>
+                <property name="width-request">140px</property>
+                <property name="draw-value">false</property>
+                <property name="value-pos">right</property>
+                <property name="orientation">horizontal</property>
+                <property name="digits">0</property>
+                <property name="adjustment">dock-padding-adjust</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="yes">Border Radius</property>
+            <property name="subtitle" translatable="yes">Set dash background border radius.</property>
+            <property name="activatable-widget">popup-border-radius</property>
+            <child>
+              <object class="GtkScale" id="popup-border-radius">
+                <property name="valign">center</property>
+                <property name="hexpand">true</property>
+                <property name="width-request">140px</property>
+                <property name="draw-value">false</property>
+                <property name="value-pos">right</property>
+                <property name="orientation">horizontal</property>
+                <property name="digits">0</property>
+                <property name="adjustment">popup-border-radius-adjust</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="yes">Border Thickness</property>
+            <property name="subtitle" translatable="yes">Set border thickness.</property>
+            <property name="activatable-widget">popup-border-thickness</property>
+            <child>
+              <object class="GtkDropDown" id="popup-border-thickness">
+                <property name="valign">center</property>
+                <property name="model">border-thickness-model</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="yes">Border Color</property>
+            <property name="subtitle" translatable="yes">Select border color.</property>
+            <property name="activatable-widget">popup-border-color</property>
+            <child>
+              <object class="GtkColorButton" id="popup-border-color">
+                <property name="valign">center</property>
+                <property name="hexpand">false</property>
+                <property name="width-request">70px</property>
+                <property name="height-request">45px</property>
+                <property name="show-editor">true</property>
+                <property name="use-alpha">true</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="yes">Background Color</property>
+            <property name="subtitle" translatable="yes">Set dock background color.</property>
+            <property name="activatable-widget">popup-background-color</property>
+            <child>
+              <object class="GtkColorButton" id="popup-background-color">
+                <property name="valign">center</property>
+                <property name="hexpand">false</property>
+                <property name="width-request">70px</property>
+                <property name="height-request">45px</property>
+                <property name="show-editor">true</property>
+                <property name="use-alpha">true</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow">
+            <property name="title" translatable="yes">Foreground Color</property>
+            <property name="subtitle" translatable="yes">Set foreground color. Set opacity to zero to adapt to background.</property>
+            <property name="activatable-widget">popup-foreground-color</property>
+            <child>
+              <object class="GtkColorButton" id="popup-foreground-color">
+                <property name="valign">center</property>
+                <property name="hexpand">false</property>
+                <property name="width-request">70px</property>
+                <property name="height-request">45px</property>
+                <property name="show-editor">true</property>
+                <property name="use-alpha">true</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+  <object class="GtkAdjustment" id="popup-padding-adjust">
+    <property name="lower">0.0</property>
+    <property name="upper">1.0</property>
+    <property name="step-increment">0.01</property>
+  </object>
+  <object class="GtkAdjustment" id="popup-border-radius-adjust">
+    <property name="lower">0</property>
+    <property name="upper">8</property>
+    <property name="step-increment">1</property>
+  </object>
+  <object class="GtkStringList" id="popup-icon-size-model">
+    <items>
+      <item>16px</item>
+      <item>22px</item>
+      <item>24px</item>
+      <item>32px</item>
+      <item>48px</item>
+      <item>64px</item>
+    </items>
+  </object>
+  <object class="GtkStringList" id="border-thickness-model">
+    <items>
+      <item translatable="yes">None</item>
+      <item>1px</item>
+      <item>2px</item>
+      <item>3px</item>
+    </items>
+  </object>
+</interface>

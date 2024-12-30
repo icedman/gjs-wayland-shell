@@ -140,7 +140,7 @@ const DwlShell = GObject.registerClass(
 
       this.proxy.call(
         'GetWindows',
-        null, // (u) is the type for uint32
+        null,
         Gio.DBusCallFlags.NONE,
         -1, // Timeout (-1 for default)
         null, // No cancellable
@@ -187,7 +187,7 @@ const DwlShell = GObject.registerClass(
             }
           },
         );
-      } catch(err) {
+      } catch (err) {
         console.log(err);
       }
       return Promise.resolve(true);

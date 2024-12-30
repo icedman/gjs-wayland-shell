@@ -300,7 +300,7 @@ const Search = GObject.registerClass(
       let styles = [];
 
       let border = this.BORDER_THICKNESS;
-      let borderRadius = rads[Math.floor(this.BORDER_RADIUS)];
+      let borderRadius = rads[Math.floor(this.BORDER_RADIUS)] ?? 0;
       let borderColor = this.style.rgba(this.BORDER_COLOR);
       let foregroundColor = this.style.rgba(this.TEXT_COLOR);
       let backgroundColor = this.style.rgba(this.BACKGROUND_COLOR);

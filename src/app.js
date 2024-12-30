@@ -84,6 +84,7 @@ const App = GObject.registerClass(
         Main.apps,
         Main.search,
         Main.appsGrid,
+        Main.popups,
 
         Main.stats,
       ];

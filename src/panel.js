@@ -22,8 +22,6 @@ const Panel = GObject.registerClass(
     }
 
     enable() {
-      this.load_settings();
-
       this.window = new DockPanel({
         title: this.name,
         name: this.name,

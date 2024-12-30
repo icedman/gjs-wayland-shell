@@ -433,5 +433,36 @@
         <summary>entry text color</summary>
         <description>Set entry text color.</description>
     </key>
+    <!-- POPUPS -->
+    <key type="(dddd)" name="popup-foreground-color">
+        <default>(1.,1.,1.,1.)</default>
+        <summary>Popup foreground color</summary>
+        <description>Set Popups foreground color.</description>
+    </key>
+    <key type="d" name="popup-padding">
+        <default>0.5</default>
+        <summary>Popup padding</summary>
+        <description>Popup padding.</description>
+    </key>
+    <key type="d" name="popup-border-radius">
+        <default>3</default>
+        <summary>Border radius</summary>
+        <description>Set dash background border radius.</description>
+    </key>
+    <key type="(dddd)" name="popup-border-color">
+        <default>(1.,1.,1.,1.)</default>
+        <summary>border color</summary>
+        <description>Set Popup border color.</description>
+    </key>
+    <key type="i" name="popup-border-thickness">
+        <default>0</default>
+        <summary>Border thickness</summary>
+        <description>Border thickness.</description>
+    </key>
+    <key type="(dddd)" name="popup-background-color">
+        <default>(0.,0.,0.,0.75)</default>
+        <summary>Background color</summary>
+        <description>Set dock background color.</description>
+    </key>
   </schema>
 </schemalist>

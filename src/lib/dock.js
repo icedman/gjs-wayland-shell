@@ -329,8 +329,9 @@ export const DockPanel = GObject.registerClass(
       let styles = [];
       let panelMode = this.PANEL_MODE;
 
+      let padding = this.PADDING ?? 0;
       let border = this.BORDER_THICKNESS;
-      let borderRadius = rads[Math.floor(this.BORDER_RADIUS)];
+      let borderRadius = rads[Math.floor(this.BORDER_RADIUS)] ?? 0;
       let borderColor = this.style.rgba(this.BORDER_COLOR);
       let foregroundColor = this.style.rgba(this.FOREGROUND_COLOR);
       let backgroundColor = this.style.rgba(this.BACKGROUND_COLOR);
@@ -348,7 +349,7 @@ export const DockPanel = GObject.registerClass(
       if (panelMode) {
         {
           let ss = [];
-          let pad = Math.floor(this.PADDING * 10);
+          let pad = Math.floor(padding * 10);
           ss.push(`padding: ${pad}px;`);
           ss.push(`border: ${border}px solid rgba(${borderColor.join(',')});`);
           if (backgroundColor[3] > 0) {

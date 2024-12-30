@@ -63,6 +63,7 @@ builder.add_from_file('./ui/dock.ui');
 builder.add_from_file('./ui/panel.ui');
 builder.add_from_file('./ui/search.ui');
 builder.add_from_file('./ui/apps-grid.ui');
+builder.add_from_file('./ui/popups.ui');
 builder.add_from_file('./ui/services.ui');
 
 let _monitors = Gdk.Display.get_default().get_monitors();
@@ -324,6 +325,17 @@ class ServicesPanel extends Panel {
   }
 }
 
+class PopupsPanel extends Panel {
+  constructor() {
+    super({
+      title: 'Popups',
+      icon: 'frame-symbolic',
+    });
+
+    this.content = builder.get_object('popups');
+  }
+}
+
 class ExtensionPanel extends Panel {
   constructor() {
     super({
@@ -342,6 +354,7 @@ let panelItems = [
   new BarPanel(),
   new SearchPanel(),
   new AppsGridPanel(),
+  new PopupsPanel(),
   new ServicesPanel(),
 ];
 panelItems.forEach((item) => {

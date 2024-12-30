@@ -12,6 +12,7 @@ import Dock from './dock.js';
 import Panel from './panel.js';
 import Search from './search.js';
 import AppsGrid from './appsGrid.js';
+import Popups from './popups.js';
 import WindowManagerService from './windowManager.js';
 
 import Power from './services/power.js';
@@ -53,6 +54,7 @@ globalThis.Main = {
   panel: new Panel({ name: 'Panel' }),
   search: new Search({ name: 'Search' }),
   appsGrid: new AppsGrid({ name: 'Apps-Grid' }),
+  popups: new Popups({ name: 'Popups' }),
 
   // services
   shell: new WindowManagerService(),

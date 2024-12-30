@@ -26,9 +26,6 @@ const Dock = GObject.registerClass(
     }
 
     enable() {
-      // monkey patched at enviroment
-      this.load_settings();
-
       this.window = new DockPanel({
         title: this.name,
         name: this.name,
