@@ -44,8 +44,12 @@ const Brightness = GObject.registerClass(
 
       // Spawn gsd-power if not running
       if (!isGsdPowerRunning()) {
-        let pp = ['/usr/libexec/gsd-power', '/usr/lib64/gsd-power', '/usr/lib64/gsd-power']
-        for(let i=0; i<pp.length; i++) {
+        let pp = [
+          '/usr/libexec/gsd-power',
+          '/usr/lib64/gsd-power',
+          '/usr/lib64/gsd-power',
+        ];
+        for (let i = 0; i < pp.length; i++) {
           try {
             GLib.spawn_command_line_async(pp[i]);
             print('gsd-power started successfully.');

@@ -143,6 +143,11 @@ export const DockPanel = GObject.registerClass(
       let _updateStyle = this.update_style.bind(this);
       let _updateLayout = this.update_layout.bind(this);
 
+      this._hide_size = {
+        width: -1,
+        height: -1,
+      };
+
       this.settingsPrefix = prefix;
       this.settings = Main.settings;
       this.settingsMap = {
@@ -185,14 +190,30 @@ export const DockPanel = GObject.registerClass(
 
       LayerShell.set_keyboard_mode(this, LayerShell.KeyboardMode.ON_DEMAND);
 
-      const motionController = new Gtk.EventControllerMotion();
-      motionController.connect('motion', (controller, x, y) => {
-        this._beginAnimation();
-      });
-      this.center.add_controller(motionController);
+      {
+        const motionController = new Gtk.EventControllerMotion();
+        motionController.connect('motion', (controller, x, y) => {
+          this._beginAnimation();
+        });
+        this.center.add_controller(motionController);
+      }
+      {
+        const motionController = new Gtk.EventControllerMotion();
+        motionController.connect('motion', (controller, x, y) => {
+          this._unhide();
+        });
+        this.add_controller(motionController);
+      }
 
       Main.shell.connectObject(
         'windows-update',
+        () => {
+          this.update_indicators();
+        },
+        this,
+      );
+      Main.shell.connectObject(
+        'window-focused',
         () => {
           this.update_indicators();
         },
@@ -242,11 +263,41 @@ export const DockPanel = GObject.registerClass(
       }
     }
 
+    _unhide() {
+      this.container.visible = true;
+      this.set_size_request(-1, -1);
+      this.queue_resize();
+    }
+
+    _hide() {
+      this.container.visible = false;
+      this.set_size_request(this._hide_size.width, this._hide_size.height);
+    }
+
+    _debounceHide() {
+      this._debounceHideSeq = Main.loTimer.debounce(
+        Main.loTimer,
+        () => {
+          try {
+            this._hide();
+          } catch (err) {
+            // oops!?
+            console.log(err);
+          }
+        },
+        750,
+        this._debounceHideSeq,
+      );
+    }
+
     animate() {
       const pointer = pointerInWindow(this);
       if (!pointer[0]) {
         this._endAnimation();
         this._leave();
+      }
+      if (this.ENABLE_AUTOHIDE) {
+        this._debounceHide();
       }
     }
 
@@ -262,10 +313,17 @@ export const DockPanel = GObject.registerClass(
       if (dockOrientation[this.LOCATION] === undefined) {
         this.LOCATION = 0;
       }
-      this.center.orientation = dockOrientation[this.LOCATION];
-      this.lead.orientation = dockOrientation[this.LOCATION];
-      this.trail.orientation = dockOrientation[this.LOCATION];
-      this.container.orientation = dockOrientation[this.LOCATION];
+      this.orientation = dockOrientation[this.LOCATION];
+      this.center.orientation = this.orientation;
+      this.lead.orientation = this.orientation;
+      this.trail.orientation = this.orientation;
+      this.container.orientation = this.orientation;
+
+      if (this.orientation == Gtk.Orientation.VERTICAL) {
+        this._hide_size = { width: 4, height: -1 };
+      } else {
+        this._hide_size = { width: -1, height: 4 };
+      }
 
       // monitor
       this.monitor = Main.monitors.getMonitor(this.PREFERRED_MONITOR);
@@ -295,6 +353,9 @@ export const DockPanel = GObject.registerClass(
       }
 
       let edge = this.EDGE_DISTANCE * 10;
+      if (this.ENABLE_AUTOHIDE) {
+        edge = 0;
+      }
       LayerShell.set_margin(this, dockEdge[this.LOCATION], edge);
 
       this.container.remove_css_class('autohide');
@@ -420,9 +481,10 @@ export const DockPanel = GObject.registerClass(
           baseY *= -1;
         }
         // if vertical
-        if (dockOrientation[this.LOCATION] == Gtk.Orientation.VERTICAL) {
+        if (this.orientation == Gtk.Orientation.VERTICAL) {
           translateFunc = 'translateX';
           marginLeft = 'margin-top';
+          n;
           marginRight = 'margin-bottom';
         }
 
@@ -476,7 +538,7 @@ export const DockPanel = GObject.registerClass(
           if (dockLocation[this.LOCATION] == 'top') {
             offset = `translateY(-${hideDistance}px)`;
           }
-          if (dockOrientation[this.LOCATION] == Gtk.Orientation.VERTICAL) {
+          if (this.orientation == Gtk.Orientation.VERTICAL) {
             offset = `translateX(${hideDistance}px)`;
             if (dockLocation[this.LOCATION] == 'left') {
               offset = `translateX(-${hideDistance}px)`;
@@ -639,6 +701,7 @@ export const DockPanel = GObject.registerClass(
     }
 
     update_animation() {
+      this._unhide();
       this.update_layout();
       this.update_style();
       this.sort_icons();

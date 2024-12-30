@@ -54,12 +54,12 @@ function getAppInfoFromFile(file) {
 
 function getAppInfoMenu(appInfo) {
   let items = [
-    {
-      id: appInfo.id,
-      action: 'open',
-      name: 'Open Window',
-      exec: appInfo.exec,
-    },
+    // {
+    //   id: appInfo.id,
+    //   action: 'open',
+    //   name: 'Open Window',
+    //   exec: appInfo.exec,
+    // },
   ];
 
   let desktopAppInfo = Gio.DesktopAppInfo.new(appInfo.id ?? 'xxx');

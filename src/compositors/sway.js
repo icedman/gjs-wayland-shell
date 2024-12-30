@@ -200,6 +200,22 @@ const SwayShell = GObject.registerClass(
       return Promise.resolve(obj);
     }
 
+    async closeWindow(window) {
+      let connection = this.connect();
+      if (!connection) {
+        return;
+      }
+
+      let message = `[pid="${window['pid']}"] kill`;
+
+      await sendI3Message(connection, 0, message);
+      let response = await receiveI3Message(connection);
+      this.disconnect(connection);
+
+      let obj = JSON.parse(response);
+      return Promise.resolve(obj);
+    }
+
     async spawn(cmd, arg = '') {
       cmd = cmd.replace('%U', arg);
       cmd = cmd.replace('%u', arg);

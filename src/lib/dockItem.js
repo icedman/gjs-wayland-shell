@@ -196,12 +196,21 @@ export const DockAppItem = GObject.registerClass(
       ];
 
       if (appId) {
-        items.push({
-          name: 'Quit',
-          script: () => {
-            Main.shell.quitApp(appId);
+        items = [
+          {
+            id: appId,
+            action: 'open',
+            name: 'Open Window',
+            exec: appInfo.exec,
           },
-        });
+          ...items,
+          {
+            name: 'Quit',
+            script: () => {
+              Main.shell.quitApp(appId);
+            },
+          },
+        ];
       }
 
       this.menu.setItems(items);

@@ -25,8 +25,8 @@ const PowerDeviceInterface = `<node>
 const Power = GObject.registerClass(
   {
     Signals: {
-      'power-update': { param_types: [GObject.TYPE_OBJECT] }
-    }
+      'power-update': { param_types: [GObject.TYPE_OBJECT] },
+    },
   },
   class Power extends Extension {
     _init(params) {
@@ -38,9 +38,8 @@ const Power = GObject.registerClass(
       super.enable();
       this.state = {};
 
-      const PowerManagerProxy = Gio.DBusProxy.makeProxyWrapper(
-        PowerDeviceInterface
-      );
+      const PowerManagerProxy =
+        Gio.DBusProxy.makeProxyWrapper(PowerDeviceInterface);
 
       this.proxy = new PowerManagerProxy(
         Gio.DBus.system,
@@ -53,7 +52,7 @@ const Power = GObject.registerClass(
               this.sync();
             });
           this.sync();
-        }
+        },
       );
     }
 
@@ -80,7 +79,7 @@ const Power = GObject.registerClass(
       this.state = {
         chargingState,
         fillLevel,
-        icon
+        icon,
       };
 
       if (_proxy.State === UPower.DeviceState.FULLY_CHARGED) {
@@ -96,7 +95,7 @@ const Power = GObject.registerClass(
 
       this.emit('power-update', this);
     }
-  }
+  },
 );
 
 export default Power;

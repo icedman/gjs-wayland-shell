@@ -134,14 +134,6 @@ const HyprShell = GObject.registerClass(
       return Promise.resolve(obj);
     }
 
-    async quitApp(app_id) {
-      let ads = this.windows.filter((w) => w.app_id == app_id);
-      ads.forEach((w) => {
-        this.closeWindow(w);
-      });
-      return Promise.resolve(true);
-    }
-
     async spawn(cmd, arg = '') {
       cmd = cmd.replace('%U', arg);
       cmd = cmd.replace('%u', arg);

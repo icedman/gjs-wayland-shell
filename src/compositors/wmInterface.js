@@ -262,7 +262,14 @@ const WindowManagerInterface = GObject.registerClass(
     async getWindows() {}
     async focusWindow(window) {}
     async closeWindow(window) {}
-    async quitApp(appid) {}
+
+    async quitApp(app_id) {
+      let ads = this.windows.filter((w) => w.app_id == app_id);
+      ads.forEach((w) => {
+        this.closeWindow(w);
+      });
+      return Promise.resolve(true);
+    }
 
     async focusOrSpawn(className, cmd, arg = '', modifiers = {}) {
       let openedWindow = null;

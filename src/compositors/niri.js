@@ -161,6 +161,30 @@ const NiriShell = GObject.registerClass(
       return Promise.resolve(obj);
     }
 
+    async closeWindow(window) {
+      if (!window || !window['id']) return;
+
+      // console.log(window);
+
+      let connection = this.connect();
+      if (!connection) {
+        return;
+      }
+
+      let message =
+        JSON.stringify({ Action: { CloseWindow: { id: window['id'] } } }) +
+        '\n';
+      await sendMessage(connection, message);
+      let response = await receiveMessage(connection);
+      this.disconnect(connection);
+
+      let obj = this.parseMessage(response);
+      if (obj.length > 0) {
+        obj = obj[0];
+      }
+      return Promise.resolve(obj);
+    }
+
     async spawn(cmd, arg = '') {
       cmd = cmd.replace('%U', arg);
       cmd = cmd.replace('%u', arg);
