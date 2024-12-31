@@ -58,10 +58,10 @@ export function createPowerIndicator(config) {
     }
     if (state && state.fillLevel) {
       let fmt = config.formatAlt ?? '';
-      if (state.timeToFull) {
+      if (state.timeToFull && config.formatAltToFull) {
         fmt = config.formatAltToFull;
       }
-      if (state.timeToEmpty) {
+      if (state.timeToEmpty && config.formatAltToEmpty) {
         fmt = config.formatAltToEmpty;
       }
       let text = formatPowerToString(state, fmt, config).trim();
@@ -78,10 +78,10 @@ export function createPowerIndicator(config) {
     };
 
     let fmt = config.format ?? '';
-    if (state.timeToFull) {
+    if (state.timeToFull && config.formatToFull) {
       fmt = config.formatAltToFull;
     }
-    if (state.timeToEmpty) {
+    if (state.timeToEmpty && config.formatToEmpty) {
       fmt = config.formatAltToEmpty;
     }
 
