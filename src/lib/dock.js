@@ -250,6 +250,26 @@ export const DockPanel = GObject.registerClass(
       super.destroy();
     }
 
+    vfunc_size_allocate(width, height, z) {
+      super.vfunc_size_allocate(width, height, z);
+
+      let lead = this.lead.get_allocation();
+      let leadSpacer = this.leadSpacer.get_allocation();
+      let center = this.center.get_allocation();
+      let trailSpacer = this.trailSpacer.get_allocation();
+      let trail = this.trail.get_allocation();
+
+      let leadSpace = width / 2 - center.width / 2 - lead.width;
+      let trailSpace = width / 2 - center.width / 2 - trail.width;
+
+      if (leadSpace <= 0 || trailSpace <= 0) {
+        leadSpace = -1;
+        trailSpace = -1;
+      }
+      this.leadSpacer.set_size_request(leadSpace * 0.94, -1);
+      this.trailSpacer.set_size_request(trailSpace * 0.94, -1);
+    }
+
     _beginAnimation() {
       if (!this._animSeq) {
         this._animSeq = Main.hiTimer.runLoop(this.animate.bind(this), 500);

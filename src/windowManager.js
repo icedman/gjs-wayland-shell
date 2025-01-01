@@ -10,6 +10,7 @@ function WindowManagerService(wm) {
     hyprland: HyprShell,
     sway: SwayShell,
     dwl: DwlShell,
+    labwc: DwlShell,
   };
 
   let testWMs = Object.keys(supportedWM);
@@ -21,6 +22,7 @@ function WindowManagerService(wm) {
     let target = testWMs[i];
     console.log(`checking ${target}...`);
     let wm = new supportedWM[target]();
+    wm.name = target; //
     if (wm.isAvailable()) {
       console.log(`${target} found running`);
       return wm;

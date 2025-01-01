@@ -41,9 +41,9 @@ const OBJECT_PATH = '/com/dwl/DBus';
 
 const DwlShell = GObject.registerClass(
   class DwlShell extends WindowManagerInterface {
-    _init() {
+    _init(params) {
       super._init();
-      this.name = 'DWL';
+      this.name = params?.name ?? 'DWL';
       this.proxy = null;
     }
 
@@ -51,7 +51,7 @@ const DwlShell = GObject.registerClass(
       try {
         let [success, output] = GLib.spawn_sync(
           null, // Working directory
-          ['pgrep', '-x', 'dwl'], // Command to check process
+          ['pgrep', '-x', this.name.toLowerCase()], // Command to check process
           null, // Environment
           GLib.SpawnFlags.SEARCH_PATH,
           null, // Child setup
