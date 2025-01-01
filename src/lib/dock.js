@@ -253,21 +253,32 @@ export const DockPanel = GObject.registerClass(
     vfunc_size_allocate(width, height, z) {
       super.vfunc_size_allocate(width, height, z);
 
+      // balance the sections lead, center, trail. 'centering' the center
       let lead = this.lead.get_allocation();
       let leadSpacer = this.leadSpacer.get_allocation();
       let center = this.center.get_allocation();
       let trailSpacer = this.trailSpacer.get_allocation();
       let trail = this.trail.get_allocation();
 
-      let leadSpace = width / 2 - center.width / 2 - lead.width;
-      let trailSpace = width / 2 - center.width / 2 - trail.width;
-
+      let which = 'width';
+      if (this.orientation == Gtk.Orientation.VERTICAL) {
+        which = 'height';
+        width = height;
+      }
+      let leadSpace = width / 2 - center[which] / 2 - lead[which];
+      let trailSpace = width / 2 - center[which] / 2 - trail[which];
       if (leadSpace <= 0 || trailSpace <= 0) {
         leadSpace = -1;
         trailSpace = -1;
       }
-      this.leadSpacer.set_size_request(leadSpace * 0.94, -1);
-      this.trailSpacer.set_size_request(trailSpace * 0.94, -1);
+
+      if (this.orientation == Gtk.Orientation.VERTICAL) {
+        this.leadSpacer.set_size_request(-1, leadSpace * 0.94);
+        this.trailSpacer.set_size_request(-1, trailSpace * 0.94);
+      } else {
+        this.leadSpacer.set_size_request(leadSpace * 0.94, -1);
+        this.trailSpacer.set_size_request(trailSpace * 0.94, -1);
+      }
     }
 
     _beginAnimation() {
@@ -299,7 +310,11 @@ export const DockPanel = GObject.registerClass(
         Main.loTimer,
         () => {
           try {
-            this._hide();
+            if (this.ENABLE_AUTOHIDE) {
+              this._hide();
+            } else {
+              this._unhide();
+            }
           } catch (err) {
             // oops!?
             console.log(err);
@@ -316,9 +331,7 @@ export const DockPanel = GObject.registerClass(
         this._endAnimation();
         this._leave();
       }
-      if (this.ENABLE_AUTOHIDE) {
-        this._debounceHide();
-      }
+      this._debounceHide();
     }
 
     async update() {
@@ -360,7 +373,9 @@ export const DockPanel = GObject.registerClass(
         }
         this.monitor = Main.monitors.getPrimaryMonitor();
       }
-      LayerShell.set_monitor(this, this.monitor);
+      if (this.monitor) {
+        LayerShell.set_monitor(this, this.monitor);
+      }
 
       // clear
       for (let i = 0; i < 4; i++) {
@@ -721,7 +736,6 @@ export const DockPanel = GObject.registerClass(
     }
 
     update_animation() {
-      this._unhide();
       this.update_layout();
       this.update_style();
       this.sort_icons();

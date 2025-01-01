@@ -47,11 +47,14 @@ const DwlShell = GObject.registerClass(
       this.proxy = null;
     }
 
-    isAvailable() {
+    isAvailable(target) {
+      if (!target) {
+        target = this.name.toLowerCase();
+      }
       try {
         let [success, output] = GLib.spawn_sync(
           null, // Working directory
-          ['pgrep', '-x', this.name.toLowerCase()], // Command to check process
+          ['pgrep', '-x', target], // Command to check process
           null, // Environment
           GLib.SpawnFlags.SEARCH_PATH,
           null, // Child setup
@@ -74,7 +77,7 @@ const DwlShell = GObject.registerClass(
             else {
               this.proxy.connect('g-properties-changed', () => {});
               this.proxy.connectSignal('WindowFocused', (proxy, t, window) => {
-                // console.log('focus')
+                this._log('focus');
                 let w = this.normalizeWindow(JSON.parse(window));
                 this.broadcast([
                   {
@@ -82,10 +85,10 @@ const DwlShell = GObject.registerClass(
                     window: w,
                   },
                 ]);
-                console.log(w);
+                this._log(w);
               });
               this.proxy.connectSignal('WindowClosed', (proxy, t, window) => {
-                // console.log('closed')
+                // this._log('closed')
                 let w = this.normalizeWindow(JSON.parse(window));
                 this.broadcast([
                   {
@@ -93,10 +96,10 @@ const DwlShell = GObject.registerClass(
                     window: w,
                   },
                 ]);
-                console.log(w);
+                this._log(w);
               });
               this.proxy.connectSignal('WindowOpened', (proxy, t, window) => {
-                // console.log('opened')
+                // this._log('opened')
                 let w = this.normalizeWindow(JSON.parse(window));
                 this.broadcast([
                   {
@@ -104,7 +107,7 @@ const DwlShell = GObject.registerClass(
                     window: w,
                   },
                 ]);
-                console.log(w);
+                this._log(w);
               });
             }
           },

@@ -66,8 +66,8 @@ const App = GObject.registerClass(
         Main.shell,
         Main.dbus,
         Main.monitors,
-        Main.dock,
         Main.panel,
+        Main.dock,
 
         Main.power,
         Main.powerProfiles,

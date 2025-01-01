@@ -22,8 +22,7 @@ function WindowManagerService(wm) {
     let target = testWMs[i];
     console.log(`checking ${target}...`);
     let wm = new supportedWM[target]();
-    wm.name = target; //
-    if (wm.isAvailable()) {
+    if (wm.isAvailable(target)) {
       console.log(`${target} found running`);
       return wm;
     }
