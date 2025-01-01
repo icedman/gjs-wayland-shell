@@ -45,7 +45,10 @@ const SystemApps = GObject.registerClass(
     async collectApps() {
       this.apps = Gio.app_info_get_all();
       if (this._search) {
-        this._search.refresh(this.apps);
+        let actions = Object.keys(Main.actions.actions).map((k) => {
+          return Main.actions.actions[k];
+        });
+        this._search.refresh([...this.apps, ...actions]);
       }
     }
 
@@ -64,20 +67,23 @@ const SystemApps = GObject.registerClass(
 
     async enable() {
       super.enable();
-      this._search = new Search();
+      try {
+        this._search = new Search();
+      } catch (err) {
+        console.log(err);
+      }
 
       // debug only
       // this.findAppDirs();
 
+      // let _search do its thing
       this.monitor = Gio.AppInfoMonitor.get();
       this.monitor.connectObject('changed', this.collectApps.bind(this), this);
-
       this.collectApps();
     }
 
     disable() {
       super.disable();
-      this.unwatchAppDirs();
       if (this.monitor) {
         this.monitor.disconnectObject(this);
         this.monitor = null;

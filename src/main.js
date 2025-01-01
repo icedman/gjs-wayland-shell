@@ -29,6 +29,7 @@ import Trash from './services/trash.js';
 import Style from './services/style.js';
 import DBus from './services/dbus.js';
 import SystemApps from './services/systemApps.js';
+import SystemActions from './services/systemActions.js';
 import SystemStats from './services/systemStats.js';
 import Timer from './lib/timer.js';
 import Factory from './lib/factory.js';
@@ -74,6 +75,9 @@ globalThis.Main = {
   trash: new Trash(),
   inhibitor: new Inhibitor(),
   login1: new Login1(),
+
+  // misc
+  actions: new SystemActions(),
 
   // stats
   stats: new SystemStats(),

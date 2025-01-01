@@ -11,6 +11,7 @@ function getAppInfo(app) {
     return {};
   }
   let appInfo = app;
+
   if (appInfo && typeof appInfo === 'string') {
     if (appRegistry[appInfo]) {
       return appRegistry[appInfo];
@@ -19,11 +20,11 @@ function getAppInfo(app) {
     if (desktopAppInfo) {
       let id = desktopAppInfo.get_id();
       let icon_name = desktopAppInfo.get_string('Icon');
-      let title = desktopAppInfo.get_string('Name');
+      let name = desktopAppInfo.get_string('Name');
       let exec = (desktopAppInfo.get_string('Exec') ?? '').trim();
       appInfo = {
         id,
-        title,
+        name,
         icon_name,
         exec,
       };
@@ -42,8 +43,22 @@ function getAppInfo(app) {
     appInfo.menu = getAppInfoMenu(appInfo);
   }
 
+  appInfo['should_show'] = appInfo['should_show'] ?? (() => true);
+  appInfo['display_name'] = appInfo['display_name'] ?? appInfo['name'];
+  appInfo['description'] = appInfo['description'] ?? appInfo['name'];
+  appInfo['title'] = appInfo['title'] ?? appInfo['description'];
+  appInfo['keywords'] = appInfo['keywords'] ?? appInfo['name'];
+  appInfo['exec'] = appInfo['exec'] ?? appInfo['id'];
+  Object.keys(appInfo).forEach((k) => {
+    if (typeof appInfo[k] != 'function') {
+      appInfo[`get_${k}`] = () => {
+        return appInfo[k];
+      };
+    }
+  });
+  appInfo['get_executable'] = appInfo['get_exec'];
+
   appRegistry[appInfo.id] = appInfo;
-  // console.log(appInfo);
   return appInfo;
 }
 

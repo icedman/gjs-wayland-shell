@@ -449,8 +449,8 @@ const Search = GObject.registerClass(
           this.activateSearchItem(item);
         });
 
-        name.set_label(item.name);
-        desc.set_label(item.description);
+        name.set_label(item.name ?? '');
+        desc.set_label(item.description ?? '');
 
         desc.set_ellipsize(3);
         desc.set_max_width_chars(40);

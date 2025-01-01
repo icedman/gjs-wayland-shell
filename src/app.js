@@ -82,8 +82,9 @@ const App = GObject.registerClass(
         Main.login1,
 
         Main.apps,
-        Main.search,
         Main.appsGrid,
+        Main.actions,
+        Main.search,
         Main.popups,
 
         Main.stats,

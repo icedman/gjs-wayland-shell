@@ -79,8 +79,7 @@ export class Search {
     // );
 
     this.refreshAgain = false;
-
-    this.refresh();
+    // this.refresh();
   }
 
   /**
@@ -122,8 +121,7 @@ export class Search {
 
     this.index
       .updateIndex([
-        // ...Gio.AppInfo.get_all()
-        ...(apps ?? Gio.app_info_get_all())
+        ...apps
           .filter((appInfo) => appInfo.should_show())
           .map(this.#appInfoToObj),
         ...systemActionObjects,
@@ -292,7 +290,7 @@ export class Search {
    *
    * @return {Void}
    */
-  #handleMonitorChanged() {
-    this.refresh();
-  }
+  // #handleMonitorChanged() {
+  //   this.refresh();
+  // }
 }
