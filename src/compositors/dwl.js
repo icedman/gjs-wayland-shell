@@ -47,6 +47,21 @@ const DwlShell = GObject.registerClass(
       this.proxy = null;
     }
 
+    isAvailable() {
+      try {
+        let [success, output] = GLib.spawn_sync(
+          null, // Working directory
+          ['pgrep', '-x', 'dwl'], // Command to check process
+          null, // Environment
+          GLib.SpawnFlags.SEARCH_PATH,
+          null, // Child setup
+        );
+        return success && output.length > 0;
+      } catch (e) {
+        return false;
+      }
+    }
+
     async _createProxy() {
       let p = new Promise((resolve, reject) => {
         const DwlProxy = Gio.DBusProxy.makeProxyWrapper(DwlInterface);

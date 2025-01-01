@@ -1,4 +1,5 @@
 import Gio from 'gi://Gio';
+import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
 import { WindowManagerInterface } from './wmInterface.js';
 
@@ -15,6 +16,21 @@ const NiriShell = GObject.registerClass(
     _init() {
       super._init();
       this.name = 'NIRI';
+    }
+
+    isAvailable() {
+      try {
+        let [success, output] = GLib.spawn_sync(
+          null, // Working directory
+          ['pgrep', '-x', 'niri'], // Command to check process
+          null, // Environment
+          GLib.SpawnFlags.SEARCH_PATH,
+          null, // Child setup
+        );
+        return success && output.length > 0;
+      } catch (e) {
+        return false;
+      }
     }
 
     connect() {

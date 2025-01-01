@@ -1,6 +1,6 @@
 import Gio from 'gi://Gio';
-import GObject from 'gi://GObject';
 import GLib from 'gi://GLib';
+import GObject from 'gi://GObject';
 import { Extension } from '../lib/extensionInterface.js';
 
 import {
@@ -38,6 +38,10 @@ const WindowManagerInterface = GObject.registerClass(
 
     disable() {
       super.disable();
+    }
+
+    isAvailable() {
+      return true;
     }
 
     onWindowsUpdated(evt) {

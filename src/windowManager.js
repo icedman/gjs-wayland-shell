@@ -12,18 +12,18 @@ function WindowManagerService(wm) {
     dwl: DwlShell,
   };
 
-  let testShells = Object.keys(supportedWM);
+  let testWMs = Object.keys(supportedWM);
   if (wm && supportedWM[wm]) {
-    testShells = [supportedWM[wm]];
+    testWMs = [supportedWM[wm]];
   }
 
-  for (let i = 0; i < testShells.length; i++) {
-    let shell = new supportedWM[testShells[i]]();
-    let connection = shell.connect();
-    if (connection) {
-      shell.disconnect(connection);
-      console.log(testShells[i]);
-      return shell;
+  for (let i = 0; i < testWMs.length; i++) {
+    let target = testWMs[i];
+    console.log(`checking ${target}...`);
+    let wm = new supportedWM[target]();
+    if (wm.isAvailable()) {
+      console.log(`${target} found running`);
+      return wm;
     }
   }
 

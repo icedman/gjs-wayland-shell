@@ -47,7 +47,7 @@ const Brightness = GObject.registerClass(
         let pp = [
           '/usr/libexec/gsd-power',
           '/usr/lib64/gsd-power',
-          '/usr/lib64/gsd-power',
+          '/usr/lib/gsd-power',
         ];
         for (let i = 0; i < pp.length; i++) {
           try {
