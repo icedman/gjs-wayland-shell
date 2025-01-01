@@ -32,6 +32,28 @@ function isGsdPowerRunning() {
   }
 }
 
+function loadGsdPower() {
+  if (isGsdPowerRunning()) return true;
+  let pp = [
+    '/usr/libexec/gsd-power',
+    '/usr/lib64/gsd-power',
+    '/usr/lib/gsd-power',
+  ];
+  for (let i = 0; i < pp.length; i++) {
+    let exec = pp[i];
+    let fn = Gio.File.new_for_path(exec);
+    if (!fn.query_exists(null)) continue;
+    try {
+      GLib.spawn_command_line_async(exec);
+      print('gsd-power started successfully.');
+      break;
+    } catch (e) {
+      // logError(e, 'Failed to start gsd-power');
+    }
+  }
+  return false;
+}
+
 const Brightness = GObject.registerClass(
   {
     Signals: {
@@ -41,26 +63,8 @@ const Brightness = GObject.registerClass(
   class Brightness extends Extension {
     _init(params) {
       super._init(params);
-
-      // Spawn gsd-power if not running
-      if (!isGsdPowerRunning()) {
-        let pp = [
-          '/usr/libexec/gsd-power',
-          '/usr/lib64/gsd-power',
-          '/usr/lib/gsd-power',
-        ];
-        for (let i = 0; i < pp.length; i++) {
-          try {
-            GLib.spawn_command_line_async(pp[i]);
-            print('gsd-power started successfully.');
-            break;
-          } catch (e) {
-            // logError(e, 'Failed to start gsd-power');
-          }
-        }
-      } else {
-        print('gsd-power is already running.');
-      }
+      this.isGsdPowerRunning = isGsdPowerRunning;
+      this.loadGsdPower = loadGsdPower;
     }
 
     async enable() {
@@ -81,13 +85,22 @@ const Brightness = GObject.registerClass(
           this.sync();
         },
       );
+
+      this.retry = 0;
     }
 
     disable() {
       super.disable();
+      this._proxy = null;
+      if (this.gsdSeq) {
+        Main.loTimer.cancel(this.gsdSeq);
+        this.gsdSeq = null;
+      }
     }
 
     sync() {
+      if (!this.enabled) return;
+      console.log('syncing...');
       const brightness = this._proxy.Brightness;
       const visible = Number.isInteger(brightness) && brightness >= 0;
 
