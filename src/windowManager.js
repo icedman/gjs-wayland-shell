@@ -11,6 +11,7 @@ function WindowManagerService(wm) {
     sway: SwayShell,
     dwl: DwlShell,
     labwc: DwlShell,
+    mutter: DwlShell,
   };
 
   let testWMs = Object.keys(supportedWM);

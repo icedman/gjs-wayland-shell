@@ -28,7 +28,10 @@ const App = GObject.registerClass(
   },
   class App extends Gtk.Application {
     _init(params) {
-      super._init(params);
+      super._init({
+        application_id: 'com.github.icedman.gjs-wayland-shell',
+        ...params
+      });
 
       this.connect('activate', () => {
         this.appWindow = new Gtk.ApplicationWindow({
@@ -66,6 +69,7 @@ const App = GObject.registerClass(
         Main.shell,
         Main.dbus,
         Main.monitors,
+        // Main.wallpaper,
         Main.panel,
         Main.dock,
 

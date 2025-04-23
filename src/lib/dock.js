@@ -86,6 +86,7 @@ export const DockPanel = GObject.registerClass(
       this.add_css_class('startup');
 
       this.style = Main.style;
+      this.decorated = false;
 
       LayerShell.init_for_window(this);
       LayerShell.set_anchor(this, LayerShell.Edge.BOTTOM, true);
@@ -238,6 +239,8 @@ export const DockPanel = GObject.registerClass(
 
       this.load_settings();
       this.update();
+
+      this.set_title(`gws::${this.name}`);
     }
 
     destroy() {

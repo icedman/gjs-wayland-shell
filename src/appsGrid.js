@@ -101,6 +101,7 @@ const AppsGrid = GObject.registerClass(
         vexpand: true,
         default_width: this.default_width,
         default_height: this.default_height,
+        decorated: false
       });
 
       this.window.add_css_class('has-results');

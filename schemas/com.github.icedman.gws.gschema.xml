@@ -5,6 +5,16 @@
       <summary>"Dark or Light</summary>
       <description>Application theme (dark, light, or auto)</description>
     </key>
+    <key name="kb-terminal" type="as">
+      <default><![CDATA[['<Super>Return']]]></default>
+      <summary>"Dark or Light</summary>
+      <description>Application theme (dark, light, or auto)</description>
+    </key>
+    <key name="kb-menu" type="as">
+      <default><![CDATA[['<Super>Space']]]></default>
+      <summary>"Dark or Light</summary>
+      <description>Application theme (dark, light, or auto)</description>
+    </key>
     <!-- SERVICES -->
     <key type="b" name="service-system-stats">
         <default>false</default>

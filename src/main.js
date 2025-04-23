@@ -13,6 +13,7 @@ import Panel from './panel.js';
 import Search from './search.js';
 import AppsGrid from './appsGrid.js';
 import Popups from './popups.js';
+import Wallpaper from './wallpaper.js';
 import WindowManagerService from './windowManager.js';
 
 import Power from './services/power.js';
@@ -51,6 +52,7 @@ globalThis.Main = {
 
   // ui
   factory: new Factory(),
+  wallpaper: new Wallpaper({ name: 'Wallpaper' }),
   dock: new Dock({ name: 'Dock' }),
   panel: new Panel({ name: 'Panel' }),
   search: new Search({ name: 'Search' }),

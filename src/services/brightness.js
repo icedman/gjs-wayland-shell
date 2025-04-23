@@ -70,7 +70,8 @@ const Brightness = GObject.registerClass(
     async enable() {
       super.enable();
       this.state = {
-        icon: 'brightness-display-symbolic',
+        icon: 'display-brightness-symbolic',
+        icon_index: 0
       };
 
       const BrightnessProxy =
@@ -107,7 +108,7 @@ const Brightness = GObject.registerClass(
       this.state = {
         brightness,
         visible,
-        icon: 'brightness-display-symbolic',
+        icon: 'display-brightness-symbolic',
       };
 
       this.emit('brightness-update', this);

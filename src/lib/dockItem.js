@@ -213,8 +213,10 @@ export const DockAppItem = GObject.registerClass(
         ];
       }
 
-      this.menu.setItems(items);
-      this.menu.popup();
+      if (items.length > 0) {
+        this.menu.setItems(items);
+        this.menu.popup();
+      }
     }
 
     update_indicator(config = {}) {

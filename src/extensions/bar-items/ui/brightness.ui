@@ -6,7 +6,7 @@
         <child>
           <object class="GtkButton" id="brightness-toggle">
             <property name="hexpand">false</property>
-            <property name="icon_name">brightness-display-symbolic</property>
+            <property name="icon_name">display-brightness-symbolic</property>
           </object>
         </child>
         <child>

@@ -127,7 +127,7 @@ const Mic = GObject.registerClass(
       this._icons = [
         'microphone-sensitivity-muted-symbolic',
         'microphone-sensitivity-low-symbolic',
-        'microphone-sensitivity-medium-symbolInputic',
+        'microphone-sensitivity-medium-symbolic',
         'microphone-sensitivity-high-symbolic',
       ];
 

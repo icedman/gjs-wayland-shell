@@ -52,6 +52,7 @@ const Search = GObject.registerClass(
         vexpand: true,
         default_width: this.default_width,
         default_height: this.default_height,
+        decorated: false
       });
 
       let prefix = 'search';
