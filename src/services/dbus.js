@@ -1,12 +1,12 @@
-import Gdk from 'gi://Gdk?version=4.0';
-import Gtk from 'gi://Gtk?version=4.0';
-import GLib from 'gi://GLib';
-import Gio from 'gi://Gio';
-import GObject from 'gi://GObject';
-import { Extension } from '../lib/extensionInterface.js';
+import Gdk from "gi://Gdk?version=4.0";
+import Gtk from "gi://Gtk?version=4.0";
+import GLib from "gi://GLib";
+import Gio from "gi://Gio";
+import GObject from "gi://GObject";
+import { Extension } from "../lib/extensionInterface.js";
 
-const BUS_NAME = 'com.github.icedman.gws.controller';
-const OBJECT_PATH = '/com/github/icedman/gws/controller';
+const BUS_NAME = "com.github.icedman.gws.controller";
+const OBJECT_PATH = "/com/github/icedman/gws/controller";
 
 const DBusServiceInterface = `
 <node>
@@ -20,9 +20,9 @@ const DBusServiceInterface = `
 const DBus = GObject.registerClass(
   {
     Signals: {
-      'request-apps': {},
-      'request-search': {},
-      'request-console': {},
+      "request-apps": {},
+      "request-search": {},
+      "request-console": {},
     },
   },
   class DBus extends Extension {
@@ -66,15 +66,15 @@ const DBus = GObject.registerClass(
     }
 
     show_apps() {
-      this.emit('request-apps');
+      this.emit("request-apps");
     }
 
     show_search() {
-      this.emit('request-search');
+      this.emit("request-search");
     }
 
     show_console() {
-      this.emit('request-console');
+      this.emit("request-console");
     }
   },
 );

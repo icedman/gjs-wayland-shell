@@ -1,14 +1,14 @@
-import Gdk from 'gi://Gdk?version=4.0';
-import Gtk from 'gi://Gtk?version=4.0';
-import GLib from 'gi://GLib';
-import Gio from 'gi://Gio';
-import GObject from 'gi://GObject';
-import { Extension } from '../lib/extensionInterface.js';
+import Gdk from "gi://Gdk?version=4.0";
+import Gtk from "gi://Gtk?version=4.0";
+import GLib from "gi://GLib";
+import Gio from "gi://Gio";
+import GObject from "gi://GObject";
+import { Extension } from "../lib/extensionInterface.js";
 
-const BUS_NAME = 'org.freedesktop.login1';
-const OBJECT_PATH = '/org/freedesktop/login1';
-const ACTIVE_ICON = 'caffeine-on';
-const INACTIVE_ICON = 'caffeine-off';
+const BUS_NAME = "org.freedesktop.login1";
+const OBJECT_PATH = "/org/freedesktop/login1";
+const ACTIVE_ICON = "caffeine-on";
+const INACTIVE_ICON = "caffeine-off";
 
 const Login1Interface = `
 <node>
@@ -49,7 +49,7 @@ const Login1Interface = `
 const Login1 = GObject.registerClass(
   {
     Signals: {
-      'login1-update': { param_types: [GObject.TYPE_OBJECT] },
+      "login1-update": { param_types: [GObject.TYPE_OBJECT] },
     },
   },
   class Login1 extends Extension {
@@ -68,13 +68,13 @@ const Login1 = GObject.registerClass(
           OBJECT_PATH,
           (proxy, error) => {
             if (error) console.error(error.message);
-            else this._proxy.connect('g-properties-changed', () => this.sync());
+            else this._proxy.connect("g-properties-changed", () => this.sync());
             this.sync();
           },
         );
 
-        this._proxy.connectSignal('PrepareForSleep', () => {
-          console.log('PrepareForSleep');
+        this._proxy.connectSignal("PrepareForSleep", () => {
+          console.log("PrepareForSleep");
           // Main.inhibitor.uninhibit();
         });
       } catch (err) {
@@ -87,7 +87,7 @@ const Login1 = GObject.registerClass(
     }
 
     sync() {
-      this.emit('login1-update', this);
+      this.emit("login1-update", this);
     }
   },
 );

@@ -1,7 +1,7 @@
-import Gio from 'gi://Gio';
-import GLib from 'gi://GLib';
-import GObject from 'gi://GObject';
-import { Extension } from '../lib/extensionInterface.js';
+import Gio from "gi://Gio";
+import GLib from "gi://GLib";
+import GObject from "gi://GObject";
+import { Extension } from "../lib/extensionInterface.js";
 
 import {
   connectToSocket,
@@ -9,21 +9,21 @@ import {
   sendMessage,
   receiveMessage,
   BYTES_NUM,
-} from '../lib/ipc.js';
+} from "../lib/ipc.js";
 
 const WindowManagerInterface = GObject.registerClass(
   {
     Signals: {
-      'windows-update': {},
-      'window-opened': {}, // param_types: [ GObject.TYPE_STRING ]},
-      'window-focused': {}, // param_types: [ GObject.TYPE_STRING ]},
-      'window-closed': {}, // param_types: [ GObject.TYPE_STRING ]},
+      "windows-update": {},
+      "window-opened": {}, // param_types: [ GObject.TYPE_STRING ]},
+      "window-focused": {}, // param_types: [ GObject.TYPE_STRING ]},
+      "window-closed": {}, // param_types: [ GObject.TYPE_STRING ]},
     },
   },
   class WindowManagerInterface extends Extension {
     _init() {
       super._init();
-      this.name = 'Unknown';
+      this.name = "Unknown";
     }
 
     enable() {
@@ -45,9 +45,9 @@ const WindowManagerInterface = GObject.registerClass(
     }
 
     onWindowsUpdated(evt) {
-      this._log('onWindowsUpdated');
+      this._log("onWindowsUpdated");
       this._log(evt);
-      this.emit('windows-update');
+      this.emit("windows-update");
     }
 
     _log(msg) {
@@ -58,13 +58,13 @@ const WindowManagerInterface = GObject.registerClass(
     _appendNewWindow(window) {
       let newWindow = false;
       let oldWindow = this.windows.find((w) => {
-        return w.id == window['id'];
+        return w.id == window["id"];
       });
       if (!oldWindow) {
         newWindow = window;
       }
       if (newWindow) {
-        if (!newWindow['app_id']) {
+        if (!newWindow["app_id"]) {
           // if data is bare... fetch all windows
           this.queueGetWindows();
           return;
@@ -72,7 +72,7 @@ const WindowManagerInterface = GObject.registerClass(
           this.windows = [...this.windows, newWindow];
           this.normalizeWindows();
         }
-        this.emit('windows-update');
+        this.emit("windows-update");
         return true;
       } else {
         Object.keys(window).forEach((k) => {
@@ -83,43 +83,43 @@ const WindowManagerInterface = GObject.registerClass(
     }
 
     onWindowFocused(evt) {
-      this._log('onWindowFocused');
+      this._log("onWindowFocused");
       this._log(evt);
-      if (this._appendNewWindow(evt['window'])) {
+      if (this._appendNewWindow(evt["window"])) {
         return;
       }
-      this.focused = evt['window'];
-      this.emit('window-focused');
+      this.focused = evt["window"];
+      this.emit("window-focused");
     }
 
     onWindowOpened(evt) {
-      this._log('onWindowOpened');
+      this._log("onWindowOpened");
       this._log(evt);
 
-      if (this._appendNewWindow(evt['window'])) {
+      if (this._appendNewWindow(evt["window"])) {
         // return;
       }
 
       // update
       this.windows = this.windows.filter((w) => {
-        return w.id != evt['window']['id'];
+        return w.id != evt["window"]["id"];
       });
 
-      this.windows = [...this.windows, this.normalizeWindow(evt['window'])];
-      this.emit('windows-update');
-      this.emit('window-opened');
+      this.windows = [...this.windows, this.normalizeWindow(evt["window"])];
+      this.emit("windows-update");
+      this.emit("window-opened");
     }
 
     onWindowClosed(evt) {
-      this._log('onWindowClosed');
+      this._log("onWindowClosed");
       this._log(evt);
 
       this.windows = this.windows.filter((w) => {
-        return w.id != evt['window']['id'];
+        return w.id != evt["window"]["id"];
       });
 
-      this.emit('windows-update');
-      this.emit('window-closed');
+      this.emit("windows-update");
+      this.emit("window-closed");
     }
 
     queueGetWindows() {
@@ -140,10 +140,10 @@ const WindowManagerInterface = GObject.registerClass(
 
     findWindow(w) {
       return this.windows.find((_w) => {
-        if (w['address'] && w['address'] == _w['address']) {
+        if (w["address"] && w["address"] == _w["address"]) {
           return true;
         }
-        return w['id'] == _w['id'];
+        return w["id"] == _w["id"];
       });
     }
 
@@ -157,7 +157,7 @@ const WindowManagerInterface = GObject.registerClass(
       }
       */
       try {
-        w['title'] = GLib.utf8_to_locale(w['title']);
+        w["title"] = GLib.utf8_to_locale(w["title"]);
       } catch (err) {}
       return w;
     }
@@ -184,16 +184,16 @@ const WindowManagerInterface = GObject.registerClass(
       msg.forEach((m) => {
         let eventType = m.event;
         switch (eventType) {
-          case 'window-opened':
+          case "window-opened":
             this.onWindowOpened(m);
             break;
-          case 'window-closed':
+          case "window-closed":
             this.onWindowClosed(m);
             break;
-          case 'window-focused':
+          case "window-focused":
             this.onWindowFocused(m);
             break;
-          case 'windows-update':
+          case "windows-update":
             this.onWindowsUpdated(m);
             break;
           default:
@@ -213,7 +213,7 @@ const WindowManagerInterface = GObject.registerClass(
 
       let inputStream = connection.get_input_stream();
       if (!inputStream) {
-        logError(new Error('Failed to get input stream.'));
+        logError(new Error("Failed to get input stream."));
         return false;
       }
 
@@ -232,14 +232,14 @@ const WindowManagerInterface = GObject.registerClass(
               let byteArray = new Uint8Array(bytes.get_data());
               // let response = String.fromCharCode.apply(null, byteArray);
 
-              let decoder = new TextDecoder('utf-8'); // Use appropriate encoding if necessary
+              let decoder = new TextDecoder("utf-8"); // Use appropriate encoding if necessary
               let response = decoder.decode(byteArray);
 
               try {
                 let lines = response.split(/\r?\n/);
                 lines.forEach((line) => {
                   line = line.trim();
-                  if (line == '') return;
+                  if (line == "") return;
                   _broadcast(_parseMessage(line));
                 });
               } catch (err) {
@@ -251,7 +251,7 @@ const WindowManagerInterface = GObject.registerClass(
             },
           );
         } catch (error) {
-          logError(error, 'Error starting read_async');
+          logError(error, "Error starting read_async");
         }
       };
 
@@ -275,11 +275,11 @@ const WindowManagerInterface = GObject.registerClass(
       return Promise.resolve(true);
     }
 
-    async focusOrSpawn(className, cmd, arg = '', modifiers = {}) {
+    async focusOrSpawn(className, cmd, arg = "", modifiers = {}) {
       let openedWindow = null;
       try {
         let openedWindows = (this.windows ?? []).filter((w) => {
-          return w['app_id'] + '.desktop' == className;
+          return w["app_id"] + ".desktop" == className;
         });
         if (openedWindows && openedWindows.length) {
           this.focusIndex = this.focusIndex % openedWindows.length;
@@ -290,7 +290,7 @@ const WindowManagerInterface = GObject.registerClass(
         return Promise.reject(err);
       }
 
-      if (!openedWindow || modifiers['ctrl']) {
+      if (!openedWindow || modifiers["ctrl"]) {
         this.spawn(cmd, arg);
         return Promise.resolve(0);
       } else {
@@ -299,14 +299,14 @@ const WindowManagerInterface = GObject.registerClass(
       }
     }
 
-    async spawn(cmd, arg = '') {
-      cmd = cmd.replace('%U', arg);
-      cmd = cmd.replace('%u', arg);
+    async spawn(cmd, arg = "") {
+      cmd = cmd.replace("%U", arg);
+      cmd = cmd.replace("%u", arg);
       try {
         // Get the full environment from the current process
         const environment = GLib.get_environ().filter((e) => {
           // except this... LD_PRELOAD
-          return !e.includes('libgtk4-layer-shell');
+          return !e.includes("libgtk4-layer-shell");
         });
 
         // console.log(environment);
@@ -324,10 +324,10 @@ const WindowManagerInterface = GObject.registerClass(
         if (success) {
           print(`Spawned process with PID: ${pid}`);
         } else {
-          print('Failed to spawn process.');
+          print("Failed to spawn process.");
         }
       } catch (e) {
-        logError(e, 'Error spawning process');
+        logError(e, "Error spawning process");
       }
     }
 

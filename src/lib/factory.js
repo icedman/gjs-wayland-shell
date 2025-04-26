@@ -1,15 +1,15 @@
-import Gdk from 'gi://Gdk?version=4.0';
-import Gtk from 'gi://Gtk?version=4.0';
-import GLib from 'gi://GLib';
-import Gio from 'gi://Gio';
-import GObject from 'gi://GObject';
+import Gdk from "gi://Gdk?version=4.0";
+import Gtk from "gi://Gtk?version=4.0";
+import GLib from "gi://GLib";
+import Gio from "gi://Gio";
+import GObject from "gi://GObject";
 
 const providerRegistry = {};
 
 const Factory = GObject.registerClass(
   {
     Signals: {
-      'registry-update': {},
+      "registry-update": {},
     },
   },
   class Factory extends GObject.Object {
@@ -24,7 +24,7 @@ const Factory = GObject.registerClass(
         create: createFunction,
         owner: owner,
       };
-      this.emit('registry-update');
+      this.emit("registry-update");
     }
 
     unregisterProvider(owner) {

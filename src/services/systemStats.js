@@ -1,9 +1,9 @@
-import Gdk from 'gi://Gdk?version=4.0';
-import Gtk from 'gi://Gtk?version=4.0';
-import GLib from 'gi://GLib';
-import Gio from 'gi://Gio';
-import GObject from 'gi://GObject';
-import { Extension } from '../lib/extensionInterface.js';
+import Gdk from "gi://Gdk?version=4.0";
+import Gtk from "gi://Gtk?version=4.0";
+import GLib from "gi://GLib";
+import Gio from "gi://Gio";
+import GObject from "gi://GObject";
+import { Extension } from "../lib/extensionInterface.js";
 
 // Adopted from the Gnome Shell Extensions
 // [multicore-system-monitor@igrek.dev](https://extensions.gnome.org/extension/6364/multicore-system-monitor/)
@@ -15,17 +15,17 @@ const DISK_REFRESH_INTERVAL = 1000 * 60 * 3; // in milliseconds
 let cpuUsage = []; // first line represents the total CPU usage, next - consecutive cores
 
 function getCurrentCpuUsage() {
-  const file = '/proc/stat';
+  const file = "/proc/stat";
   const contents = GLib.file_get_contents(file);
   if (!contents[0]) {
     return [];
   }
   const content = new TextDecoder().decode(contents[1]);
-  const lines = content.split('\n');
+  const lines = content.split("\n");
   // first line represents the total CPU usage
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
-    if (line.startsWith('cpu')) {
+    if (line.startsWith("cpu")) {
       const parts = line.split(/\s+/);
       if (parts.length >= 11) {
         const user = parseInt(parts[1]);
@@ -68,30 +68,30 @@ function getCurrentCpuUsage() {
 }
 
 function getCurrentMemoryStats() {
-  const file = '/proc/meminfo';
+  const file = "/proc/meminfo";
   const contents = GLib.file_get_contents(file);
   if (!contents[0]) {
     return {};
   }
   const content = new TextDecoder().decode(contents[1]);
-  const lines = content.split('\n');
+  const lines = content.split("\n");
   let memoryStats = {};
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
     const parts = line.split(/\s+/);
     if (parts.length === 3) {
-      const key = parts[0].replace(':', '');
+      const key = parts[0].replace(":", "");
       const value = parseInt(parts[1], 10);
       memoryStats[key] = value; // in kilobytes
     }
   }
 
-  const total = memoryStats['MemTotal'];
-  const used = total - memoryStats['MemAvailable'];
-  const swapUsed = memoryStats['SwapTotal'] - memoryStats['SwapFree'];
+  const total = memoryStats["MemTotal"];
+  const used = total - memoryStats["MemAvailable"];
+  const swapUsed = memoryStats["SwapTotal"] - memoryStats["SwapFree"];
   const swapUsagePercent = Math.round(
-    (swapUsed / memoryStats['SwapTotal']) * 100,
+    (swapUsed / memoryStats["SwapTotal"]) * 100,
   );
   const swapUsage = swapUsagePercent / 100;
   const usagePercent = Math.round((used / total) * 100);
@@ -99,18 +99,18 @@ function getCurrentMemoryStats() {
 
   return {
     total: total,
-    free: memoryStats['MemFree'],
-    buffers: memoryStats['Buffers'],
-    cached: memoryStats['Cached'],
+    free: memoryStats["MemFree"],
+    buffers: memoryStats["Buffers"],
+    cached: memoryStats["Cached"],
     usagePercent: usagePercent,
     used: used,
     usage: usage,
-    available: memoryStats['MemAvailable'],
-    dirty: memoryStats['Dirty'],
-    writeback: memoryStats['Writeback'],
-    dirtyWriteback: memoryStats['Dirty'] + memoryStats['Writeback'],
-    swapFree: memoryStats['SwapFree'],
-    swapTotal: memoryStats['SwapTotal'],
+    available: memoryStats["MemAvailable"],
+    dirty: memoryStats["Dirty"],
+    writeback: memoryStats["Writeback"],
+    dirtyWriteback: memoryStats["Dirty"] + memoryStats["Writeback"],
+    swapFree: memoryStats["SwapFree"],
+    swapTotal: memoryStats["SwapTotal"],
     swapUsagePercent: swapUsagePercent,
     swapUsed: swapUsed,
     swapUsage: swapUsage,
@@ -119,22 +119,22 @@ function getCurrentMemoryStats() {
 
 function getCurrentDiskUsage() {
   try {
-    const [ok, out, err, exit] = GLib.spawn_command_line_sync('df -h');
+    const [ok, out, err, exit] = GLib.spawn_command_line_sync("df -h");
     const content = new TextDecoder().decode(out);
-    const lines = content.split('\n').map((line) => line.split(/\s+/));
+    const lines = content.split("\n").map((line) => line.split(/\s+/));
     const header = lines[0];
     let res = {};
     for (let i = 1; i < lines.length; i++) {
       const data = lines[i];
-      if (!data[0].startsWith('/')) {
+      if (!data[0].startsWith("/")) {
         continue;
       }
       let mount = {};
       for (let i = 0; i < header.length; i++) {
         mount[header[i]] = data[i];
       }
-      if (mount['Mounted']) {
-        res[mount['Mounted']] = mount;
+      if (mount["Mounted"]) {
+        res[mount["Mounted"]] = mount;
       }
     }
     return res;
@@ -157,9 +157,9 @@ function formatBytes(kbs) {
 const SystemStats = GObject.registerClass(
   {
     Signals: {
-      'stats-cpu-update': { param_types: [GObject.TYPE_OBJECT] },
-      'stats-memory-update': { param_types: [GObject.TYPE_OBJECT] },
-      'stats-disk-update': { param_types: [GObject.TYPE_OBJECT] },
+      "stats-cpu-update": { param_types: [GObject.TYPE_OBJECT] },
+      "stats-memory-update": { param_types: [GObject.TYPE_OBJECT] },
+      "stats-disk-update": { param_types: [GObject.TYPE_OBJECT] },
     },
   },
   class SystemStats extends Extension {
@@ -169,7 +169,7 @@ const SystemStats = GObject.registerClass(
     }
 
     async enable() {
-      if (!Main.settings.get_boolean('service-system-stats')) {
+      if (!Main.settings.get_boolean("service-system-stats")) {
         return;
       }
 
@@ -215,11 +215,11 @@ const SystemStats = GObject.registerClass(
       }
 
       let cpu = getCurrentCpuUsage();
-      this.state['cpu'] = cpu;
+      this.state["cpu"] = cpu;
       if (this.verbose) {
         console.log(cpu);
       }
-      this.emit('stats-cpu-update', this);
+      this.emit("stats-cpu-update", this);
     }
 
     updateMemoryStats() {
@@ -228,11 +228,11 @@ const SystemStats = GObject.registerClass(
       }
 
       let mem = getCurrentMemoryStats();
-      this.state['memory'] = mem;
+      this.state["memory"] = mem;
       if (this.verbose) {
         console.log(mem);
       }
-      this.emit('stats-memory-update', this);
+      this.emit("stats-memory-update", this);
     }
 
     updateDiskUsage() {
@@ -241,11 +241,11 @@ const SystemStats = GObject.registerClass(
       }
 
       let disk = getCurrentDiskUsage();
-      this.state['disk'] = disk;
+      this.state["disk"] = disk;
       if (this.verbose) {
         console.log(disk);
       }
-      this.emit('stats-disk-update', this);
+      this.emit("stats-disk-update", this);
     }
   },
 );

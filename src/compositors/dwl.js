@@ -1,7 +1,7 @@
-import Gio from 'gi://Gio';
-import GLib from 'gi://GLib';
-import GObject from 'gi://GObject';
-import { WindowManagerInterface } from './wmInterface.js';
+import Gio from "gi://Gio";
+import GLib from "gi://GLib";
+import GObject from "gi://GObject";
+import { WindowManagerInterface } from "./wmInterface.js";
 
 const DwlInterface = `
     <node>
@@ -35,15 +35,15 @@ const DwlInterface = `
       </interface>
     </node>`;
 
-const BUS_NAME = 'com.dwl.DBus';
-const OBJECT_PATH = '/com/dwl/DBus';
+const BUS_NAME = "com.dwl.DBus";
+const OBJECT_PATH = "/com/dwl/DBus";
 // const INTERFACE_NAME = 'com.dwl.DBus.Interface';
 
 const DwlShell = GObject.registerClass(
   class DwlShell extends WindowManagerInterface {
     _init(params) {
       super._init();
-      this.name = params?.name ?? 'DWL';
+      this.name = params?.name ?? "DWL";
       this.proxy = null;
     }
 
@@ -54,7 +54,7 @@ const DwlShell = GObject.registerClass(
       try {
         let [success, output] = GLib.spawn_sync(
           null, // Working directory
-          ['pgrep', '-x', target], // Command to check process
+          ["pgrep", "-x", target], // Command to check process
           null, // Environment
           GLib.SpawnFlags.SEARCH_PATH,
           null, // Child setup
@@ -75,35 +75,35 @@ const DwlShell = GObject.registerClass(
           (proxy, error) => {
             if (error) console.error(error.message);
             else {
-              this.proxy.connect('g-properties-changed', () => {});
-              this.proxy.connectSignal('WindowFocused', (proxy, t, window) => {
-                this._log('focus');
+              this.proxy.connect("g-properties-changed", () => {});
+              this.proxy.connectSignal("WindowFocused", (proxy, t, window) => {
+                this._log("focus");
                 let w = this.normalizeWindow(JSON.parse(window));
                 this.broadcast([
                   {
-                    event: 'window-focused',
+                    event: "window-focused",
                     window: w,
                   },
                 ]);
                 this._log(w);
               });
-              this.proxy.connectSignal('WindowClosed', (proxy, t, window) => {
+              this.proxy.connectSignal("WindowClosed", (proxy, t, window) => {
                 // this._log('closed')
                 let w = this.normalizeWindow(JSON.parse(window));
                 this.broadcast([
                   {
-                    event: 'window-closed',
+                    event: "window-closed",
                     window: w,
                   },
                 ]);
                 this._log(w);
               });
-              this.proxy.connectSignal('WindowOpened', (proxy, t, window) => {
+              this.proxy.connectSignal("WindowOpened", (proxy, t, window) => {
                 // this._log('opened')
                 let w = this.normalizeWindow(JSON.parse(window));
                 this.broadcast([
                   {
-                    event: 'window-opened',
+                    event: "window-opened",
                     window: w,
                   },
                 ]);
@@ -165,7 +165,7 @@ const DwlShell = GObject.registerClass(
       }
 
       this.proxy.call(
-        'GetWindows',
+        "GetWindows",
         null,
         Gio.DBusCallFlags.NONE,
         -1, // Timeout (-1 for default)
@@ -178,13 +178,13 @@ const DwlShell = GObject.registerClass(
             this.windows = obj;
             this.normalizeWindows();
             obj = {
-              event: 'windows-update',
+              event: "windows-update",
               windows: this.windows,
               raw: obj,
             };
             this.onWindowsUpdated(obj);
           } catch (e) {
-            console.error('GetWindows:', e.message);
+            console.error("GetWindows:", e.message);
           }
         },
       );
@@ -194,12 +194,12 @@ const DwlShell = GObject.registerClass(
 
     async focusWindow(window) {
       try {
-        if (!window || !window['id']) return;
+        if (!window || !window["id"]) return;
 
         console.log(window);
         this.proxy.call(
-          'FocusWindow',
-          new GLib.Variant('(s)', [window['id']]),
+          "FocusWindow",
+          new GLib.Variant("(s)", [window["id"]]),
           Gio.DBusCallFlags.NONE,
           -1, // Timeout (-1 for default)
           null, // No cancellable
@@ -209,7 +209,7 @@ const DwlShell = GObject.registerClass(
               let response = proxy.call_finish(result);
               console.log(response.deep_unpack());
             } catch (e) {
-              console.error('FocusWindow:', e.message);
+              console.error("FocusWindow:", e.message);
             }
           },
         );
@@ -221,12 +221,12 @@ const DwlShell = GObject.registerClass(
 
     async closeWindow(window) {
       try {
-        if (!window || !window['id']) return;
+        if (!window || !window["id"]) return;
 
         console.log(window);
         this.proxy.call(
-          'CloseWindow',
-          new GLib.Variant('(s)', [window['id']]),
+          "CloseWindow",
+          new GLib.Variant("(s)", [window["id"]]),
           Gio.DBusCallFlags.NONE,
           -1, // Timeout (-1 for default)
           null, // No cancellable
@@ -236,7 +236,7 @@ const DwlShell = GObject.registerClass(
               let response = proxy.call_finish(result);
               console.log(response.deep_unpack());
             } catch (e) {
-              console.error('CloseWindow:', e.message);
+              console.error("CloseWindow:", e.message);
             }
           },
         );
@@ -250,8 +250,8 @@ const DwlShell = GObject.registerClass(
       try {
         if (!appid) return;
         this.proxy.call(
-          'QuitApp',
-          new GLib.Variant('(s)', [appid]),
+          "QuitApp",
+          new GLib.Variant("(s)", [appid]),
           Gio.DBusCallFlags.NONE,
           -1, // Timeout (-1 for default)
           null, // No cancellable
@@ -261,7 +261,7 @@ const DwlShell = GObject.registerClass(
               let response = proxy.call_finish(result);
               console.log(response.deep_unpack());
             } catch (e) {
-              console.error('QuitApp:', e.message);
+              console.error("QuitApp:", e.message);
             }
           },
         );
@@ -271,7 +271,7 @@ const DwlShell = GObject.registerClass(
       return Promise.resolve(true);
     }
 
-    async spawn(cmd, arg = '') {
+    async spawn(cmd, arg = "") {
       return super.spawn(cmd, arg);
     }
 

@@ -1,15 +1,15 @@
 export function createCpuStats(config) {
-  if (!Main.settings.get_boolean('service-system-stats')) return null;
+  if (!Main.settings.get_boolean("service-system-stats")) return null;
   let cpuStats = Main.panel.create_panelitem(config);
   let statsService = Main.stats;
 
   statsService.connectObject(
-    'stats-cpu-update',
+    "stats-cpu-update",
     () => {
       let state = statsService.state.cpu ?? [];
-      cpuStats.set_icon(config.icon ?? 'cpu-alt-symbolic');
+      cpuStats.set_icon(config.icon ?? "cpu-alt-symbolic");
       if (state[0]) {
-        let usage = Math.round(state[0]['usage'] * 100) / 100;
+        let usage = Math.round(state[0]["usage"] * 100) / 100;
         cpuStats.set_label(`${usage}%`);
       }
     },
@@ -19,13 +19,13 @@ export function createCpuStats(config) {
 
   cpuStats.on_click = () => {};
 
-  cpuStats.connect('destroy', () => {
+  cpuStats.connect("destroy", () => {
     statsService.disconnectObject(cpuStats);
   });
   return cpuStats;
 }
 
-function formatMemory(state, fmt = '%usage%', config) {
+function formatMemory(state, fmt = "%usage%", config) {
   let res = fmt;
   Object.keys(state).forEach((k) => {
     res = res.replace(`%${k}`, state[k]);
@@ -34,16 +34,16 @@ function formatMemory(state, fmt = '%usage%', config) {
 }
 
 export function createMemoryStats(config) {
-  if (!Main.settings.get_boolean('service-system-stats')) return null;
+  if (!Main.settings.get_boolean("service-system-stats")) return null;
   let memoryStats = Main.panel.create_panelitem(config);
   let statsService = Main.stats;
 
   statsService.connectObject(
-    'stats-memory-update',
+    "stats-memory-update",
     () => {
       let state = statsService.state.memory ?? {};
-      if (state['total']) {
-        memoryStats.set_icon(config.icon ?? 'memory-symbolic');
+      if (state["total"]) {
+        memoryStats.set_icon(config.icon ?? "memory-symbolic");
         memoryStats.set_label(formatMemory(state, config.format, config));
       }
     },
@@ -53,13 +53,13 @@ export function createMemoryStats(config) {
 
   memoryStats.on_click = () => {};
 
-  memoryStats.connect('destroy', () => {
+  memoryStats.connect("destroy", () => {
     statsService.disconnectObject(memoryStats);
   });
   return memoryStats;
 }
 
-function formatDisk(state, fmt = '%Filesystem %Used/%Size %Use%', config) {
+function formatDisk(state, fmt = "%Filesystem %Used/%Size %Use%", config) {
   let res = fmt;
   Object.keys(state).forEach((k) => {
     res = res.replace(`%${k}`, state[k]);
@@ -68,15 +68,15 @@ function formatDisk(state, fmt = '%Filesystem %Used/%Size %Use%', config) {
 }
 
 export function createDiskStats(config) {
-  if (!Main.settings.get_boolean('service-system-stats')) return null;
+  if (!Main.settings.get_boolean("service-system-stats")) return null;
   let diskStats = Main.panel.create_panelitem(config);
   let statsService = Main.stats;
 
   statsService.connectObject(
-    'stats-disk-update',
+    "stats-disk-update",
     () => {
       let disk = statsService.state.disk ?? {};
-      let state = disk[config.on ?? '/'];
+      let state = disk[config.on ?? "/"];
       if (!state) return;
 
       // [
@@ -88,8 +88,8 @@ export function createDiskStats(config) {
       //     "Mounted"
       // ]
 
-      if (state['Mounted']) {
-        diskStats.set_icon(config.icon ?? 'hard-disk-symbolic');
+      if (state["Mounted"]) {
+        diskStats.set_icon(config.icon ?? "hard-disk-symbolic");
         diskStats.set_label(formatDisk(state, config.format, config));
       }
     },
@@ -102,7 +102,7 @@ export function createDiskStats(config) {
     }
   };
 
-  diskStats.connect('destroy', () => {
+  diskStats.connect("destroy", () => {
     statsService.disconnectObject(diskStats);
   });
   return diskStats;

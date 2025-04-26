@@ -1,17 +1,17 @@
-import Gdk from 'gi://Gdk?version=4.0';
-import Gtk from 'gi://Gtk?version=4.0';
-import GLib from 'gi://GLib';
-import Gio from 'gi://Gio';
-import GObject from 'gi://GObject';
-import { Extension } from '../lib/extensionInterface.js';
-import { getAppInfo } from '../lib/appInfo.js';
+import Gdk from "gi://Gdk?version=4.0";
+import Gtk from "gi://Gtk?version=4.0";
+import GLib from "gi://GLib";
+import Gio from "gi://Gio";
+import GObject from "gi://GObject";
+import { Extension } from "../lib/extensionInterface.js";
+import { getAppInfo } from "../lib/appInfo.js";
 
-const MOUNT_PREFIX = 'gws-mount-';
+const MOUNT_PREFIX = "gws-mount-";
 
 const Mounts = GObject.registerClass(
   {
     Signals: {
-      'mounts-update': { param_types: [GObject.TYPE_OBJECT] },
+      "mounts-update": { param_types: [GObject.TYPE_OBJECT] },
     },
   },
   class Mounts extends Extension {
@@ -20,7 +20,7 @@ const Mounts = GObject.registerClass(
     }
 
     async enable() {
-      if (!Main.settings.get_boolean('service-mounts')) {
+      if (!Main.settings.get_boolean("service-mounts")) {
         return;
       }
 
@@ -32,9 +32,9 @@ const Mounts = GObject.registerClass(
 
       this._volumeMonitor = Gio.VolumeMonitor.get();
       this._volumeMonitor.connectObject(
-        'mount-added',
+        "mount-added",
         this._onMountAdded.bind(this),
-        'mount-removed',
+        "mount-removed",
         this._onMountRemoved.bind(this),
         this,
       );
@@ -60,19 +60,19 @@ const Mounts = GObject.registerClass(
 
     _setupMountIcon(mount) {
       let basename = mount.get_default_location().get_basename();
-      if (basename.startsWith('/')) {
+      if (basename.startsWith("/")) {
         // why does this happen?? issue #125
         return;
       }
       let label = mount.get_name();
       let appname = this._appName(basename);
       let fullpath = mount.get_default_location().get_path();
-      let icon = mount.get_icon().names[0] || 'drive-harddisk-solidstate';
+      let icon = mount.get_icon().names[0] || "drive-harddisk-solidstate";
       let mount_exec = 'echo "not implemented"';
       let unmount_exec = `umount ${fullpath}`;
       let mount_id = `${appname}.desktop`;
 
-      let execOpen = 'nautilus --select';
+      let execOpen = "nautilus --select";
       // let execOpen = 'xdg-open';
 
       // this registers the mount.desktop
@@ -83,13 +83,13 @@ const Mounts = GObject.registerClass(
         icon_name: icon,
         menu: [
           {
-            action: 'open',
-            name: 'Open Window',
+            action: "open",
+            name: "Open Window",
             exec: `${execOpen} ${fullpath}`,
           },
           {
-            action: 'unmount',
-            name: 'Unmount',
+            action: "unmount",
+            name: "Unmount",
             exec: unmount_exec,
           },
         ],
@@ -128,7 +128,7 @@ const Mounts = GObject.registerClass(
         this._setupMountIcon(mount);
         let basename = mount.get_default_location().get_basename();
         let appname = this._appName(basename);
-        return appname + '.desktop';
+        return appname + ".desktop";
       });
 
       this.state = {
@@ -139,7 +139,7 @@ const Mounts = GObject.registerClass(
 
     sync() {
       this.checkMounts();
-      this.emit('mounts-update', this);
+      this.emit("mounts-update", this);
     }
   },
 );

@@ -134,7 +134,7 @@ export const getStringNgramTokenizer = (
   return (str) => {
     const tokenWeights = {};
 
-    if (typeof str === 'string') {
+    if (typeof str === "string") {
       const words = str
         .toLowerCase()
         .split(NONWORD_RE)
@@ -148,7 +148,7 @@ export const getStringNgramTokenizer = (
         words.push(
           Array.from(str)
             .filter((character) => character.toLowerCase() != character)
-            .join(''),
+            .join(""),
         );
       }
 
@@ -197,13 +197,13 @@ export const getKeywordArrayNgramTokenizer = (
 
     if (
       keywords &&
-      typeof keywords === 'object' &&
-      'map' in keywords &&
-      'reduce' in keywords
+      typeof keywords === "object" &&
+      "map" in keywords &&
+      "reduce" in keywords
     )
       for (var nGramLength = 1; nGramLength <= maxNGramLength; nGramLength++) {
         keywords
-          .map((kw) => kw.replace(NONWORD_RE, '').toLowerCase())
+          .map((kw) => kw.replace(NONWORD_RE, "").toLowerCase())
           .forEach((word) =>
             getNGrams(word, nGramLength).forEach((nGram, index) => {
               saveNGramWeights(

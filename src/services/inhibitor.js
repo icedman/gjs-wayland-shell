@@ -1,12 +1,12 @@
-import Gdk from 'gi://Gdk?version=4.0';
-import Gtk from 'gi://Gtk?version=4.0';
-import GLib from 'gi://GLib';
-import Gio from 'gi://Gio';
-import GObject from 'gi://GObject';
-import { Extension } from '../lib/extensionInterface.js';
+import Gdk from "gi://Gdk?version=4.0";
+import Gtk from "gi://Gtk?version=4.0";
+import GLib from "gi://GLib";
+import Gio from "gi://Gio";
+import GObject from "gi://GObject";
+import { Extension } from "../lib/extensionInterface.js";
 
-const BUS_NAME = 'org.freedesktop.ScreenSaver';
-const OBJECT_PATH = '/org/freedesktop/ScreenSaver';
+const BUS_NAME = "org.freedesktop.ScreenSaver";
+const OBJECT_PATH = "/org/freedesktop/ScreenSaver";
 
 const GTK_APPLICATION_INHIBIT_IDLE = 8;
 
@@ -28,7 +28,7 @@ const InhibitorInterface = `
 const Inhibitor = GObject.registerClass(
   {
     Signals: {
-      'inhibitor-update': { param_types: [GObject.TYPE_OBJECT] },
+      "inhibitor-update": { param_types: [GObject.TYPE_OBJECT] },
     },
   },
   class Inhibitor extends Extension {
@@ -38,7 +38,7 @@ const Inhibitor = GObject.registerClass(
 
     async enable() {
       super.enable();
-      this._icons = ['caffeine-cup-empty', 'caffeine-cup-full'];
+      this._icons = ["caffeine-cup-empty", "caffeine-cup-full"];
       this._cookie = null;
       this.state = {
         active: false,
@@ -87,11 +87,11 @@ const Inhibitor = GObject.registerClass(
 
       // todo ... check for other inhibitors
 
-      this.emit('inhibitor-update', this);
+      this.emit("inhibitor-update", this);
     }
 
     // Inhibit the screensaver
-    inhibit(window, reason = 'by user request') {
+    inhibit(window, reason = "by user request") {
       if (this._cookie) return;
       if (!window) {
         if (Main.panel.window && Main.panel.window.visible) {
@@ -106,7 +106,7 @@ const Inhibitor = GObject.registerClass(
         GTK_APPLICATION_INHIBIT_IDLE,
         reason,
       );
-      console.log('Inhibited with cookie:', this._cookie);
+      console.log("Inhibited with cookie:", this._cookie);
 
       // this._proxy.call(
       //   'Inhibit',

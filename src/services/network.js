@@ -1,16 +1,16 @@
-import Gdk from 'gi://Gdk?version=4.0';
-import Gtk from 'gi://Gtk?version=4.0';
-import GLib from 'gi://GLib';
-import Gio from 'gi://Gio';
-import GObject from 'gi://GObject';
-import Polkit from 'gi://Polkit';
-import NM from 'gi://NM';
-import { Extension } from '../lib/extensionInterface.js';
+import Gdk from "gi://Gdk?version=4.0";
+import Gtk from "gi://Gtk?version=4.0";
+import GLib from "gi://GLib";
+import Gio from "gi://Gio";
+import GObject from "gi://GObject";
+import Polkit from "gi://Polkit";
+import NM from "gi://NM";
+import { Extension } from "../lib/extensionInterface.js";
 
-import * as Signals from '../lib/signals.js';
-import * as Util from '../lib/misc.js';
+import * as Signals from "../lib/signals.js";
+import * as Util from "../lib/misc.js";
 
-import { registerDestroyableType } from '../lib/signalTracker.js';
+import { registerDestroyableType } from "../lib/signalTracker.js";
 
 import {
   Icon,
@@ -22,18 +22,18 @@ import {
   QuickMenuToggle,
   SystemIndicator,
   _,
-} from '../lib/gnomeShellMonkeyPatches.js';
+} from "../lib/gnomeShellMonkeyPatches.js";
 
-Gio._promisify(Gio.DBusConnection.prototype, 'call');
-Gio._promisify(NM.Client, 'new_async');
-Gio._promisify(NM.Client.prototype, 'check_connectivity_async');
-Gio._promisify(NM.DeviceWifi.prototype, 'request_scan_async');
+Gio._promisify(Gio.DBusConnection.prototype, "call");
+Gio._promisify(NM.Client, "new_async");
+Gio._promisify(NM.Client.prototype, "check_connectivity_async");
+Gio._promisify(NM.DeviceWifi.prototype, "request_scan_async");
 
 const WIFI_SCAN_FREQUENCY = 15;
 const MAX_VISIBLE_NETWORKS = 8;
 
 // small optimization, to avoid using [] all the time
-const NM80211Mode = NM['80211Mode'];
+const NM80211Mode = NM["80211Mode"];
 
 /** @enum {number} */
 const PortalHelperResult = {
@@ -46,16 +46,16 @@ const PortalHelperResult = {
 // const PortalHelperInfo = Gio.DBusInterfaceInfo.new_for_xml(PortalHelperIface);
 
 function signalToIcon(value) {
-  if (value < 20) return 'none';
-  else if (value < 40) return 'weak';
-  else if (value < 50) return 'ok';
-  else if (value < 80) return 'good';
-  else return 'excellent';
+  if (value < 20) return "none";
+  else if (value < 40) return "weak";
+  else if (value < 50) return "ok";
+  else if (value < 80) return "good";
+  else return "excellent";
 }
 
 function ssidToLabel(ssid) {
   let label = NM.utils_ssid_to_utf8(ssid.get_data());
-  if (!label) label = _('<unknown>');
+  if (!label) label = _("<unknown>");
   return label;
 }
 
@@ -72,33 +72,33 @@ function launchSettingsPanel(panel, ...args) {
 const NMMenuItem = GObject.registerClass(
   {
     Properties: {
-      'radio-mode': GObject.ParamSpec.boolean(
-        'radio-mode',
+      "radio-mode": GObject.ParamSpec.boolean(
+        "radio-mode",
         null,
         null,
         GObject.ParamFlags.READWRITE,
         false,
       ),
-      'is-active': GObject.ParamSpec.boolean(
-        'is-active',
+      "is-active": GObject.ParamSpec.boolean(
+        "is-active",
         null,
         null,
         GObject.ParamFlags.READABLE,
         false,
       ),
       name: GObject.ParamSpec.string(
-        'name',
+        "name",
         null,
         null,
         GObject.ParamFlags.READWRITE,
-        '',
+        "",
       ),
-      'icon-name': GObject.ParamSpec.string(
-        'icon-name',
+      "icon-name": GObject.ParamSpec.string(
+        "icon-name",
         null,
         null,
         GObject.ParamFlags.READWRITE,
-        '',
+        "",
       ),
     },
   },
@@ -122,8 +122,8 @@ const NMMenuItem = GObject.registerClass(
     }
 
     _activeConnectionStateChanged() {
-      this.notify('is-active');
-      this.notify('icon-name');
+      this.notify("is-active");
+      this.notify("icon-name");
 
       this._sync();
     }
@@ -134,7 +134,7 @@ const NMMenuItem = GObject.registerClass(
       this._activeConnection = activeConnection;
 
       this._activeConnection?.connectObject(
-        'notify::state',
+        "notify::state",
         () => this._activeConnectionStateChanged(),
         this,
       );
@@ -157,8 +157,8 @@ const NMMenuItem = GObject.registerClass(
 const NMSectionItem = GObject.registerClass(
   {
     Properties: {
-      'use-submenu': GObject.ParamSpec.boolean(
-        'use-submenu',
+      "use-submenu": GObject.ParamSpec.boolean(
+        "use-submenu",
         null,
         null,
         GObject.ParamFlags.READWRITE,
@@ -176,13 +176,13 @@ const NMSectionItem = GObject.registerClass(
       this._useSubmenu = false;
 
       // // Turn into an empty container with no padding
-      this.styleClass = '';
+      this.styleClass = "";
 
       // // Add intermediate section; we need this for submenu support
       this._mainSection = new PopupMenu.PopupMenuSection();
       this.add_child(this._mainSection.actor);
 
-      this._submenuItem = new PopupMenu.PopupSubMenuMenuItem('', true);
+      this._submenuItem = new PopupMenu.PopupSubMenuMenuItem("", true);
       this._mainSection.addMenuItem(this._submenuItem);
       this._submenuItem.hide();
 
@@ -263,9 +263,9 @@ const NMConnectionItem = GObject.registerClass(
       //     GObject.BindingFlags.INVERT_BOOLEAN);
 
       this.connectObject(
-        'notify::radio-mode',
+        "notify::radio-mode",
         () => this._sync(),
-        'notify::name',
+        "notify::name",
         () => this._sync(),
         this,
       );
@@ -289,20 +289,20 @@ const NMConnectionItem = GObject.registerClass(
       // Just to be safe, we set it here again
 
       this._connection = connection;
-      this.notify('name');
+      this.notify("name");
       this._sync();
     }
 
     _getAccessibleName() {
       return this.is_active
         ? // Translators: %s is a device name like "MyPhone"
-          _('Disconnect %s').format(this.name)
+          _("Disconnect %s").format(this.name)
         : // Translators: %s is a device name like "MyPhone"
-          _('Connect to %s').format(this.name);
+          _("Connect to %s").format(this.name);
     }
 
     _getSubtitleLabel() {
-      return this.is_active ? _('Disconnect') : _('Connect');
+      return this.is_active ? _("Disconnect") : _("Connect");
     }
 
     _sync() {
@@ -342,12 +342,12 @@ const NMConnectionItem = GObject.registerClass(
 const NMDeviceConnectionItem = GObject.registerClass(
   {
     Properties: {
-      'device-name': GObject.ParamSpec.string(
-        'device-name',
+      "device-name": GObject.ParamSpec.string(
+        "device-name",
         null,
         null,
         GObject.ParamFlags.READWRITE,
-        '',
+        "",
       ),
     },
   },
@@ -356,10 +356,10 @@ const NMDeviceConnectionItem = GObject.registerClass(
       super(section, connection);
 
       this.connectObject(
-        'notify::radio-mode',
-        () => this.notify('name'),
-        'notify::device-name',
-        () => this.notify('name'),
+        "notify::radio-mode",
+        () => this.notify("name"),
+        "notify::device-name",
+        () => this.notify("name"),
         this,
       );
     }
@@ -373,8 +373,8 @@ const NMDeviceConnectionItem = GObject.registerClass(
 const NMDeviceItem = GObject.registerClass(
   {
     Properties: {
-      'single-device-mode': GObject.ParamSpec.boolean(
-        'single-device-mode',
+      "single-device-mode": GObject.ParamSpec.boolean(
+        "single-device-mode",
         null,
         null,
         GObject.ParamFlags.READWRITE,
@@ -393,16 +393,16 @@ const NMDeviceItem = GObject.registerClass(
 
       this._client = client;
       this._device = device;
-      this._deviceName = '';
+      this._deviceName = "";
 
       this._connectionItems = new Map();
       this._itemSorter = new ItemSorter({ trackMru: true });
 
       // Item shown in the 0-connections case
       this._autoConnectItem = this.section.addAction(
-        _('Connect'),
+        _("Connect"),
         () => this._autoConnect(),
-        '',
+        "",
       );
 
       // Represents the device as a whole when shown
@@ -413,27 +413,27 @@ const NMDeviceItem = GObject.registerClass(
       //     this._autoConnectItem._icon, 'icon-name',
       //     GObject.BindingFlags.SYNC_CREATE);
 
-      this._deactivateItem = this.section.addAction(_('Turn Off'), () =>
+      this._deactivateItem = this.section.addAction(_("Turn Off"), () =>
         this.deactivateConnection(),
       );
 
       this._client.connectObject(
-        'notify::connectivity',
-        () => this.notify('icon-name'),
-        'notify::primary-connection',
-        () => this.notify('icon-name'),
+        "notify::connectivity",
+        () => this.notify("icon-name"),
+        "notify::primary-connection",
+        () => this.notify("icon-name"),
         this,
       );
 
       this._device.connectObject(
-        'notify::available-connections',
+        "notify::available-connections",
         () => this._syncConnections(),
-        'notify::active-connection',
+        "notify::active-connection",
         () => this._activeConnectionChanged(),
         this,
       );
 
-      this.connect('notify::single-device-mode', () => this._sync());
+      this.connect("notify::single-device-mode", () => this._sync());
 
       this._syncConnections();
       this._activeConnectionChanged();
@@ -536,7 +536,7 @@ const NMDeviceItem = GObject.registerClass(
       if (this._connectionItems.has(connection)) return;
 
       connection.connectObject(
-        'changed',
+        "changed",
         this._onConnectionChanged.bind(this),
         this,
       );
@@ -544,24 +544,24 @@ const NMDeviceItem = GObject.registerClass(
       const item = new NMDeviceConnectionItem(this, connection);
 
       this.bind_property(
-        'radio-mode',
+        "radio-mode",
         item,
-        'radio-mode',
+        "radio-mode",
         GObject.BindingFlags.SYNC_CREATE,
       );
       this.bind_property(
-        'name',
+        "name",
         item,
-        'device-name',
+        "device-name",
         GObject.BindingFlags.SYNC_CREATE,
       );
       this.bind_property(
-        'icon-name',
+        "icon-name",
         item,
-        'icon-name',
+        "icon-name",
         GObject.BindingFlags.SYNC_CREATE,
       );
-      item.connectObject('notify::name', () => this._resortItem(item), this);
+      item.connectObject("notify::name", () => this._resortItem(item), this);
 
       const pos = this._itemSorter.upsert(item);
       this.section.addMenuItem(item, pos);
@@ -582,7 +582,7 @@ const NMDeviceItem = GObject.registerClass(
 
     setDeviceName(name) {
       this._deviceName = name;
-      this.notify('name');
+      this.notify("name");
     }
 
     _sync() {
@@ -600,13 +600,13 @@ const NMWiredDeviceItem = GObject.registerClass(
     get icon_name() {
       switch (this.state) {
         case NM.ActiveConnectionState.ACTIVATING:
-          return 'network-wired-acquiring-symbolic';
+          return "network-wired-acquiring-symbolic";
         case NM.ActiveConnectionState.ACTIVATED:
           return this._canReachInternet()
-            ? 'network-wired-symbolic'
-            : 'network-wired-no-route-symbolic';
+            ? "network-wired-symbolic"
+            : "network-wired-no-route-symbolic";
         default:
-          return 'network-wired-disconnected-symbolic';
+          return "network-wired-disconnected-symbolic";
       }
     }
 
@@ -698,9 +698,9 @@ const NMBluetoothDeviceItem = GObject.registerClass(
       super(client, device);
 
       this._device.bind_property(
-        'name',
+        "name",
         this,
-        'name',
+        "name",
         GObject.BindingFlags.SYNC_CREATE,
       );
     }
@@ -708,13 +708,13 @@ const NMBluetoothDeviceItem = GObject.registerClass(
     get icon_name() {
       switch (this.state) {
         case NM.ActiveConnectionState.ACTIVATING:
-          return 'network-cellular-acquiring-symbolic';
+          return "network-cellular-acquiring-symbolic";
         case NM.ActiveConnectionState.ACTIVATED:
-          return 'network-cellular-connected-symbolic';
+          return "network-cellular-connected-symbolic";
         default:
           return this._activeConnection
-            ? 'network-cellular-signal-none-symbolic'
-            : 'network-cellular-disabled-symbolic';
+            ? "network-cellular-signal-none-symbolic"
+            : "network-cellular-disabled-symbolic";
       }
     }
 
@@ -728,35 +728,35 @@ const WirelessNetwork = GObject.registerClass(
   {
     Properties: {
       name: GObject.ParamSpec.string(
-        'name',
+        "name",
         null,
         null,
         GObject.ParamFlags.READABLE,
-        '',
+        "",
       ),
-      'icon-name': GObject.ParamSpec.string(
-        'icon-name',
+      "icon-name": GObject.ParamSpec.string(
+        "icon-name",
         null,
         null,
         GObject.ParamFlags.READABLE,
-        '',
+        "",
       ),
       secure: GObject.ParamSpec.boolean(
-        'secure',
+        "secure",
         null,
         null,
         GObject.ParamFlags.READABLE,
         false,
       ),
-      'is-active': GObject.ParamSpec.boolean(
-        'is-active',
+      "is-active": GObject.ParamSpec.boolean(
+        "is-active",
         null,
         null,
         GObject.ParamFlags.READABLE,
         false,
       ),
-      'signal-strength': GObject.ParamSpec.uint(
-        'signal-strength',
+      "signal-strength": GObject.ParamSpec.uint(
+        "signal-strength",
         null,
         null,
         GObject.ParamFlags.READABLE,
@@ -778,16 +778,16 @@ const WirelessNetwork = GObject.registerClass(
       this._device = device;
 
       this._device.connectObject(
-        'notify::active-access-point',
-        () => this.notify('is-active'),
-        'notify::active-connection',
-        () => this.notify('is-active'),
+        "notify::active-access-point",
+        () => this.notify("is-active"),
+        "notify::active-connection",
+        () => this.notify("is-active"),
         this,
       );
 
       this._accessPoints = new Set();
       this._connections = [];
-      this._name = '';
+      this._name = "";
       this._ssid = null;
       this._bestAp = null;
       this._mode = 0;
@@ -803,9 +803,9 @@ const WirelessNetwork = GObject.registerClass(
     }
 
     get icon_name() {
-      if (this._mode === NM80211Mode.ADHOC) return 'network-workgroup-symbolic';
+      if (this._mode === NM80211Mode.ADHOC) return "network-workgroup-symbolic";
 
-      if (!this._bestAp) return '';
+      if (!this._bestAp) return "";
 
       return `network-wireless-signal-${signalToIcon(this._bestAp.strength)}-symbolic`;
     }
@@ -864,27 +864,27 @@ const WirelessNetwork = GObject.registerClass(
         this._mode = ap.mode;
         this._securityType = this._getApSecurityType(ap);
         this._name =
-          NM.utils_ssid_to_utf8(this._ssid.get_data()) || '<unknown>';
+          NM.utils_ssid_to_utf8(this._ssid.get_data()) || "<unknown>";
 
-        this.notify('name');
-        this.notify('secure');
+        this.notify("name");
+        this.notify("secure");
       }
 
       const wasActive = this.is_active;
       this._accessPoints.add(ap);
 
       ap.connectObject(
-        'notify::strength',
+        "notify::strength",
         () => {
-          this.notify('icon-name');
-          this.notify('signal-strength');
+          this.notify("icon-name");
+          this.notify("signal-strength");
           this._updateBestAp();
         },
         this,
       );
       this._updateBestAp();
 
-      if (wasActive !== this.is_active) this.notify('is-active');
+      if (wasActive !== this.is_active) this.notify("is-active");
 
       return true;
     }
@@ -900,7 +900,7 @@ const WirelessNetwork = GObject.registerClass(
       ap.disconnectObject(this);
       this._updateBestAp();
 
-      if (wasActive !== this.is_active) this.notify('is-active');
+      if (wasActive !== this.is_active) this.notify("is-active");
 
       return true;
     }
@@ -964,7 +964,7 @@ const WirelessNetwork = GObject.registerClass(
       } else {
         conn = new NM.SimpleConnection();
         const permission = Polkit.Permission.new_sync(
-          'org.freedesktop.NetworkManager.settings.modify.system',
+          "org.freedesktop.NetworkManager.settings.modify.system",
           null,
           null,
           null,
@@ -973,7 +973,7 @@ const WirelessNetwork = GObject.registerClass(
         if (permission) allowedToShare = permission.get_allowed();
         if (!allowedToShare) {
           const setting = new NM.SettingConnection();
-          setting.add_permission('user', GLib.get_user_name(), null);
+          setting.add_permission("user", GLib.get_user_name(), null);
           conn.add_setting(setting);
         }
         this._device.client.add_and_activate_connection_async(
@@ -987,7 +987,7 @@ const WirelessNetwork = GObject.registerClass(
     }
 
     destroy() {
-      this.emit('destroy');
+      this.emit("destroy");
     }
 
     _getDeviceDBusPath() {
@@ -1022,7 +1022,7 @@ const WirelessNetwork = GObject.registerClass(
       if (this._bestAp === bestAp) return;
 
       this._bestAp = bestAp;
-      this.notify('icon-name');
+      this.notify("icon-name");
     }
   },
 );
@@ -1031,7 +1031,7 @@ registerDestroyableType(WirelessNetwork);
 const NMWirelessNetworkItem = GObject.registerClass(
   class NMWirelessNetworkItem extends PopupMenu.PopupBaseMenuItem {
     _init(network) {
-      super._init({ style_class: 'nm-network-item' });
+      super._init({ style_class: "nm-network-item" });
 
       this._network = network;
 
@@ -1072,11 +1072,11 @@ const NMWirelessNetworkItem = GObject.registerClass(
       //     null);
 
       this._network.connectObject(
-        'notify::is-active',
+        "notify::is-active",
         () => this._isActiveChanged(),
-        'notify::secure',
+        "notify::secure",
         () => this._updateAccessibleName(),
-        'notify::signal-strength',
+        "notify::signal-strength",
         () => this._updateAccessibleName(),
         this,
       );
@@ -1093,8 +1093,8 @@ const NMWirelessNetworkItem = GObject.registerClass(
     }
 
     _updateAccessibleName() {
-      const secureString = this._network.secure ? _('Secure') : _('Not secure');
-      let signalStrengthString = _('Signal strength %s%%').format(
+      const secureString = this._network.secure ? _("Secure") : _("Not secure");
+      let signalStrengthString = _("Signal strength %s%%").format(
         this._network.signal_strength,
       );
       // translators: The first placeholder is the network name, the second and indication whether it is secure, and the last the signal strength indication
@@ -1110,15 +1110,15 @@ const NMWirelessNetworkItem = GObject.registerClass(
 const NMWirelessDeviceItem = GObject.registerClass(
   {
     Properties: {
-      'is-hotspot': GObject.ParamSpec.boolean(
-        'is-hotspot',
+      "is-hotspot": GObject.ParamSpec.boolean(
+        "is-hotspot",
         null,
         null,
         GObject.ParamFlags.READABLE,
         false,
       ),
-      'single-device-mode': GObject.ParamSpec.boolean(
-        'single-device-mode',
+      "single-device-mode": GObject.ParamSpec.boolean(
+        "single-device-mode",
         null,
         null,
         GObject.ParamFlags.READWRITE,
@@ -1133,7 +1133,7 @@ const NMWirelessDeviceItem = GObject.registerClass(
       this._client = client;
       this._device = device;
 
-      this._deviceName = '';
+      this._deviceName = "";
 
       this._networkItems = new Map();
       this._itemSorter = new ItemSorter({
@@ -1141,30 +1141,30 @@ const NMWirelessDeviceItem = GObject.registerClass(
       });
 
       this._client.connectObject(
-        'notify::wireless-enabled',
-        () => this.notify('icon-name'),
-        'notify::connectivity',
-        () => this.notify('icon-name'),
-        'notify::primary-connection',
-        () => this.notify('icon-name'),
+        "notify::wireless-enabled",
+        () => this.notify("icon-name"),
+        "notify::connectivity",
+        () => this.notify("icon-name"),
+        "notify::primary-connection",
+        () => this.notify("icon-name"),
         this,
       );
 
       this._device.connectObject(
-        'notify::active-access-point',
+        "notify::active-access-point",
         this._activeApChanged.bind(this),
-        'notify::active-connection',
+        "notify::active-connection",
         () => this._activeConnectionChanged(),
-        'notify::available-connections',
+        "notify::available-connections",
         () => this._availableConnectionsChanged(),
-        'state-changed',
-        () => this.notify('is-hotspot'),
-        'access-point-added',
+        "state-changed",
+        () => this.notify("is-hotspot"),
+        "access-point-added",
         (d, ap) => {
           this._addAccessPoint(ap);
           this._updateItemsVisibility();
         },
-        'access-point-removed',
+        "access-point-removed",
         (d, ap) => {
           this._removeAccessPoint(ap);
           this._updateItemsVisibility();
@@ -1173,9 +1173,9 @@ const NMWirelessDeviceItem = GObject.registerClass(
       );
 
       this.bind_property(
-        'single-device-mode',
+        "single-device-mode",
         this,
-        'use-submenu',
+        "use-submenu",
         GObject.BindingFlags.INVERT_BOOLEAN,
       );
 
@@ -1191,46 +1191,46 @@ const NMWirelessDeviceItem = GObject.registerClass(
       this._availableConnectionsChanged();
       this._updateItemsVisibility();
 
-      this.connect('destroy', () => {
+      this.connect("destroy", () => {
         for (const net of this._networkItems.keys()) net.destroy();
       });
     }
 
     get icon_name() {
       if (!this._device.client.wireless_enabled)
-        return 'network-wireless-disabled-symbolic';
+        return "network-wireless-disabled-symbolic";
 
       switch (this.state) {
         case NM.ActiveConnectionState.ACTIVATING:
-          return 'network-wireless-acquiring-symbolic';
+          return "network-wireless-acquiring-symbolic";
 
         case NM.ActiveConnectionState.ACTIVATED: {
-          if (this.is_hotspot) return 'network-wireless-hotspot-symbolic';
+          if (this.is_hotspot) return "network-wireless-hotspot-symbolic";
 
           if (!this._canReachInternet())
-            return 'network-wireless-no-route-symbolic';
+            return "network-wireless-no-route-symbolic";
 
           if (!this._activeAccessPoint) {
             if (this._device.mode !== NM80211Mode.ADHOC)
               console.info(
-                'An active wireless connection, in infrastructure mode, involves no access point?',
+                "An active wireless connection, in infrastructure mode, involves no access point?",
               );
 
-            return 'network-wireless-connected-symbolic';
+            return "network-wireless-connected-symbolic";
           }
 
           const { strength } = this._activeAccessPoint;
           return `network-wireless-signal-${signalToIcon(strength)}-symbolic`;
         }
         default:
-          return 'network-wireless-signal-none-symbolic';
+          return "network-wireless-signal-none-symbolic";
       }
     }
 
     get name() {
       if (this.is_hotspot)
         /* Translators: %s is a network identifier */
-        return _('%s Hotspot').format(this._deviceName);
+        return _("%s Hotspot").format(this._deviceName);
 
       const { ssid } = this._activeAccessPoint ?? {};
       if (ssid) return ssidToLabel(ssid);
@@ -1265,15 +1265,15 @@ const NMWirelessDeviceItem = GObject.registerClass(
       this._activeAccessPoint?.disconnectObject(this);
       this._activeAccessPoint = this._device.active_access_point;
       this._activeAccessPoint?.connectObject(
-        'notify::strength',
-        () => this.notify('icon-name'),
-        'notify::ssid',
-        () => this.notify('name'),
+        "notify::strength",
+        () => this.notify("icon-name"),
+        "notify::ssid",
+        () => this.notify("name"),
         this,
       );
 
-      this.notify('icon-name');
-      this.notify('name');
+      this.notify("icon-name");
+      this.notify("name");
     }
 
     _activeConnectionChanged() {
@@ -1291,7 +1291,7 @@ const NMWirelessDeviceItem = GObject.registerClass(
         // This access point is not visible yet
         // Wait for it to get a ssid
         ap.connectObject(
-          'notify::ssid',
+          "notify::ssid",
           () => {
             if (!ap.ssid) return;
             ap.disconnectObject(this);
@@ -1310,12 +1310,12 @@ const NMWirelessDeviceItem = GObject.registerClass(
         network = new WirelessNetwork(this._device);
 
         const item = new NMWirelessNetworkItem(network);
-        item.connect('activate', () => network.activate());
+        item.connect("activate", () => network.activate());
 
         network.connectObject(
-          'notify::icon-name',
+          "notify::icon-name",
           () => this._resortItem(item),
-          'notify::is-active',
+          "notify::is-active",
           () => this._resortItem(item),
           this,
         );
@@ -1370,7 +1370,7 @@ const NMWirelessDeviceItem = GObject.registerClass(
 
     setDeviceName(name) {
       this._deviceName = name;
-      this.notify('name');
+      this.notify("name");
     }
 
     _canReachInternet() {
@@ -1385,7 +1385,7 @@ const NMWirelessDeviceItem = GObject.registerClass(
 const NMVpnConnectionItem = GObject.registerClass(
   {
     Signals: {
-      'activation-failed': {},
+      "activation-failed": {},
     },
   },
   class NMVpnConnectionItem extends NMConnectionItem {
@@ -1428,7 +1428,7 @@ const NMVpnConnectionItem = GObject.registerClass(
         reason !== NM.ActiveConnectionStateReason.NO_SECRETS &&
         reason !== NM.ActiveConnectionStateReason.USER_DISCONNECTED
       )
-        this.emit('activation-failed');
+        this.emit("activation-failed");
 
       super._activeConnectionStateChanged();
     }
@@ -1436,11 +1436,11 @@ const NMVpnConnectionItem = GObject.registerClass(
     get icon_name() {
       switch (this.state) {
         case NM.ActiveConnectionState.ACTIVATING:
-          return 'network-vpn-acquiring-symbolic';
+          return "network-vpn-acquiring-symbolic";
         case NM.ActiveConnectionState.ACTIVATED:
-          return 'network-vpn-symbolic';
+          return "network-vpn-symbolic";
         default:
-          return 'network-vpn-disabled-symbolic';
+          return "network-vpn-disabled-symbolic";
       }
     }
 
@@ -1451,7 +1451,7 @@ const NMVpnConnectionItem = GObject.registerClass(
 const NMToggle = GObject.registerClass(
   {
     Signals: {
-      'activation-failed': {},
+      "activation-failed": {},
     },
   },
   class NMToggle extends QuickMenuToggle {
@@ -1468,29 +1468,29 @@ const NMToggle = GObject.registerClass(
 
       this._itemBinding = new GObject.BindingGroup();
       this._itemBinding.bind(
-        'icon-name',
+        "icon-name",
         this,
-        'icon-name',
+        "icon-name",
         GObject.BindingFlags.DEFAULT,
       );
       this._itemBinding.bind_property_full(
-        'source',
+        "source",
         this,
-        'title',
+        "title",
         GObject.BindingFlags.DEFAULT,
         () => [true, this._getDefaultName()],
         null,
       );
       this._itemBinding.bind_full(
-        'name',
+        "name",
         this,
-        'subtitle',
+        "subtitle",
         GObject.BindingFlags.DEFAULT,
         (bind, source) => [true, this._transformSubtitle(source)],
         null,
       );
 
-      this.connect('clicked', () => this.activate());
+      this.connect("clicked", () => this.activate());
     }
 
     setClient(client) {
@@ -1499,7 +1499,7 @@ const NMToggle = GObject.registerClass(
       this._client?.disconnectObject(this);
       this._client = client;
       this._client?.connectObject(
-        'notify::networking-enabled',
+        "notify::networking-enabled",
         () => this._sync(),
         this,
       );
@@ -1544,7 +1544,7 @@ const NMToggle = GObject.registerClass(
     _itemActiveChanged() {
       // force an update in case we changed
       // from or to multiple active items
-      this._itemBinding.source?.notify('name');
+      this._itemBinding.source?.notify("name");
       this._sync();
     }
 
@@ -1565,11 +1565,11 @@ const NMToggle = GObject.registerClass(
       );
 
       item.connectObject(
-        'notify::is-active',
+        "notify::is-active",
         () => this._itemActiveChanged(),
-        'notify::name',
+        "notify::name",
         () => this._resortItem(item),
-        'destroy',
+        "destroy",
         () => this._removeItem(key),
         this,
       );
@@ -1630,10 +1630,10 @@ const NMVpnToggle = GObject.registerClass(
     constructor() {
       super();
 
-      this.menu.setHeader('network-vpn-symbolic', _('VPN'));
+      this.menu.setHeader("network-vpn-symbolic", _("VPN"));
       this.menu.addSettingsAction(
-        _('VPN Settings'),
-        'gnome-network-panel.desktop',
+        _("VPN Settings"),
+        "gnome-network-panel.desktop",
       );
     }
 
@@ -1641,18 +1641,18 @@ const NMVpnToggle = GObject.registerClass(
       super.setClient(client);
 
       this._client?.connectObject(
-        'connection-added',
+        "connection-added",
         (c, conn) => this._addConnection(conn),
-        'connection-removed',
+        "connection-removed",
         (c, conn) => this._removeConnection(conn),
-        'notify::active-connections',
+        "notify::active-connections",
         () => this._syncActiveConnections(),
         this,
       );
     }
 
     _getDefaultName() {
-      return _('VPN');
+      return _("VPN");
     }
 
     _loadInitialItems() {
@@ -1698,15 +1698,15 @@ const NMVpnToggle = GObject.registerClass(
       if (!this._shouldHandleConnection(connection)) return;
 
       connection.connectObject(
-        'changed',
+        "changed",
         this._onConnectionChanged.bind(this),
         this,
       );
 
       const item = new NMVpnConnectionItem(this, connection);
       item.connectObject(
-        'activation-failed',
-        () => this.emit('activation-failed'),
+        "activation-failed",
+        () => this.emit("activation-failed"),
         this,
       );
       this._addItem(connection, item);
@@ -1752,12 +1752,12 @@ const NMDeviceToggle = GObject.registerClass(
       super.setClient(client);
 
       this._client?.connectObject(
-        'device-added',
+        "device-added",
         (c, dev) => {
           this._addDevice(dev);
           this._syncDeviceNames();
         },
-        'device-removed',
+        "device-removed",
         (c, dev) => {
           this._removeDevice(dev);
           this._syncDeviceNames();
@@ -1834,7 +1834,7 @@ const NMDeviceToggle = GObject.registerClass(
         newState === NM.DeviceState.FAILED &&
         reason !== NM.DeviceStateReason.NO_SECRETS
       )
-        this.emit('activation-failed');
+        this.emit("activation-failed");
     }
 
     _createDeviceMenuItem(_device) {
@@ -1845,7 +1845,7 @@ const NMDeviceToggle = GObject.registerClass(
       if (this._items.has(device)) return;
 
       const item = this._createDeviceMenuItem(device);
-      item.setDeviceName(this._deviceNames.get(device) ?? '');
+      item.setDeviceName(this._deviceNames.get(device) ?? "");
       this._addItem(device, item);
     }
 
@@ -1859,11 +1859,11 @@ const NMDeviceToggle = GObject.registerClass(
       if (device.get_device_type() !== this._deviceType) return;
 
       device.connectObject(
-        'state-changed',
+        "state-changed",
         this._deviceStateChanged.bind(this),
-        'notify::interface',
+        "notify::interface",
         () => this._syncDeviceNames(),
-        'notify::state',
+        "notify::state",
         () => this._syncDeviceItem(device),
         this,
       );
@@ -1894,24 +1894,24 @@ const NMWirelessToggle = GObject.registerClass(
       super(NM.DeviceType.WIFI);
 
       this._itemBinding.bind(
-        'is-hotspot',
+        "is-hotspot",
         this,
-        'menu-enabled',
+        "menu-enabled",
         GObject.BindingFlags.INVERT_BOOLEAN,
       );
 
       this._scanningSpinner = new Spinner(16);
 
-      this.menu.connectObject('open-state-changed', (m, isOpen) => {
+      this.menu.connectObject("open-state-changed", (m, isOpen) => {
         if (isOpen) this._startScanning();
         else this._stopScanning();
       });
 
-      this.menu.setHeader('network-wireless-symbolic', _('Wi–Fi'));
+      this.menu.setHeader("network-wireless-symbolic", _("Wi–Fi"));
       this.menu.addHeaderSuffix(this._scanningSpinner);
       this.menu.addSettingsAction(
-        _('All Networks'),
-        'gnome-wifi-panel.desktop',
+        _("All Networks"),
+        "gnome-wifi-panel.desktop",
       );
     }
 
@@ -1919,15 +1919,15 @@ const NMWirelessToggle = GObject.registerClass(
       super.setClient(client);
 
       this._client?.bind_property(
-        'wireless-enabled',
+        "wireless-enabled",
         this,
-        'checked',
+        "checked",
         GObject.BindingFlags.SYNC_CREATE,
       );
       this._client?.bind_property(
-        'wireless-hardware-enabled',
+        "wireless-hardware-enabled",
         this,
-        'reactive',
+        "reactive",
         GObject.BindingFlags.SYNC_CREATE,
       );
     }
@@ -2010,10 +2010,10 @@ const NMWiredToggle = GObject.registerClass(
     constructor() {
       super(NM.DeviceType.ETHERNET);
 
-      this.menu.setHeader('network-wired-symbolic', _('Wired Connections'));
+      this.menu.setHeader("network-wired-symbolic", _("Wired Connections"));
       this.menu.addSettingsAction(
-        _('Wired Settings'),
-        'gnome-network-panel.desktop',
+        _("Wired Settings"),
+        "gnome-network-panel.desktop",
       );
     }
 
@@ -2028,16 +2028,16 @@ const NMBluetoothToggle = GObject.registerClass(
     constructor() {
       super(NM.DeviceType.BT);
 
-      this.menu.setHeader('network-cellular-symbolic', _('Bluetooth Tethers'));
+      this.menu.setHeader("network-cellular-symbolic", _("Bluetooth Tethers"));
       this.menu.addSettingsAction(
-        _('Bluetooth Settings'),
-        'gnome-network-panel.desktop',
+        _("Bluetooth Settings"),
+        "gnome-network-panel.desktop",
       );
     }
 
     _getDefaultName() {
       // Translators: "Tether" from "Bluetooth Tether"
-      return _('Tether');
+      return _("Tether");
     }
 
     _createDeviceMenuItem(device) {
@@ -2142,7 +2142,7 @@ class CaptivePortalHandler extends Signals.EventEmitter {
     } else if (result === PortalHelperResult.COMPLETED) {
       this.removeConnection(path);
     } else if (result === PortalHelperResult.RECHECK) {
-      this.emit('recheck', path);
+      this.emit("recheck", path);
     } else {
       log(`Invalid result from portal helper: ${result}`);
     }
@@ -2212,7 +2212,7 @@ export const Indicator = GObject.registerClass(
 
       this.quickSettingsItems.forEach((toggle) => {
         toggle.connectObject(
-          'activation-failed',
+          "activation-failed",
           () => this._onActivationFailed(),
           this,
         );
@@ -2223,9 +2223,9 @@ export const Indicator = GObject.registerClass(
 
       this._primaryIndicatorBinding = new GObject.BindingGroup();
       this._primaryIndicatorBinding.bind(
-        'icon-name',
+        "icon-name",
         this._primaryIndicator,
-        'icon-name',
+        "icon-name",
         GObject.BindingFlags.DEFAULT,
       );
 
@@ -2253,15 +2253,15 @@ export const Indicator = GObject.registerClass(
       );
 
       this._client.bind_property(
-        'nm-running',
+        "nm-running",
         this,
-        'visible',
+        "visible",
         GObject.BindingFlags.SYNC_CREATE,
       );
 
       const { connectivityCheckUri } = this._client;
       this._portalHandler = new CaptivePortalHandler(connectivityCheckUri);
-      this._portalHandler.connect('recheck', async (o, path) => {
+      this._portalHandler.connect("recheck", async (o, path) => {
         try {
           const state = await this._client.check_connectivity_async(null);
           if (state >= NM.ConnectivityState.FULL)
@@ -2270,11 +2270,11 @@ export const Indicator = GObject.registerClass(
       });
 
       this._client.connectObject(
-        'notify::primary-connection',
+        "notify::primary-connection",
         () => this._syncMainConnection(),
-        'notify::activating-connection',
+        "notify::activating-connection",
         () => this._syncMainConnection(),
-        'notify::connectivity',
+        "notify::connectivity",
         () => this._syncConnectivity(),
         this,
       );
@@ -2282,7 +2282,7 @@ export const Indicator = GObject.registerClass(
 
       try {
         this._configPermission = await Polkit.Permission.new(
-          'org.freedesktop.NetworkManager.network-control',
+          "org.freedesktop.NetworkManager.network-control",
           null,
           null,
           null,
@@ -2290,9 +2290,9 @@ export const Indicator = GObject.registerClass(
 
         this.quickSettingsItems.forEach((toggle) => {
           this._configPermission.bind_property(
-            'allowed',
+            "allowed",
             toggle,
-            'reactive',
+            "reactive",
             GObject.BindingFlags.SYNC_CREATE,
           );
         });
@@ -2328,7 +2328,7 @@ export const Indicator = GObject.registerClass(
 
       if (this._mainConnection) {
         this._mainConnection.connectObject(
-          'notify::state',
+          "notify::state",
           this._mainConnectionStateChanged.bind(this),
           this,
         );
@@ -2377,9 +2377,9 @@ export const Indicator = GObject.registerClass(
 
       if (!primaryToggle) {
         if (this._client.connectivity === NM.ConnectivityState.FULL)
-          this._primaryIndicator.icon_name = 'network-wired-symbolic';
+          this._primaryIndicator.icon_name = "network-wired-symbolic";
         else
-          this._primaryIndicator.icon_name = 'network-wired-no-route-symbolic';
+          this._primaryIndicator.icon_name = "network-wired-no-route-symbolic";
       }
 
       const state = this._client.get_state();
@@ -2392,7 +2392,7 @@ export const Indicator = GObject.registerClass(
 const Network = GObject.registerClass(
   {
     Signals: {
-      'network-update': { param_types: [GObject.TYPE_OBJECT] },
+      "network-update": { param_types: [GObject.TYPE_OBJECT] },
     },
   },
   class Network extends Extension {
@@ -2408,7 +2408,7 @@ const Network = GObject.registerClass(
       };
       try {
         this.indicator = new Indicator();
-        this.indicator._primaryIndicator.connect('notify::icon-name', () => {
+        this.indicator._primaryIndicator.connect("notify::icon-name", () => {
           this.sync();
         });
       } catch (err) {
@@ -2429,7 +2429,7 @@ const Network = GObject.registerClass(
       this.state = {
         icon:
           this.indicator._primaryIndicator.icon_name ??
-          'network-wired-no-route-symbolic',
+          "network-wired-no-route-symbolic",
         visible: this.indicator._primaryIndicator.visible,
         address: null,
         id: null,
@@ -2449,7 +2449,7 @@ const Network = GObject.registerClass(
         // console.log(err);
       }
 
-      this.emit('network-update', this);
+      this.emit("network-update", this);
     }
   },
 );

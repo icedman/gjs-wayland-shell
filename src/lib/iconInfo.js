@@ -1,5 +1,5 @@
-import Gdk from 'gi://Gdk?version=4.0';
-import Gtk from 'gi://Gtk?version=4.0';
+import Gdk from "gi://Gdk?version=4.0";
+import Gtk from "gi://Gtk?version=4.0";
 
 function getIconInfo(iconName) {
   let iconTheme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default());
@@ -24,7 +24,7 @@ function getIconInfo(iconName) {
     let iconPath = iconInfo.get_file().get_path();
     print(`Icon path: ${iconPath} ${iconInfo.is_symbolic}`);
   } else {
-    print('Icon not found in the current theme.');
+    print("Icon not found in the current theme.");
   }
 
   return iconInfo;

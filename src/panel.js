@@ -1,19 +1,19 @@
-import Gdk from 'gi://Gdk?version=4.0';
-import Gtk from 'gi://Gtk?version=4.0';
-import GLib from 'gi://GLib';
-import Gio from 'gi://Gio';
-import GObject from 'gi://GObject';
-import LayerShell from 'gi://Gtk4LayerShell';
-import { Extension } from './lib/extensionInterface.js';
+import Gdk from "gi://Gdk?version=4.0";
+import Gtk from "gi://Gtk?version=4.0";
+import GLib from "gi://GLib";
+import Gio from "gi://Gio";
+import GObject from "gi://GObject";
+import LayerShell from "gi://Gtk4LayerShell";
+import { Extension } from "./lib/extensionInterface.js";
 
-import { DockPanel } from './lib/dock.js';
-import { DockItem, DockAppItem, PanelItem } from './lib/dockItem.js';
-import { getIconInfo } from './lib/iconInfo.js';
+import { DockPanel } from "./lib/dock.js";
+import { DockItem, DockAppItem, PanelItem } from "./lib/dockItem.js";
+import { getIconInfo } from "./lib/iconInfo.js";
 
 const Panel = GObject.registerClass(
   class Panel extends Extension {
     _init(params) {
-      this.name = params?.name ?? 'Panel';
+      this.name = params?.name ?? "Panel";
       delete params?.name;
 
       super._init({

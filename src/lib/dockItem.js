@@ -1,20 +1,20 @@
-import Gdk from 'gi://Gdk?version=4.0';
-import Gtk from 'gi://Gtk?version=4.0';
-import Gsk from 'gi://Gsk';
-import GLib from 'gi://GLib';
-import Gio from 'gi://Gio';
-import GObject from 'gi://GObject';
-import { PopupMenu } from './popupMenu.js';
-import { Dot } from './dot.js';
-import { Extension } from './extensionInterface.js';
-import { getAppInfo, getAppInfoFromFile } from './appInfo.js';
-import { pointInRectangle, distanceToRectangle } from './collisions.js';
-import { pointerInWindow, getModifierStates } from './devices.js';
+import Gdk from "gi://Gdk?version=4.0";
+import Gtk from "gi://Gtk?version=4.0";
+import Gsk from "gi://Gsk";
+import GLib from "gi://GLib";
+import Gio from "gi://Gio";
+import GObject from "gi://GObject";
+import { PopupMenu } from "./popupMenu.js";
+import { Dot } from "./dot.js";
+import { Extension } from "./extensionInterface.js";
+import { getAppInfo, getAppInfoFromFile } from "./appInfo.js";
+import { pointInRectangle, distanceToRectangle } from "./collisions.js";
+import { pointerInWindow, getModifierStates } from "./devices.js";
 
 export const DockItem = GObject.registerClass(
   class DockItem extends Gtk.Fixed {
     _init(params = {}) {
-      let css = params.css ?? 'dock-item';
+      let css = params.css ?? "dock-item";
       let iconSize = params.iconSize ?? null;
       let icon = params.icon ?? null;
       let label = params.label ?? null;
@@ -24,7 +24,7 @@ export const DockItem = GObject.registerClass(
       delete params.label;
 
       super._init({
-        name: 'DockItem',
+        name: "DockItem",
         hexpand: true,
         vexpand: true,
         ...params,
@@ -32,14 +32,14 @@ export const DockItem = GObject.registerClass(
       this.add_css_class(css);
 
       this.container = new Gtk.Box();
-      this.container.add_css_class('button');
+      this.container.add_css_class("button");
 
       this.menu = new PopupMenu();
       this.icon = new Gtk.Image();
-      this.icon.add_css_class('icon');
+      this.icon.add_css_class("icon");
       this.container.append(this.icon);
       this.label = new Gtk.Label();
-      this.label.add_css_class('label');
+      this.label.add_css_class("label");
       this.container.append(this.label);
       this.container.append(this.menu);
       this.put(this.container, 0, 0);
@@ -56,7 +56,7 @@ export const DockItem = GObject.registerClass(
       {
         let evt = new Gtk.GestureClick();
         evt.set_button(1); // left click
-        evt.connect('released', (actor, count) => {
+        evt.connect("released", (actor, count) => {
           let modifiers = getModifierStates(this.root);
           this.on_click(count, 0, modifiers);
         });
@@ -67,7 +67,7 @@ export const DockItem = GObject.registerClass(
       {
         let evt = new Gtk.GestureClick();
         evt.set_button(3); // right click
-        evt.connect('released', (actor, count) => {
+        evt.connect("released", (actor, count) => {
           let modifiers = getModifierStates(this.root);
           this.on_click(count, 3, modifiers);
         });
@@ -77,7 +77,7 @@ export const DockItem = GObject.registerClass(
       // hover
       {
         let evt = new Gtk.EventControllerMotion();
-        evt.connect('motion', (controller, x, y) => {
+        evt.connect("motion", (controller, x, y) => {
           this.on_motion(x, y);
         });
         this.container.add_controller(evt);
@@ -86,13 +86,13 @@ export const DockItem = GObject.registerClass(
 
     set_label(label) {
       this.label.set_visible(label);
-      this.label.set_label(label ?? '');
+      this.label.set_label(label ?? "");
     }
 
     set_icon(icon) {
       this.icon.set_visible(icon);
       if (icon) {
-        if (icon.startsWith('/') || icon.startsWith('file://')) {
+        if (icon.startsWith("/") || icon.startsWith("file://")) {
           this.icon.set_from_file(icon);
         } else {
           this.icon.set_from_icon_name(icon);
@@ -128,14 +128,14 @@ export const DockAppItem = GObject.registerClass(
 
       this.indicator = new Dot(48);
       this.indicator.set_state({
-        style: 'binary',
-        color: '#fff',
+        style: "binary",
+        color: "#fff",
         count: 0,
       });
       this.indicator.set_sensitive(false);
       this.put(this.indicator, 2, 0);
 
-      this.set_icon(appInfo?.icon_name ?? 'application-x-executable');
+      this.set_icon(appInfo?.icon_name ?? "application-x-executable");
     }
 
     on_click(count, btn, modifiers) {
@@ -154,12 +154,12 @@ export const DockAppItem = GObject.registerClass(
 
       // move this to a general handler
       Main.shell
-        .focusOrSpawn(appInfo.id, appInfo.exec, '' /* args */, modifiers)
+        .focusOrSpawn(appInfo.id, appInfo.exec, "" /* args */, modifiers)
         .then((res) => {
           if (res == 0) {
-            this.add_css_class('bounce-icon');
+            this.add_css_class("bounce-icon");
             Main.loTimer.runOnce(() => {
-              this.remove_css_class('bounce-icon');
+              this.remove_css_class("bounce-icon");
             }, 4000);
           }
         })
@@ -175,7 +175,7 @@ export const DockAppItem = GObject.registerClass(
       }
 
       let windows = Main.shell.windows.filter(
-        (w) => w.app_id == appInfo.id.replace('.desktop', ''),
+        (w) => w.app_id == appInfo.id.replace(".desktop", ""),
       );
 
       let appId = null;
@@ -184,12 +184,12 @@ export const DockAppItem = GObject.registerClass(
         ...windows.map((w) => {
           let title = w.title;
           if (title.length >= 30) {
-            title = title.substring(0, 28) + '...';
+            title = title.substring(0, 28) + "...";
           }
           appId = w.app_id;
           return {
             name: title,
-            action: 'focus',
+            action: "focus",
             window: w,
           };
         }),
@@ -199,13 +199,13 @@ export const DockAppItem = GObject.registerClass(
         items = [
           {
             id: appId,
-            action: 'open',
-            name: 'Open Window',
+            action: "open",
+            name: "Open Window",
             exec: appInfo.exec,
           },
           ...items,
           {
-            name: 'Quit',
+            name: "Quit",
             script: () => {
               Main.shell.quitApp(appId);
             },
@@ -222,7 +222,7 @@ export const DockAppItem = GObject.registerClass(
     update_indicator(config = {}) {
       if (!this.appInfo || !this.indicator) return;
       let windows = Main.shell.windows.filter(
-        (w) => w.app_id == this.appInfo.id.replace('.desktop', ''),
+        (w) => w.app_id == this.appInfo.id.replace(".desktop", ""),
       );
       this.indicator.set_state({
         ...config,
@@ -237,7 +237,7 @@ export const PanelItem = GObject.registerClass(
     _init(params = {}) {
       super._init({
         ...params,
-        css: 'panel-item',
+        css: "panel-item",
       });
     }
   },

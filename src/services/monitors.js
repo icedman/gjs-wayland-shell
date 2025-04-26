@@ -1,15 +1,15 @@
-import Gdk from 'gi://Gdk?version=4.0';
-import Gtk from 'gi://Gtk?version=4.0';
-import GLib from 'gi://GLib';
-import Gio from 'gi://Gio';
-import GObject from 'gi://GObject';
-import { Extension } from '../lib/extensionInterface.js';
-import { pointInRectangle } from '../lib/collisions.js';
+import Gdk from "gi://Gdk?version=4.0";
+import Gtk from "gi://Gtk?version=4.0";
+import GLib from "gi://GLib";
+import Gio from "gi://Gio";
+import GObject from "gi://GObject";
+import { Extension } from "../lib/extensionInterface.js";
+import { pointInRectangle } from "../lib/collisions.js";
 
 const Monitors = GObject.registerClass(
   {
     Signals: {
-      'monitors-update': { param_types: [GObject.TYPE_OBJECT] },
+      "monitors-update": { param_types: [GObject.TYPE_OBJECT] },
     },
   },
   class Monitors extends Extension {
@@ -24,7 +24,7 @@ const Monitors = GObject.registerClass(
       };
 
       this.monitors = Gdk.Display.get_default().get_monitors();
-      this.monitors.connectObject('items-changed', this.sync.bind(this), this);
+      this.monitors.connectObject("items-changed", this.sync.bind(this), this);
       this.sync();
 
       // debug
@@ -67,7 +67,7 @@ const Monitors = GObject.registerClass(
         let m = this.monitors.get_item(i);
         if (!m) break;
         let g = m.get_geometry();
-        if (pointInRectangle({x, y}, g)) {
+        if (pointInRectangle({ x, y }, g)) {
           return m;
         }
       }
@@ -86,7 +86,7 @@ const Monitors = GObject.registerClass(
       this.state = {
         count: this.monitors.get_n_items(),
       };
-      this.emit('monitors-update', this);
+      this.emit("monitors-update", this);
     }
   },
 );

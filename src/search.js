@@ -1,29 +1,29 @@
-import Gdk from 'gi://Gdk?version=4.0';
-import Gtk from 'gi://Gtk?version=4.0';
-import GLib from 'gi://GLib';
-import Gio from 'gi://Gio';
-import GObject from 'gi://GObject';
-import LayerShell from 'gi://Gtk4LayerShell';
-import { Extension } from './lib/extensionInterface.js';
-import { getAppInfo } from './lib/appInfo.js';
-import { loadRemoteSearchProviders } from './services/remoteSearch.js';
+import Gdk from "gi://Gdk?version=4.0";
+import Gtk from "gi://Gtk?version=4.0";
+import GLib from "gi://GLib";
+import Gio from "gi://Gio";
+import GObject from "gi://GObject";
+import LayerShell from "gi://Gtk4LayerShell";
+import { Extension } from "./lib/extensionInterface.js";
+import { getAppInfo } from "./lib/appInfo.js";
+import { loadRemoteSearchProviders } from "./services/remoteSearch.js";
 
-const SEARCH_PROVIDERS_SCHEMA = 'org.gnome.desktop.search-providers';
+const SEARCH_PROVIDERS_SCHEMA = "org.gnome.desktop.search-providers";
 const SEARCH_ONKEY_DELAY = 750;
 
 function getTermsForSearchString(searchString) {
-  searchString = searchString.replace(/^\s+/g, '').replace(/\s+$/g, '');
-  if (searchString === '') return [];
+  searchString = searchString.replace(/^\s+/g, "").replace(/\s+$/g, "");
+  if (searchString === "") return [];
   return searchString.split(/\s+/);
 }
 
 const Search = GObject.registerClass(
   {
-    Signals: { 'search-updated': {} },
+    Signals: { "search-updated": {} },
   },
   class Search extends Extension {
     _init(params) {
-      this.name = params?.name ?? 'Search';
+      this.name = params?.name ?? "Search";
       delete params?.name;
       super._init({
         ...(params ?? {}),
@@ -52,10 +52,10 @@ const Search = GObject.registerClass(
         vexpand: true,
         default_width: this.default_width,
         default_height: this.default_height,
-        decorated: false
+        decorated: false,
       });
 
-      let prefix = 'search';
+      let prefix = "search";
       this.stylePrefix = this.name.toLowerCase();
 
       this.settings = Main.settings;
@@ -81,27 +81,27 @@ const Search = GObject.registerClass(
 
       let builder = new Gtk.Builder();
       builder.add_from_file(`./ui/search.ui`);
-      let widget = builder.get_object('search-window');
-      let entry = builder.get_object('entry');
+      let widget = builder.get_object("search-window");
+      let entry = builder.get_object("entry");
 
-      let searchIcon = Gio.ThemedIcon.new('system-search-symbolic');
+      let searchIcon = Gio.ThemedIcon.new("system-search-symbolic");
       // Set the icon to the primary position
       entry.set_icon_from_gicon(Gtk.EntryIconPosition.PRIMARY, searchIcon);
-      entry.set_placeholder_text('Type to search...');
+      entry.set_placeholder_text("Type to search...");
 
-      let clearIcon = Gio.ThemedIcon.new('edit-clear-symbolic');
+      let clearIcon = Gio.ThemedIcon.new("edit-clear-symbolic");
       entry.set_icon_from_gicon(Gtk.EntryIconPosition.SECONDARY, clearIcon);
-      entry.connect('icon-press', (widget, icon_position, event) => {
+      entry.connect("icon-press", (widget, icon_position, event) => {
         if (icon_position === Gtk.EntryIconPosition.SECONDARY) {
-          widget.set_text(''); // Clear the entry text
+          widget.set_text(""); // Clear the entry text
           this.clear();
         }
       });
 
-      this.resultsView = builder.get_object('results-view');
-      this.resultsView.add_css_class('results-view');
-      this.resultsApps = builder.get_object('results-apps');
-      this.resultsApps.add_css_class('results-apps');
+      this.resultsView = builder.get_object("results-view");
+      this.resultsView.add_css_class("results-view");
+      this.resultsApps = builder.get_object("results-apps");
+      this.resultsApps.add_css_class("results-apps");
 
       let searchOnKeyPress = () => {
         this._debounceSearchOnKeypress = Main.loTimer.debounce(
@@ -119,7 +119,7 @@ const Search = GObject.registerClass(
         );
       };
 
-      entry.connect('activate', () => {
+      entry.connect("activate", () => {
         if (this._debounceSearchOnKeypress) {
           Main.loTimer.cancel(this._debounceSearchOnKeypress);
           this._debounceSearchOnKeypress = null;
@@ -131,16 +131,16 @@ const Search = GObject.registerClass(
           console.log(err);
         }
       });
-      entry.connect('changed', () => {
+      entry.connect("changed", () => {
         searchOnKeyPress();
       });
       this.entry = entry;
 
-      this.entryContainer = builder.get_object('entry-container');
-      this.entryContainer.add_css_class('entry-container');
+      this.entryContainer = builder.get_object("entry-container");
+      this.entryContainer.add_css_class("entry-container");
 
       let event = new Gtk.EventControllerKey();
-      event.connect('key-pressed', (w, key, keycode) => {
+      event.connect("key-pressed", (w, key, keycode) => {
         switch (key) {
           case Gdk.KEY_Escape: {
             this.hide();
@@ -165,7 +165,7 @@ const Search = GObject.registerClass(
 
       if (Main?.dbus) {
         Main.dbus.connectObject(
-          'request-search',
+          "request-search",
           () => {
             if (this.window.visible) {
               this.hide();
@@ -181,14 +181,14 @@ const Search = GObject.registerClass(
       this.update_layout();
       this.update_style();
 
-      Main.factory.registerProvider('search', this.createSearchIcon.bind(this));
+      Main.factory.registerProvider("search", this.createSearchIcon.bind(this));
 
       super.enable();
     }
 
     createSearchIcon(config) {
       let item = Main.panel.create_panelitem(config);
-      item.set_icon(config.icon ?? 'system-search-symbolic');
+      item.set_icon(config.icon ?? "system-search-symbolic");
       item.on_click = () => {
         this.toggle();
       };
@@ -314,20 +314,20 @@ const Search = GObject.registerClass(
       {
         let ss = [];
         if (foregroundColor[3] > 0) {
-          ss.push(`color: rgba(${foregroundColor.join(',')});`);
+          ss.push(`color: rgba(${foregroundColor.join(",")});`);
         }
         ss.push(`font-size: ${fontSize}pt;`);
-        styles.push(`#${windowName} * { ${ss.join(' ')}}`);
+        styles.push(`#${windowName} * { ${ss.join(" ")}}`);
       }
 
       // entry text
       {
         let ss = [];
         if (entryColor[3] > 0) {
-          ss.push(`color: rgba(${entryColor.join(',')});`);
+          ss.push(`color: rgba(${entryColor.join(",")});`);
         }
         ss.push(`font-size: ${entryFontSize}pt;`);
-        styles.push(`#${windowName} entry * { ${ss.join(' ')}}`);
+        styles.push(`#${windowName} entry * { ${ss.join(" ")}}`);
       }
 
       // {
@@ -340,24 +340,24 @@ const Search = GObject.registerClass(
       // border-radius
       {
         let ss = [`border-radius: ${borderRadius}px;`];
-        styles.push(`#${windowName} { ${ss.join(' ')}}`);
-        styles.push(`#${windowName} entry { ${ss.join(' ')}}`);
-        styles.push(`#${windowName} .entry-container { ${ss.join(' ')}}`);
+        styles.push(`#${windowName} { ${ss.join(" ")}}`);
+        styles.push(`#${windowName} entry { ${ss.join(" ")}}`);
+        styles.push(`#${windowName} .entry-container { ${ss.join(" ")}}`);
         ss = [`border-radius: ${Math.floor(borderRadius * 0.6)}px;`];
-        styles.push(`#${windowName} .result-row:focus { ${ss.join(' ')}}`);
-        styles.push(`#${windowName} button { ${ss.join(' ')}}`);
+        styles.push(`#${windowName} .result-row:focus { ${ss.join(" ")}}`);
+        styles.push(`#${windowName} button { ${ss.join(" ")}}`);
       }
 
       // border
       // background & border
       {
         let ss = [];
-        ss.push(`border: ${border}px solid rgba(${borderColor.join(',')});`);
+        ss.push(`border: ${border}px solid rgba(${borderColor.join(",")});`);
         if (backgroundColor[3] > 0) {
-          ss.push(`background: rgba(${backgroundColor.join(',')});`);
+          ss.push(`background: rgba(${backgroundColor.join(",")});`);
         }
-        styles.push(`#${windowName} .entry-container { ${ss.join(' ')}}`);
-        styles.push(`#${windowName}.has-results{ ${ss.join(' ')}}`);
+        styles.push(`#${windowName} .entry-container { ${ss.join(" ")}}`);
+        styles.push(`#${windowName}.has-results{ ${ss.join(" ")}}`);
         styles.push(
           `#${windowName}.has-results .entry-container { background: transparent; border-color: transparent; }`,
         );
@@ -411,10 +411,10 @@ const Search = GObject.registerClass(
       let rows = this.getCurrentRows();
       let row_ids = rows.map((r) => r.id);
 
-      this.window.remove_css_class('has-results');
+      this.window.remove_css_class("has-results");
       this.matchedSearch = res;
       if (this.matchedSearch || this.matchedApps.length) {
-        this.window.add_css_class('has-results');
+        this.window.add_css_class("has-results");
       }
 
       res.forEach((item) => {
@@ -428,14 +428,14 @@ const Search = GObject.registerClass(
 
         let builder = new Gtk.Builder();
         builder.add_from_file(`./ui/result-row.ui`);
-        row = builder.get_object('result-row');
-        row.add_css_class('result-row');
-        let name = builder.get_object('result-name');
-        name.add_css_class('result-name');
-        let desc = builder.get_object('result-description');
-        desc.add_css_class('result-description');
-        let icon = builder.get_object('result-icon');
-        icon.add_css_class('result-icon');
+        row = builder.get_object("result-row");
+        row.add_css_class("result-row");
+        let name = builder.get_object("result-name");
+        name.add_css_class("result-name");
+        let desc = builder.get_object("result-description");
+        desc.add_css_class("result-description");
+        let icon = builder.get_object("result-icon");
+        icon.add_css_class("result-icon");
 
         if (appInfo.icon_name) {
           icon.set_from_icon_name(appInfo.icon_name);
@@ -443,15 +443,15 @@ const Search = GObject.registerClass(
           // icon.set_visible
         }
 
-        row.connect('activate', () => {
+        row.connect("activate", () => {
           this.activateSearchItem(item);
         });
-        row.connect('clicked', () => {
+        row.connect("clicked", () => {
           this.activateSearchItem(item);
         });
 
-        name.set_label(item.name ?? '');
-        desc.set_label(item.description ?? '');
+        name.set_label(item.name ?? "");
+        desc.set_label(item.description ?? "");
 
         desc.set_ellipsize(3);
         desc.set_max_width_chars(40);
@@ -495,11 +495,11 @@ const Search = GObject.registerClass(
         }
         let box = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL });
         let btn = new Gtk.Button({
-          icon_name: app.icon_name ?? 'applications-symbolic',
+          icon_name: app.icon_name ?? "applications-symbolic",
         });
         box.append(btn);
-        let label = new Gtk.Label({ label: app.title ?? '' });
-        label.add_css_class('app-label');
+        let label = new Gtk.Label({ label: app.title ?? "" });
+        label.add_css_class("app-label");
 
         label.set_ellipsize(3);
         label.set_max_width_chars(10);
@@ -508,10 +508,10 @@ const Search = GObject.registerClass(
         try {
           this.resultsApps.append(box);
           btn.child.set_pixel_size(64);
-          btn.add_css_class('button');
+          btn.add_css_class("button");
           btn.id = app.id;
           btn.item = app;
-          btn.connect('clicked', () => {
+          btn.connect("clicked", () => {
             Main.shell.spawn(app.exec);
             this.hide();
           });
@@ -520,9 +520,9 @@ const Search = GObject.registerClass(
         }
       });
 
-      this.window.remove_css_class('has-results');
+      this.window.remove_css_class("has-results");
       if (this.matchedSearch.length || this.matchedApps.length) {
-        this.window.add_css_class('has-results');
+        this.window.add_css_class("has-results");
       }
 
       // remove
@@ -555,7 +555,7 @@ const Search = GObject.registerClass(
         let clipboard = Gdk.Display.get_default().get_clipboard();
         if (clipboard) {
           const data = new TextEncoder().encode(text);
-          let provider = Gdk.ContentProvider.new_for_bytes('text/plain', data);
+          let provider = Gdk.ContentProvider.new_for_bytes("text/plain", data);
           clipboard.set_content(provider);
         }
         this.hide();
@@ -581,20 +581,20 @@ const Search = GObject.registerClass(
       }
       LayerShell.set_monitor(this.window, this.monitor);
 
-      this.window.add_css_class('startup');
+      this.window.add_css_class("startup");
       // let { width, height } = this.widget.get_allocation();
       // this.overlay.set_size_request(width, height);
-      this.window.remove_css_class('has-results');
+      this.window.remove_css_class("has-results");
       this.window.present();
       this.entry.grab_focus();
 
       Main.hiTimer.runOnce(() => {
-        this.window.remove_css_class('startup');
+        this.window.remove_css_class("startup");
       }, 0);
     }
 
     hide() {
-      this.window.add_css_class('startup');
+      this.window.add_css_class("startup");
 
       Main.hiTimer.runOnce(() => {
         this.clear();

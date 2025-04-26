@@ -1,12 +1,12 @@
-import Gdk from 'gi://Gdk?version=4.0';
-import Gtk from 'gi://Gtk?version=4.0';
-import GLib from 'gi://GLib';
-import Gio from 'gi://Gio';
-import GObject from 'gi://GObject';
-import { Extension } from '../lib/extensionInterface.js';
-import * as FileUtils from '../lib/fileUtils.js';
-import { getAppInfo, getAppInfoFromFile } from '../lib/appInfo.js';
-import { Search } from './fuzzy-app-search/search.js';
+import Gdk from "gi://Gdk?version=4.0";
+import Gtk from "gi://Gtk?version=4.0";
+import GLib from "gi://GLib";
+import Gio from "gi://Gio";
+import GObject from "gi://GObject";
+import { Extension } from "../lib/extensionInterface.js";
+import * as FileUtils from "../lib/fileUtils.js";
+import { getAppInfo, getAppInfoFromFile } from "../lib/appInfo.js";
+import { Search } from "./fuzzy-app-search/search.js";
 
 // Simple function to calculate Levenshtein distance
 function levenshtein(a, b) {
@@ -58,7 +58,7 @@ const SystemApps = GObject.registerClass(
 
       this.appDirs = [];
       for (let i = 0; i < dataDirs.length; i++) {
-        let path = GLib.build_filenamev([dataDirs[i], 'applications']);
+        let path = GLib.build_filenamev([dataDirs[i], "applications"]);
         this.appDirs.push(path);
       }
 
@@ -78,7 +78,7 @@ const SystemApps = GObject.registerClass(
 
       // let _search do its thing
       this.monitor = Gio.AppInfoMonitor.get();
-      this.monitor.connectObject('changed', this.collectApps.bind(this), this);
+      this.monitor.connectObject("changed", this.collectApps.bind(this), this);
       this.collectApps();
     }
 
@@ -98,7 +98,7 @@ const SystemApps = GObject.registerClass(
         return this.search_levenshtein(query);
       }
       return new Promise((resolve, reject) => {
-        this._search.find(query.split(' ')).then((res) => {
+        this._search.find(query.split(" ")).then((res) => {
           resolve(res.map((id) => getAppInfo(id)));
         });
       });
@@ -107,7 +107,7 @@ const SystemApps = GObject.registerClass(
     // Function to search applications with fuzzy matching
     async search_levenshtein(query) {
       let apps = this.apps;
-      if (!apps) return Promise.reject('apps not available');
+      if (!apps) return Promise.reject("apps not available");
 
       let normalizedQuery = query.toLowerCase();
       let result = [];
@@ -143,7 +143,7 @@ const SystemApps = GObject.registerClass(
 
       // Return the sorted apps, without the distance information
       return Promise.resolve(
-        result.map((item) => getAppInfo(item.app.get_id() ?? 'xxx')),
+        result.map((item) => getAppInfo(item.app.get_id() ?? "xxx")),
       );
     }
   },

@@ -70,6 +70,14 @@ Map the search app to your hotkey with your window manager. Or run the app from 
 $ gws-search
 ```
 
+# Apps Grid
+
+Map the apps grid to your hotkey with your window manager. Or run the app from terminal.
+
+```sh
+$ gws-apps
+```
+
 Functions the same way as Gnome Shell's search, using DBus querying SearchProviders.
 
 # Panel Items

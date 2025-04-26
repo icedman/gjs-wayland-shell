@@ -1,5 +1,5 @@
-import Gdk from 'gi://Gdk?version=4.0';
-import Gtk from 'gi://Gtk?version=4.0';
+import Gdk from "gi://Gdk?version=4.0";
+import Gtk from "gi://Gtk?version=4.0";
 
 export function createVolumeIndicator(config) {
   let volume = Main.panel.create_panelitem(config);
@@ -10,10 +10,10 @@ export function createVolumeIndicator(config) {
   let builder = new Gtk.Builder();
   builder.add_from_file(`${this.path}/ui/volume.ui`);
 
-  let widget = builder.get_object('volume-widget');
-  let w = builder.get_object('volume');
-  let l = builder.get_object('volume-label');
-  let t = builder.get_object('volume-toggle');
+  let widget = builder.get_object("volume-widget");
+  let w = builder.get_object("volume");
+  let l = builder.get_object("volume-label");
+  let t = builder.get_object("volume-toggle");
   l.set_size_request(40, -1);
   widget.parent.remove(widget);
   menu.child.append(widget);
@@ -23,6 +23,8 @@ export function createVolumeIndicator(config) {
   volume.on_click = () => {
     menu.popup();
   };
+
+  volume.first_change = false;
 
   let setVolume = () => {
     volume._debounceVolume = Main.loTimer.debounce(
@@ -36,10 +38,15 @@ export function createVolumeIndicator(config) {
     );
   };
 
-  w.connect('value-changed', (w) => {
+  w.connect("value-changed", (w) => {
     setVolume();
+    // if (!volume.first_change || ) {
+    //   volume.first_change = true;
+    //   return;
+    // }
+    // menu.popup();
   });
-  t.connect('clicked', (t) => {
+  t.connect("clicked", (t) => {
     let stream = Main.volume._stream;
     let control = Main.volume._control;
     if (!stream || !control) return;
@@ -52,7 +59,7 @@ export function createVolumeIndicator(config) {
   });
 
   Main.volume.connectObject(
-    'volume-update',
+    "volume-update",
     () => {
       let state = Main.volume.state;
       volume.set_label(``);
@@ -68,7 +75,7 @@ export function createVolumeIndicator(config) {
     },
     this,
   );
-  volume.connect('destroy', () => {
+  volume.connect("destroy", () => {
     if (volume._debounceVolume) {
       Main.loTimer.cancel(volume._debounceVolume);
       volume._debounceVolume = null;
@@ -85,7 +92,7 @@ export function createMicIndicator(config) {
   mic.onMicUpdate = (w, s) => {};
 
   Main.mic.connectObject(
-    'mic-update',
+    "mic-update",
     () => {
       let state = Main.mic.state;
       mic.set_label(``);
@@ -98,14 +105,14 @@ export function createMicIndicator(config) {
     },
     this,
   );
-  mic.connect('destroy', () => {
+  mic.connect("destroy", () => {
     Main.mic.disconnectObject(mic);
   });
 
   Main.mic.sync();
 
   mic.on_click = () => {
-    Main.mic._stream['is-muted'] = !Main.mic._stream['is-muted'];
+    Main.mic._stream["is-muted"] = !Main.mic._stream["is-muted"];
   };
   return mic;
 }

@@ -1,16 +1,16 @@
-import Gdk from 'gi://Gdk?version=4.0';
-import Gtk from 'gi://Gtk?version=4.0';
-import Gsk from 'gi://Gsk';
-import GLib from 'gi://GLib';
-import Gio from 'gi://Gio';
-import GObject from 'gi://GObject';
-import LayerShell from 'gi://Gtk4LayerShell';
-import { PopupMenu } from './popupMenu.js';
-import { Dot } from './dot.js';
-import { Extension } from './extensionInterface.js';
-import { getAppInfo, getAppInfoFromFile } from './appInfo.js';
-import { pointInRectangle, distanceToRectangle } from './collisions.js';
-import { pointerInWindow, getModifierStates } from './devices.js';
+import Gdk from "gi://Gdk?version=4.0";
+import Gtk from "gi://Gtk?version=4.0";
+import Gsk from "gi://Gsk";
+import GLib from "gi://GLib";
+import Gio from "gi://Gio";
+import GObject from "gi://GObject";
+import LayerShell from "gi://Gtk4LayerShell";
+import { PopupMenu } from "./popupMenu.js";
+import { Dot } from "./dot.js";
+import { Extension } from "./extensionInterface.js";
+import { getAppInfo, getAppInfoFromFile } from "./appInfo.js";
+import { pointInRectangle, distanceToRectangle } from "./collisions.js";
+import { pointerInWindow, getModifierStates } from "./devices.js";
 
 export const Background = GObject.registerClass(
   class Background extends Gtk.Window {
@@ -37,7 +37,7 @@ export const Background = GObject.registerClass(
     }
 
     destroy() {
-       super.destroy();
+      super.destroy();
     }
 
     vfunc_size_allocate(width, height, z) {

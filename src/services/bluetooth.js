@@ -1,10 +1,10 @@
-import 'gi://GnomeBluetooth?version=3.0';
+import "gi://GnomeBluetooth?version=3.0";
 
-import Gio from 'gi://Gio';
-import GLib from 'gi://GLib';
-import GnomeBluetooth from 'gi://GnomeBluetooth';
-import GObject from 'gi://GObject';
-import { Extension } from '../lib/extensionInterface.js';
+import Gio from "gi://Gio";
+import GLib from "gi://GLib";
+import GnomeBluetooth from "gi://GnomeBluetooth";
+import GObject from "gi://GObject";
+import { Extension } from "../lib/extensionInterface.js";
 
 import {
   Icon,
@@ -16,14 +16,14 @@ import {
   QuickMenuToggle,
   SystemIndicator,
   _,
-} from '../lib/gnomeShellMonkeyPatches.js';
+} from "../lib/gnomeShellMonkeyPatches.js";
 
 // import {loadInterfaceXML} from '../../misc/fileUtils.js';
 
 const { AdapterState } = GnomeBluetooth;
 
-const BUS_NAME = 'org.gnome.SettingsDaemon.Rfkill';
-const OBJECT_PATH = '/org/gnome/SettingsDaemon/Rfkill';
+const BUS_NAME = "org.gnome.SettingsDaemon.Rfkill";
+const OBJECT_PATH = "/org/gnome/SettingsDaemon/Rfkill";
 
 const RfkillManagerInterface = `
 <node>
@@ -42,7 +42,7 @@ const rfkillManagerInfo = Gio.DBusInterfaceInfo.new_for_xml(
   RfkillManagerInterface,
 );
 
-Gio._promisify(GnomeBluetooth.Client.prototype, 'connect_service');
+Gio._promisify(GnomeBluetooth.Client.prototype, "connect_service");
 
 const STATE_CHANGE_FAILED_TIMEOUT_MS = 30 * 1000;
 
@@ -50,21 +50,21 @@ const BtClient = GObject.registerClass(
   {
     Properties: {
       available: GObject.ParamSpec.boolean(
-        'available',
+        "available",
         null,
         null,
         GObject.ParamFlags.READABLE,
         false,
       ),
       active: GObject.ParamSpec.boolean(
-        'active',
+        "active",
         null,
         null,
         GObject.ParamFlags.READABLE,
         false,
       ),
-      'adapter-state': GObject.ParamSpec.enum(
-        'adapter-state',
+      "adapter-state": GObject.ParamSpec.enum(
+        "adapter-state",
         null,
         null,
         GObject.ParamFlags.READABLE,
@@ -73,8 +73,8 @@ const BtClient = GObject.registerClass(
       ),
     },
     Signals: {
-      'devices-changed': {},
-      'device-removed': { param_types: [GObject.TYPE_STRING] },
+      "devices-changed": {},
+      "device-removed": { param_types: [GObject.TYPE_STRING] },
     },
   },
   class BtClient extends GObject.Object {
@@ -82,21 +82,21 @@ const BtClient = GObject.registerClass(
       super._init();
 
       this._client = new GnomeBluetooth.Client();
-      this._client.connect('notify::default-adapter-powered', () => {
-        this.notify('active');
+      this._client.connect("notify::default-adapter-powered", () => {
+        this.notify("active");
       });
-      this._client.connect('notify::default-adapter-state', () => {
+      this._client.connect("notify::default-adapter-state", () => {
         delete this._predictedState;
-        this.notify('adapter-state');
+        this.notify("adapter-state");
       });
-      this._client.connect('notify::default-adapter', () => {
+      this._client.connect("notify::default-adapter", () => {
         const newAdapter = this._client.default_adapter ?? null;
 
         this._adapter = newAdapter;
         this._deviceNotifyConnected.clear();
-        this.emit('devices-changed');
+        this.emit("devices-changed");
 
-        this.notify('active');
+        this.notify("active");
       });
 
       this._proxy = new Gio.DBusProxy({
@@ -106,12 +106,12 @@ const BtClient = GObject.registerClass(
         g_interface_name: rfkillManagerInfo.name,
         g_interface_info: rfkillManagerInfo,
       });
-      this._proxy.connect('g-properties-changed', (p, properties) => {
+      this._proxy.connect("g-properties-changed", (p, properties) => {
         const changedProperties = properties.unpack();
-        if ('BluetoothHardwareAirplaneMode' in changedProperties)
-          this.notify('available');
-        else if ('BluetoothHasAirplaneMode' in changedProperties)
-          this.notify('available');
+        if ("BluetoothHardwareAirplaneMode" in changedProperties)
+          this.notify("available");
+        else if ("BluetoothHasAirplaneMode" in changedProperties)
+          this.notify("available");
       });
       this._proxy
         .init_async(GLib.PRIORITY_DEFAULT, null)
@@ -125,14 +125,14 @@ const BtClient = GObject.registerClass(
       for (let i = 0; i < deviceStore.get_n_items(); i++)
         this._connectDeviceNotify(deviceStore.get_item(i));
 
-      this._client.connect('device-removed', (c, path) => {
+      this._client.connect("device-removed", (c, path) => {
         this._deviceNotifyConnected.delete(path);
-        this.emit('device-removed', path);
-        this.emit('devices-changed');
+        this.emit("device-removed", path);
+        this.emit("devices-changed");
       });
-      this._client.connect('device-added', (c, device) => {
+      this._client.connect("device-added", (c, device) => {
         this._connectDeviceNotify(device);
-        this.emit('devices-changed');
+        this.emit("devices-changed");
       });
     }
 
@@ -163,14 +163,14 @@ const BtClient = GObject.registerClass(
       this._predictedState = active
         ? AdapterState.TURNING_OFF
         : AdapterState.TURNING_ON;
-      this.notify('adapter-state');
+      this.notify("adapter-state");
 
       // toggling the state *really* should result in an adapter-state
       // change eventually (even on error), but just to be sure to not
       // be stuck with the overriden state, force a notify signal after
       // a timeout
       setTimeout(
-        () => this._client.notify('default-adapter-state'),
+        () => this._client.notify("default-adapter-state"),
         STATE_CHANGE_FAILED_TIMEOUT_MS,
       );
 
@@ -182,7 +182,7 @@ const BtClient = GObject.registerClass(
     async toggleDevice(device) {
       const connect = !device.connected;
       console.debug(
-        `${connect ? 'Connect' : 'Disconnect'} device "${device.name}"`,
+        `${connect ? "Connect" : "Disconnect"} device "${device.name}"`,
       );
 
       try {
@@ -192,12 +192,12 @@ const BtClient = GObject.registerClass(
           null,
         );
         console.debug(
-          `Device "${device.name}" ${connect ? 'connected' : 'disconnected'}`,
+          `Device "${device.name}" ${connect ? "connected" : "disconnected"}`,
         );
       } catch (e) {
         console.error(
           `Failed to ${
-            connect ? 'connect' : 'disconnect'
+            connect ? "connect" : "disconnect"
           } device "${device.name}": ${e.message}`,
         );
       }
@@ -220,7 +220,7 @@ const BtClient = GObject.registerClass(
       if (this._devicesChangedId) return;
       this._devicesChangedId = GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
         delete this._devicesChangedId;
-        this.emit('devices-changed');
+        this.emit("devices-changed");
         return GLib.SOURCE_REMOVE;
       });
     }
@@ -230,10 +230,10 @@ const BtClient = GObject.registerClass(
 
       if (this._deviceNotifyConnected.has(path)) return;
 
-      device.connect('notify::alias', () => this._queueDevicesChanged());
-      device.connect('notify::paired', () => this._queueDevicesChanged());
-      device.connect('notify::trusted', () => this._queueDevicesChanged());
-      device.connect('notify::connected', () => this._queueDevicesChanged());
+      device.connect("notify::alias", () => this._queueDevicesChanged());
+      device.connect("notify::paired", () => this._queueDevicesChanged());
+      device.connect("notify::trusted", () => this._queueDevicesChanged());
+      device.connect("notify::connected", () => this._queueDevicesChanged());
 
       this._deviceNotifyConnected.add(path);
     }
@@ -244,7 +244,7 @@ const BluetoothDeviceItem = GObject.registerClass(
   class BluetoothDeviceItem extends PopupMenu.PopupBaseMenuItem {
     constructor(device, client) {
       super({
-        style_class: 'bt-device-item',
+        style_class: "bt-device-item",
       });
 
       this._device = device;
@@ -291,8 +291,8 @@ const BluetoothDeviceItem = GObject.registerClass(
       //     (bind, source) => [true, source ? _('Disconnect') : _('Connect')],
       //     null);
 
-      this.connect('destroy', () => (this._spinner = null));
-      this.connect('activate', () => this._toggleConnected().catch(logError));
+      this.connect("destroy", () => (this._spinner = null));
+      this.connect("activate", () => this._toggleConnected().catch(logError));
     }
 
     async _toggleConnected() {
@@ -306,16 +306,16 @@ const BluetoothDeviceItem = GObject.registerClass(
 const BluetoothToggle = GObject.registerClass(
   class BluetoothToggle extends QuickMenuToggle {
     _init(client) {
-      super._init({ title: _('Bluetooth') });
+      super._init({ title: _("Bluetooth") });
 
-      this.menu.setHeader('bluetooth-active-symbolic', _('Bluetooth'));
+      this.menu.setHeader("bluetooth-active-symbolic", _("Bluetooth"));
 
       this._deviceItems = new Map();
       this._deviceSection = new PopupMenu.PopupMenuSection();
       this.menu.addMenuItem(this._deviceSection);
 
-      this._placeholderItem = new PopupMenu.PopupMenuItem('', {
-        style_class: 'bt-menu-placeholder',
+      this._placeholderItem = new PopupMenu.PopupMenuItem("", {
+        style_class: "bt-menu-placeholder",
         reactive: false,
         can_focus: false,
       });
@@ -334,50 +334,50 @@ const BluetoothToggle = GObject.registerClass(
 
       this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
       this.menu.addSettingsAction(
-        _('Bluetooth Settings'),
-        'gnome-bluetooth-panel.desktop',
+        _("Bluetooth Settings"),
+        "gnome-bluetooth-panel.desktop",
       );
 
       this._client = client;
 
       this._client.bind_property(
-        'available',
+        "available",
         this,
-        'visible',
+        "visible",
         GObject.BindingFlags.SYNC_CREATE,
       );
       this._client.bind_property(
-        'active',
+        "active",
         this,
-        'checked',
+        "checked",
         GObject.BindingFlags.SYNC_CREATE,
       );
       this._client.bind_property_full(
-        'adapter-state',
+        "adapter-state",
         this,
-        'icon-name',
+        "icon-name",
         GObject.BindingFlags.SYNC_CREATE,
         (bind, source) => [true, this._getIconNameFromState(source)],
         null,
       );
 
       this._client.connectObject(
-        'notify::active',
+        "notify::active",
         () => this._onActiveChanged(),
-        'devices-changed',
+        "devices-changed",
         () => this._sync(),
-        'device-removed',
+        "device-removed",
         (c, path) => this._removeDevice(path),
         this,
       );
 
-      this.menu.connect('open-state-changed', (isOpen) => {
+      this.menu.connect("open-state-changed", (isOpen) => {
         // We don't reorder the list while the menu is open,
         // so do it now to start with the proper order
         if (isOpen) this._reorderDeviceItems();
       });
 
-      this.connect('clicked', () => this._client.toggleActive());
+      this.connect("clicked", () => this._client.toggleActive());
 
       this._updatePlaceholder();
       this._sync();
@@ -394,8 +394,8 @@ const BluetoothToggle = GObject.registerClass(
 
     _updatePlaceholder() {
       this._placeholderItem.label.text = this._client.active
-        ? _('No available or connected devices')
-        : _('Turn on Bluetooth to connect to devices');
+        ? _("No available or connected devices")
+        : _("Turn on Bluetooth to connect to devices");
     }
 
     _updatePlaceholderRelation() {
@@ -447,7 +447,7 @@ const BluetoothToggle = GObject.registerClass(
         if (this._deviceItems.has(path)) continue;
 
         const item = new BluetoothDeviceItem(dev, this._client);
-        item.connect('notify::visible', () => this._updateDeviceVisibility());
+        item.connect("notify::visible", () => this._updateDeviceVisibility());
 
         this._deviceSection.addMenuItem(item);
         this._deviceItems.set(path, item);
@@ -473,18 +473,18 @@ const BluetoothToggle = GObject.registerClass(
     _getIconNameFromState(state) {
       switch (state) {
         case AdapterState.ON:
-          return 'bluetooth-active-symbolic';
+          return "bluetooth-active-symbolic";
         case AdapterState.OFF:
         case AdapterState.ABSENT:
-          return 'bluetooth-disabled-symbolic';
+          return "bluetooth-disabled-symbolic";
         case AdapterState.TURNING_ON:
         case AdapterState.TURNING_OFF:
-          return 'bluetooth-acquiring-symbolic';
+          return "bluetooth-acquiring-symbolic";
         default:
           console.warn(
             `Unexpected state ${GObject.enum_to_string(AdapterState, state)}`,
           );
-          return '';
+          return "";
       }
     }
   },
@@ -496,10 +496,10 @@ const BtIndicator = GObject.registerClass(
       super._init();
 
       this._client = new BtClient();
-      this._client.connect('devices-changed', () => this._sync());
+      this._client.connect("devices-changed", () => this._sync());
 
       this._indicator = this._addIndicator();
-      this._indicator.icon_name = 'bluetooth-active-symbolic';
+      this._indicator.icon_name = "bluetooth-active-symbolic";
 
       this.quickSettingsItems.push(new BluetoothToggle(this._client));
       this._primaryIndicator = this.quickSettingsItems[0];
@@ -520,7 +520,7 @@ const BtIndicator = GObject.registerClass(
 const Bluetooth = GObject.registerClass(
   {
     Signals: {
-      'bluetooth-update': { param_types: [GObject.TYPE_OBJECT] },
+      "bluetooth-update": { param_types: [GObject.TYPE_OBJECT] },
     },
   },
   class Bluetooth extends Extension {
@@ -555,7 +555,7 @@ const Bluetooth = GObject.registerClass(
     sync() {
       if (!this.indicator) return;
 
-      this.emit('bluetooth-update', this);
+      this.emit("bluetooth-update", this);
     }
   },
 );

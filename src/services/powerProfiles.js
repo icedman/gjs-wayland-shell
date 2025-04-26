@@ -1,13 +1,13 @@
-import Gdk from 'gi://Gdk?version=4.0';
-import Gtk from 'gi://Gtk?version=4.0';
-import GLib from 'gi://GLib';
-import Gio from 'gi://Gio';
-import GObject from 'gi://GObject';
-import UPower from 'gi://UPowerGlib';
-import { Extension } from '../lib/extensionInterface.js';
+import Gdk from "gi://Gdk?version=4.0";
+import Gtk from "gi://Gtk?version=4.0";
+import GLib from "gi://GLib";
+import Gio from "gi://Gio";
+import GObject from "gi://GObject";
+import UPower from "gi://UPowerGlib";
+import { Extension } from "../lib/extensionInterface.js";
 
-const BUS_NAME = 'net.hadess.PowerProfiles';
-const OBJECT_PATH = '/net/hadess/PowerProfiles';
+const BUS_NAME = "net.hadess.PowerProfiles";
+const OBJECT_PATH = "/net/hadess/PowerProfiles";
 
 function C_(section, name) {
   return name;
@@ -15,18 +15,18 @@ function C_(section, name) {
 
 const PROFILE_PARAMS = {
   performance: {
-    name: C_('Power profile', 'Performance'),
-    iconName: 'power-profile-performance-symbolic',
+    name: C_("Power profile", "Performance"),
+    iconName: "power-profile-performance-symbolic",
   },
 
   balanced: {
-    name: C_('Power profile', 'Balanced'),
-    iconName: 'power-profile-balanced-symbolic',
+    name: C_("Power profile", "Balanced"),
+    iconName: "power-profile-balanced-symbolic",
   },
 
-  'power-saver': {
-    name: C_('Power profile', 'Power Saver'),
-    iconName: 'power-profile-power-saver-symbolic',
+  "power-saver": {
+    name: C_("Power profile", "Power Saver"),
+    iconName: "power-profile-power-saver-symbolic",
   },
 };
 
@@ -107,7 +107,7 @@ const PowerProfilesInterface = `<node>
 const PowerProfiles = GObject.registerClass(
   {
     Signals: {
-      'power-profiles-update': { param_types: [GObject.TYPE_OBJECT] },
+      "power-profiles-update": { param_types: [GObject.TYPE_OBJECT] },
     },
   },
   class PowerProfiles extends Extension {
@@ -131,7 +131,7 @@ const PowerProfiles = GObject.registerClass(
         (proxy, error) => {
           if (error) console.error(error.message);
           else
-            this.proxy.connect('g-properties-changed', () => {
+            this.proxy.connect("g-properties-changed", () => {
               this.sync();
             });
           this.sync();
@@ -148,11 +148,11 @@ const PowerProfiles = GObject.registerClass(
       let active = _proxy.ActiveProfile;
       this.state = {
         profile: active,
-        icon: PROFILE_PARAMS[active]?.iconName ?? '',
-        name: PROFILE_PARAMS[active]?.name ?? '',
+        icon: PROFILE_PARAMS[active]?.iconName ?? "",
+        name: PROFILE_PARAMS[active]?.name ?? "",
       };
 
-      this.emit('power-profiles-update', this);
+      this.emit("power-profiles-update", this);
     }
   },
 );

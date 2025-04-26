@@ -1,7 +1,7 @@
-'use strict';
+"use strict";
 
-import PangoCairo from 'gi://PangoCairo';
-import Pango from 'gi://Pango';
+import PangoCairo from "gi://PangoCairo";
+import Pango from "gi://Pango";
 
 const NAMED_COLORS = {
   red: { r: 255, g: 0, b: 0, a: 255 },
@@ -13,8 +13,8 @@ const NAMED_COLORS = {
 };
 
 function colorFromString(colorString) {
-  if (!colorString || typeof colorString !== 'string') {
-    throw new Error('Invalid color string');
+  if (!colorString || typeof colorString !== "string") {
+    throw new Error("Invalid color string");
   }
 
   colorString = colorString.trim().toLowerCase();
@@ -75,7 +75,7 @@ function colorFromString(colorString) {
     };
   }
 
-  throw new Error('Invalid color format');
+  throw new Error("Invalid color format");
 }
 
 // Example usage
@@ -182,7 +182,7 @@ function draw_rect(ctx, color, x, y, h_size, v_size, line_width) {
   ctx.restore();
 }
 
-function draw_text(ctx, showtext, font = 'DejaVuSans 42') {
+function draw_text(ctx, showtext, font = "DejaVuSans 42") {
   ctx.save();
   let pl = PangoCairo.create_layout(ctx);
   pl.set_text(showtext, -1);
@@ -197,7 +197,7 @@ function draw_text(ctx, showtext, font = 'DejaVuSans 42') {
 }
 
 function set_color(ctx, clr, alpha) {
-  if (typeof clr === 'string') {
+  if (typeof clr === "string") {
     const cc = colorFromString(clr);
     ctx.setSourceRGBA(cc.r, cc.g, cc.b, cc.a);
   } else {

@@ -1,4 +1,4 @@
-import Gdk from 'gi://Gdk?version=4.0';
+import Gdk from "gi://Gdk?version=4.0";
 
 function pointerInWindow(w) {
   let res = [false, 0, 0];

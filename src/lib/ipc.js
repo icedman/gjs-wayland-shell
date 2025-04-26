@@ -1,5 +1,5 @@
-import GLib from 'gi://GLib';
-import Gio from 'gi://Gio';
+import GLib from "gi://GLib";
+import Gio from "gi://Gio";
 
 const BYTES_NUM = 4096;
 
@@ -34,15 +34,15 @@ function disconnectSocket(connection) {
   connection.close(null);
 }
 
-function connectToHyprSocket(num = '') {
-  let XDG_RUNTIME_DIR = GLib.getenv('XDG_RUNTIME_DIR');
-  let HYPRLAND_INSTANCE_SIGNATURE = GLib.getenv('HYPRLAND_INSTANCE_SIGNATURE');
+function connectToHyprSocket(num = "") {
+  let XDG_RUNTIME_DIR = GLib.getenv("XDG_RUNTIME_DIR");
+  let HYPRLAND_INSTANCE_SIGNATURE = GLib.getenv("HYPRLAND_INSTANCE_SIGNATURE");
   if (!XDG_RUNTIME_DIR || !HYPRLAND_INSTANCE_SIGNATURE) {
     log(`HYPRLAND unavailabe`);
     return null;
   }
   let socketPath = `${XDG_RUNTIME_DIR}/hypr/${HYPRLAND_INSTANCE_SIGNATURE}/.socket${num}.sock`;
-  return connectToSocket(socketPath, 'HYPR');
+  return connectToSocket(socketPath, "HYPR");
 }
 
 /**
@@ -50,13 +50,13 @@ function connectToHyprSocket(num = '') {
  * @returns {Gio.SocketConnection | null} A connection to the socket, or null on failure.
  */
 function connectToNiriSocket() {
-  let socketPath = GLib.getenv('NIRI_SOCKET');
+  let socketPath = GLib.getenv("NIRI_SOCKET");
   if (!socketPath) {
     log(`NIRI unavailabe`);
     return null;
   }
 
-  return connectToSocket(socketPath, 'NIRI');
+  return connectToSocket(socketPath, "NIRI");
 }
 
 /**
@@ -64,13 +64,13 @@ function connectToNiriSocket() {
  * @returns {Gio.SocketConnection | null} A connection to the socket, or null on failure.
  */
 function connectToSwaySocket() {
-  let socketPath = GLib.getenv('SWAYSOCK');
+  let socketPath = GLib.getenv("SWAYSOCK");
   if (!socketPath) {
     log(`SWAY unavailabe`);
     return null;
   }
 
-  return connectToSocket(socketPath, 'SWAY');
+  return connectToSocket(socketPath, "SWAY");
 }
 
 /**
@@ -83,7 +83,7 @@ async function sendMessage(connection, message) {
   try {
     let outputStream = connection.get_output_stream();
     if (!outputStream) {
-      logError(new Error('Failed to get output stream.'));
+      logError(new Error("Failed to get output stream."));
       return false;
     }
 
@@ -101,7 +101,7 @@ async function sendMessage(connection, message) {
 async function receiveMessage(connection, count = BYTES_NUM, loop = 20) {
   let inputStream = connection.get_input_stream();
   if (!inputStream) {
-    logError(new Error('Failed to get input stream.'));
+    logError(new Error("Failed to get input stream."));
     return false;
   }
 
@@ -109,7 +109,7 @@ async function receiveMessage(connection, count = BYTES_NUM, loop = 20) {
   let byteArray = new Uint8Array(inputBytes.get_data());
   // let response = String.fromCharCode.apply(null, byteArray);
 
-  let decoder = new TextDecoder('utf-8'); // Use appropriate encoding if necessary
+  let decoder = new TextDecoder("utf-8"); // Use appropriate encoding if necessary
   let response = decoder.decode(byteArray);
 
   // consume all
@@ -125,7 +125,7 @@ async function receiveMessage(connection, count = BYTES_NUM, loop = 20) {
   return response;
 }
 
-const ipcMagic = ['i', '3', '-', 'i', 'p', 'c'].map((char) =>
+const ipcMagic = ["i", "3", "-", "i", "p", "c"].map((char) =>
   char.charCodeAt(0),
 );
 const IPC_HEADER_SIZE = ipcMagic.length + 8; // Magic (6 bytes) + len (4 bytes) + type (4 bytes)
@@ -160,7 +160,7 @@ async function sendI3Message(connection, type, message) {
   try {
     let outputStream = connection.get_output_stream();
     if (!outputStream) {
-      logError(new Error('Failed to get output stream.'));
+      logError(new Error("Failed to get output stream."));
       return false;
     }
     outputStream.write_all(header.get_data(), null);
@@ -175,7 +175,7 @@ async function sendI3Message(connection, type, message) {
 async function receiveI3Message(connection, count = BYTES_NUM) {
   let inputStream = connection.get_input_stream();
   if (!inputStream) {
-    logError(new Error('Failed to get input stream.'));
+    logError(new Error("Failed to get input stream."));
     return false;
   }
 
@@ -203,7 +203,7 @@ async function receiveI3Message(connection, count = BYTES_NUM) {
   let byteArray = new Uint8Array(inputBytes.get_data());
   // let response = String.fromCharCode.apply(null, byteArray);
 
-  let decoder = new TextDecoder('utf-8'); // Use appropriate encoding if necessary
+  let decoder = new TextDecoder("utf-8"); // Use appropriate encoding if necessary
   let response = decoder.decode(byteArray);
 
   return Promise.resolve(response);

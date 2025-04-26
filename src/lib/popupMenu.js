@@ -1,9 +1,9 @@
-import Gdk from 'gi://Gdk?version=4.0';
-import Gtk from 'gi://Gtk?version=4.0';
-import GLib from 'gi://GLib';
-import Gio from 'gi://Gio';
-import GObject from 'gi://GObject';
-import { getAppInfo, getAppInfoFromFile } from './appInfo.js';
+import Gdk from "gi://Gdk?version=4.0";
+import Gtk from "gi://Gtk?version=4.0";
+import GLib from "gi://GLib";
+import Gio from "gi://Gio";
+import GObject from "gi://GObject";
+import { getAppInfo, getAppInfoFromFile } from "./appInfo.js";
 
 // todo .. use model
 
@@ -16,7 +16,7 @@ export const PopupMenu = GObject.registerClass(
       delete params.items;
 
       super._init({
-        name: 'Menu',
+        name: "Menu",
         has_arrow: false,
         position: 2,
         ...params,
@@ -45,7 +45,7 @@ export const PopupMenu = GObject.registerClass(
 
       items.forEach((item) => {
         let button = new Gtk.Box({
-          name: 'MenuItem',
+          name: "MenuItem",
           orientation: Gtk.Orientation.HORIZONTAL,
           hexpand: true,
         });
@@ -53,19 +53,19 @@ export const PopupMenu = GObject.registerClass(
         // make this configurable
         let evt = new Gtk.GestureClick();
         // evt.set_button(3);
-        evt.connect('pressed', async (actor, count) => {
+        evt.connect("pressed", async (actor, count) => {
           if (item.script) {
             item.script();
             this.popdown();
             return;
           }
 
-          if (item.action == 'focus' && item.window) {
+          if (item.action == "focus" && item.window) {
             Main.shell.focusWindow(item.window);
             this.popdown();
             return;
           }
-          if (item.action == 'open') {
+          if (item.action == "open") {
             Main.shell.focusOrSpawn(item.id, item.exec);
             this.popdown();
             return;
@@ -81,7 +81,7 @@ export const PopupMenu = GObject.registerClass(
         // button.append(button.icon);
 
         button.label = new Gtk.Label();
-        button.label.add_css_class('label');
+        button.label.add_css_class("label");
         button.label.hexpand = true;
         button.label.halign = Gtk.Align.START;
         // button.label.set_visible(false);

@@ -1,11 +1,11 @@
-import Gdk from 'gi://Gdk?version=4.0';
-import Gtk from 'gi://Gtk?version=4.0';
-import Gio from 'gi://Gio';
-import GLib from 'gi://GLib';
-import GObject from 'gi://GObject';
-import { Extension } from '../lib/extensionInterface.js';
+import Gdk from "gi://Gdk?version=4.0";
+import Gtk from "gi://Gtk?version=4.0";
+import Gio from "gi://Gio";
+import GLib from "gi://GLib";
+import GObject from "gi://GObject";
+import { Extension } from "../lib/extensionInterface.js";
 
-const CustomStylesPath = '/tmp';
+const CustomStylesPath = "/tmp";
 
 const Style = class {
   constructor() {
@@ -25,7 +25,7 @@ const Style = class {
   }
 
   build(name, style_array) {
-    let content = '';
+    let content = "";
     style_array.forEach((k) => {
       content = `${content}\n${k}`;
     });
@@ -63,11 +63,11 @@ const Style = class {
     try {
       provider.load_from_string(content);
     } catch (e) {
-      logError(e, 'Failed to add application style');
+      logError(e, "Failed to add application style");
       return;
     }
 
-    console.log('---------');
+    console.log("---------");
     console.log(`style ${name}`);
 
     this.styles[name] = provider;
@@ -80,8 +80,8 @@ const Style = class {
 
     log(content);
 
-    if (name != 'user') {
-      this.reload('user');
+    if (name != "user") {
+      this.reload("user");
     }
   }
 
@@ -104,11 +104,11 @@ const Style = class {
     try {
       provider.load_from_path(file_path);
     } catch (e) {
-      logError(e, 'Failed to add application style');
+      logError(e, "Failed to add application style");
       return;
     }
 
-    console.log('---------');
+    console.log("---------");
     console.log(`style ${name}`);
 
     this.styles[name] = provider;
@@ -120,8 +120,8 @@ const Style = class {
       Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION,
     );
 
-    if (name != 'user') {
-      this.reload('user');
+    if (name != "user") {
+      this.reload("user");
     }
   }
 
@@ -132,7 +132,7 @@ const Style = class {
       return;
     }
 
-    console.log('reloading...');
+    console.log("reloading...");
     this.load(name, file_path);
   }
 
@@ -194,7 +194,7 @@ const StyleExtension = GObject.registerClass(
 
     loadCssFile(name, file_path) {
       this.style.load(name, file_path);
-      if (name == 'user') {
+      if (name == "user") {
         this.watchUser(file_path);
       }
     }
@@ -209,10 +209,10 @@ const StyleExtension = GObject.registerClass(
 
       // Connect the callback to monitor the file for changes
       this.monitor.connectObject(
-        'changed',
+        "changed",
         (monitor, file, otherFile, eventType) => {
           if (eventType != Gio.FileMonitorEvent.CHANGED) return;
-          this.style.reload('user');
+          this.style.reload("user");
         },
         this,
       );

@@ -1,7 +1,7 @@
-import Gio from 'gi://Gio';
-import GLib from 'gi://GLib';
-import GObject from 'gi://GObject';
-import { WindowManagerInterface } from './wmInterface.js';
+import Gio from "gi://Gio";
+import GLib from "gi://GLib";
+import GObject from "gi://GObject";
+import { WindowManagerInterface } from "./wmInterface.js";
 
 import {
   connectToSocket,
@@ -9,20 +9,20 @@ import {
   disconnectSocket,
   sendMessage,
   receiveMessage,
-} from '../lib/ipc.js';
+} from "../lib/ipc.js";
 
 const HyprShell = GObject.registerClass(
   class HyprShell extends WindowManagerInterface {
     _init() {
       super._init();
-      this.name = 'HYPR';
+      this.name = "HYPR";
     }
 
     isAvailable() {
       try {
         let [success, output] = GLib.spawn_sync(
           null, // Working directory
-          ['pgrep', '-x', 'Hyprland'], // Command to check process
+          ["pgrep", "-x", "Hyprland"], // Command to check process
           null, // Environment
           GLib.SpawnFlags.SEARCH_PATH,
           null, // Child setup
@@ -47,15 +47,15 @@ const HyprShell = GObject.registerClass(
 
     parseMessage(msg) {
       let eventMap = {
-        activewindowv2: 'window-focused',
-        openwindow: 'window-opened',
-        closewindow: 'window-closed',
+        activewindowv2: "window-focused",
+        openwindow: "window-opened",
+        closewindow: "window-closed",
       };
 
       let res = [];
-      let lines = msg.trim().split('\n');
+      let lines = msg.trim().split("\n");
       lines.forEach((l) => {
-        let line = l.replace('>>', ',').split(',');
+        let line = l.replace(">>", ",").split(",");
         let event = eventMap[line[0]];
         if (event) {
           res.push({
@@ -67,7 +67,7 @@ const HyprShell = GObject.registerClass(
           });
         } else {
           res.push({
-            event: 'unhandled',
+            event: "unhandled",
             window: {},
             raw: l,
           });
@@ -87,11 +87,11 @@ const HyprShell = GObject.registerClass(
       }
       */
       // hyperland
-      if (w['address']) {
-        w['id'] = w['address'].replace('0x', '');
+      if (w["address"]) {
+        w["id"] = w["address"].replace("0x", "");
       }
-      if (!w['app_id'] && w['class']) {
-        w['app_id'] = w['class'];
+      if (!w["app_id"] && w["class"]) {
+        w["app_id"] = w["class"];
       }
       return super.normalizeWindow(w);
     }
@@ -101,7 +101,7 @@ const HyprShell = GObject.registerClass(
       if (!connection) {
         return;
       }
-      let message = '[j]/clients';
+      let message = "[j]/clients";
       await sendMessage(connection, message);
       let response = await receiveMessage(connection);
       this.disconnect(connection);
@@ -110,7 +110,7 @@ const HyprShell = GObject.registerClass(
       this.windows = obj;
       this.normalizeWindows();
       obj = {
-        event: 'windows-update',
+        event: "windows-update",
         windows: this.windows,
         raw: obj,
       };
@@ -123,13 +123,13 @@ const HyprShell = GObject.registerClass(
       if (!connection) {
         return;
       }
-      let message = `[j]/dispatch focuswindow address:${window['address']}`;
+      let message = `[j]/dispatch focuswindow address:${window["address"]}`;
       await sendMessage(connection, message);
       let response = await receiveMessage(connection);
       this.disconnect(connection);
 
       let obj = {
-        event: response == 'ok' ? 'success' : 'fail',
+        event: response == "ok" ? "success" : "fail",
       };
       return Promise.resolve(obj);
     }
@@ -139,20 +139,20 @@ const HyprShell = GObject.registerClass(
       if (!connection) {
         return;
       }
-      let message = `[j]/dispatch closewindow address:${window['address']}`;
+      let message = `[j]/dispatch closewindow address:${window["address"]}`;
       await sendMessage(connection, message);
       let response = await receiveMessage(connection);
       this.disconnect(connection);
 
       let obj = {
-        event: response == 'ok' ? 'success' : 'fail',
+        event: response == "ok" ? "success" : "fail",
       };
       return Promise.resolve(obj);
     }
 
-    async spawn(cmd, arg = '') {
-      cmd = cmd.replace('%U', arg);
-      cmd = cmd.replace('%u', arg);
+    async spawn(cmd, arg = "") {
+      cmd = cmd.replace("%U", arg);
+      cmd = cmd.replace("%u", arg);
 
       let connection = this.connect();
       if (!connection) {
@@ -163,7 +163,7 @@ const HyprShell = GObject.registerClass(
       this.disconnect(connection);
 
       let obj = {
-        event: response == 'ok' ? 'success' : 'fail',
+        event: response == "ok" ? "success" : "fail",
       };
       return Promise.resolve(obj);
     }

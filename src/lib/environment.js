@@ -1,8 +1,8 @@
-import Gdk from 'gi://Gdk?version=4.0';
-import Gtk from 'gi://Gtk?version=4.0';
-import GObject from 'gi://GObject';
-import Gio from 'gi://Gio';
-import * as SignalTracker from './signalTracker.js';
+import Gdk from "gi://Gdk?version=4.0";
+import Gtk from "gi://Gtk?version=4.0";
+import GObject from "gi://GObject";
+import Gio from "gi://Gio";
+import * as SignalTracker from "./signalTracker.js";
 
 Math.clamp = function (x, lower, upper) {
   return Math.min(Math.max(x, lower), upper);
@@ -69,13 +69,13 @@ GObject.Object.prototype.load_settings = function (
     settings.disconnectObject(this);
   }
   settingsMap = settingsMap ?? this.settingsMap ?? {};
-  prefix = prefix ?? this.settingsPrefix ?? this.name?.toLowerCase() ?? '';
+  prefix = prefix ?? this.settingsPrefix ?? this.name?.toLowerCase() ?? "";
   Object.keys(settingsMap).forEach((k) => {
     let _key = k;
-    if (prefix != '') {
-      _key = _key.replace(`${prefix}-`, '');
+    if (prefix != "") {
+      _key = _key.replace(`${prefix}-`, "");
     }
-    _key = _key.replaceAll('-', '_').toUpperCase();
+    _key = _key.replaceAll("-", "_").toUpperCase();
     try {
       this[_key] = settings.getSetting(k);
     } catch (err) {

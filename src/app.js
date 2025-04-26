@@ -1,12 +1,12 @@
-'use strict';
+"use strict";
 
-import Gdk from 'gi://Gdk?version=4.0';
-import Gtk from 'gi://Gtk?version=4.0';
-import Gio from 'gi://Gio';
-import GLib from 'gi://GLib';
-import GObject from 'gi://GObject';
+import Gdk from "gi://Gdk?version=4.0";
+import Gtk from "gi://Gtk?version=4.0";
+import Gio from "gi://Gio";
+import GLib from "gi://GLib";
+import GObject from "gi://GObject";
 
-const SETTINGS_PATH = `${GLib.getenv('HOME')}/.config/gws/settings.json`;
+const SETTINGS_PATH = `${GLib.getenv("HOME")}/.config/gws/settings.json`;
 
 // load and init extensions
 async function loadModule(moduleName) {
@@ -22,21 +22,21 @@ async function loadModule(moduleName) {
 const App = GObject.registerClass(
   {
     Signals: {
-      'modules-loaded': {},
+      "modules-loaded": {},
       ready: {},
     },
   },
   class App extends Gtk.Application {
     _init(params) {
       super._init({
-        application_id: 'com.github.icedman.gjs-wayland-shell',
-        ...params
+        application_id: "com.github.icedman.gjs-wayland-shell",
+        ...params,
       });
 
-      this.connect('activate', () => {
+      this.connect("activate", () => {
         this.appWindow = new Gtk.ApplicationWindow({
           application: this,
-          title: 'Preferences',
+          title: "Preferences",
           default_width: 400,
           default_height: 300,
         });
@@ -56,7 +56,7 @@ const App = GObject.registerClass(
 
       // Connect the callback to monitor the file for changes
       this.monitor.connectObject(
-        'changed',
+        "changed",
         (monitor, file, otherFile, eventType) => {
           if (eventType != Gio.FileMonitorEvent.CHANGED) return;
           this.loadCustomSettings(true);
@@ -95,17 +95,17 @@ const App = GObject.registerClass(
       ];
 
       let _loadExtensions = [
-        ...this.loadExtensions('./extensions'),
-        ...this.loadExtensions('./user-extensions'),
+        ...this.loadExtensions("./extensions"),
+        ...this.loadExtensions("./user-extensions"),
       ];
 
       // boot up
       Promise.all(_loadExtensions)
         .then((res) => {
           this.loadStyleSheets();
-          this.emit('modules-loaded');
+          this.emit("modules-loaded");
           this.enableModules();
-          this.emit('ready');
+          this.emit("ready");
         })
         .catch((err) => {
           console.log(err);
@@ -140,8 +140,8 @@ const App = GObject.registerClass(
           if (emit_update) {
             Object.keys(Main.userSettings).forEach((k) => {
               if (
-                JSON.stringify(Main.userSettings[k] ?? '') !=
-                JSON.stringify(prevSettings[k] ?? '')
+                JSON.stringify(Main.userSettings[k] ?? "") !=
+                JSON.stringify(prevSettings[k] ?? "")
               ) {
                 Main.settings.emit(`changed::${k}`, null);
               }
@@ -166,7 +166,7 @@ const App = GObject.registerClass(
 
         // Enumerate the files
         let enumerator = directory.enumerate_children(
-          'standard::name,standard::type',
+          "standard::name,standard::type",
           Gio.FileQueryInfoFlags.NONE,
           null,
         );
@@ -180,12 +180,12 @@ const App = GObject.registerClass(
             let extensionPath = GLib.build_filenamev([directoryPath, fileName]);
             let extensionFilePath = GLib.build_filenamev([
               extensionPath,
-              'extension.js',
+              "extension.js",
             ]);
 
             let extensionCssFilePath = GLib.build_filenamev([
               extensionPath,
-              'style.css',
+              "style.css",
             ]);
 
             // console.log('====================');
@@ -243,8 +243,8 @@ const App = GObject.registerClass(
       });
 
       Main.style.loadCssFile(
-        'user',
-        `${GLib.getenv('HOME')}/.config/gws/style.css`,
+        "user",
+        `${GLib.getenv("HOME")}/.config/gws/style.css`,
       );
     }
   },

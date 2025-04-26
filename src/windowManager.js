@@ -1,8 +1,8 @@
-import { WindowManagerInterface } from './compositors/wmInterface.js';
-import NiriShell from './compositors/niri.js';
-import HyprShell from './compositors/hyprland.js';
-import SwayShell from './compositors/sway.js';
-import DwlShell from './compositors/dwl.js';
+import { WindowManagerInterface } from "./compositors/wmInterface.js";
+import NiriShell from "./compositors/niri.js";
+import HyprShell from "./compositors/hyprland.js";
+import SwayShell from "./compositors/sway.js";
+import DwlShell from "./compositors/dwl.js";
 
 function WindowManagerService(wm) {
   let supportedWM = {

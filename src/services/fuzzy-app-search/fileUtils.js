@@ -1,5 +1,5 @@
-import GLib from 'gi://GLib';
-import Gio from 'gi://Gio';
+import GLib from "gi://GLib";
+import Gio from "gi://Gio";
 
 /**
  * Return a Promise that resolves with the contents of a file or a default

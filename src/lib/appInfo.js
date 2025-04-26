@@ -1,8 +1,8 @@
-import Gdk from 'gi://Gdk?version=4.0';
-import Gtk from 'gi://Gtk?version=4.0';
-import GLib from 'gi://GLib';
-import Gio from 'gi://Gio';
-import GObject from 'gi://GObject';
+import Gdk from "gi://Gdk?version=4.0";
+import Gtk from "gi://Gtk?version=4.0";
+import GLib from "gi://GLib";
+import Gio from "gi://Gio";
+import GObject from "gi://GObject";
 
 const appRegistry = {};
 
@@ -12,16 +12,16 @@ function getAppInfo(app) {
   }
   let appInfo = app;
 
-  if (appInfo && typeof appInfo === 'string') {
+  if (appInfo && typeof appInfo === "string") {
     if (appRegistry[appInfo]) {
       return appRegistry[appInfo];
     }
     let desktopAppInfo = Gio.DesktopAppInfo.new(app);
     if (desktopAppInfo) {
       let id = desktopAppInfo.get_id();
-      let icon_name = desktopAppInfo.get_string('Icon');
-      let name = desktopAppInfo.get_string('Name');
-      let exec = (desktopAppInfo.get_string('Exec') ?? '').trim();
+      let icon_name = desktopAppInfo.get_string("Icon");
+      let name = desktopAppInfo.get_string("Name");
+      let exec = (desktopAppInfo.get_string("Exec") ?? "").trim();
       appInfo = {
         id,
         name,
@@ -43,20 +43,20 @@ function getAppInfo(app) {
     appInfo.menu = getAppInfoMenu(appInfo);
   }
 
-  appInfo['should_show'] = appInfo['should_show'] ?? (() => true);
-  appInfo['display_name'] = appInfo['display_name'] ?? appInfo['name'];
-  appInfo['description'] = appInfo['description'] ?? appInfo['name'];
-  appInfo['title'] = appInfo['title'] ?? appInfo['description'];
-  appInfo['keywords'] = appInfo['keywords'] ?? appInfo['name'];
-  appInfo['exec'] = appInfo['exec'] ?? appInfo['id'];
+  appInfo["should_show"] = appInfo["should_show"] ?? (() => true);
+  appInfo["display_name"] = appInfo["display_name"] ?? appInfo["name"];
+  appInfo["description"] = appInfo["description"] ?? appInfo["name"];
+  appInfo["title"] = appInfo["title"] ?? appInfo["description"];
+  appInfo["keywords"] = appInfo["keywords"] ?? appInfo["name"];
+  appInfo["exec"] = appInfo["exec"] ?? appInfo["id"];
   Object.keys(appInfo).forEach((k) => {
-    if (typeof appInfo[k] != 'function') {
+    if (typeof appInfo[k] != "function") {
       appInfo[`get_${k}`] = () => {
         return appInfo[k];
       };
     }
   });
-  appInfo['get_executable'] = appInfo['get_exec'];
+  appInfo["get_executable"] = appInfo["get_exec"];
 
   appRegistry[appInfo.id] = appInfo;
   return appInfo;
@@ -77,7 +77,7 @@ function getAppInfoMenu(appInfo) {
     // },
   ];
 
-  let desktopAppInfo = Gio.DesktopAppInfo.new(appInfo.id ?? 'xxx');
+  let desktopAppInfo = Gio.DesktopAppInfo.new(appInfo.id ?? "xxx");
   if (!desktopAppInfo) {
     return items;
   }
@@ -90,7 +90,7 @@ function getAppInfoMenu(appInfo) {
     return null;
   }
 
-  let lines = String.fromCharCode.apply(null, content).split('\n');
+  let lines = String.fromCharCode.apply(null, content).split("\n");
 
   // console.log(lines);
   desktopAppInfo.list_actions().forEach((action) => {
@@ -102,11 +102,11 @@ function getAppInfoMenu(appInfo) {
       if (line.includes(`${action}]`)) {
         nextExec = true;
       }
-      if (nextExec && line.startsWith('Exec')) {
+      if (nextExec && line.startsWith("Exec")) {
         exec = line
-          .replace('Exec=', '')
-          .replace('%U', '')
-          .replace('%u', '')
+          .replace("Exec=", "")
+          .replace("%U", "")
+          .replace("%u", "")
           .trim();
         break;
       }

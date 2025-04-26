@@ -1,8 +1,8 @@
-import * as fileUtils from './fileUtils.js';
-import metadata from './metadata.js';
+import * as fileUtils from "./fileUtils.js";
+import metadata from "./metadata.js";
 
-import GLib from 'gi://GLib';
-import Gio from 'gi://Gio';
+import GLib from "gi://GLib";
+import Gio from "gi://Gio";
 
 const getCacheDir = () => {
   // const cacheDir = `${GLib.get_user_cache_dir()}/${metadata.uuid}/${
@@ -10,7 +10,7 @@ const getCacheDir = () => {
   // }`;
   // GLib.mkdir_with_parents(`${cacheDir}`, 0o774);
   // return cacheDir;
-  return '/tmp';
+  return "/tmp";
 };
 
 const sortObj = (obj, criterion = (key) => key) => {
@@ -68,7 +68,7 @@ export class Index {
     GLib.mkdir_with_parents(`${this.indexPath}/known`, 0o774);
 
     this.loadTokenScorePromise = fileUtils
-      .readFileOr(`${this.indexPath}/tokenScores.json`, '{}')
+      .readFileOr(`${this.indexPath}/tokenScores.json`, "{}")
       .then(async (contents) => {
         try {
           this.tokenScores = JSON.parse(contents);

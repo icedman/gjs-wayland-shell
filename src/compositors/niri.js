@@ -1,7 +1,7 @@
-import Gio from 'gi://Gio';
-import GLib from 'gi://GLib';
-import GObject from 'gi://GObject';
-import { WindowManagerInterface } from './wmInterface.js';
+import Gio from "gi://Gio";
+import GLib from "gi://GLib";
+import GObject from "gi://GObject";
+import { WindowManagerInterface } from "./wmInterface.js";
 
 import {
   connectToSocket,
@@ -9,20 +9,20 @@ import {
   disconnectSocket,
   sendMessage,
   receiveMessage,
-} from '../lib/ipc.js';
+} from "../lib/ipc.js";
 
 const NiriShell = GObject.registerClass(
   class NiriShell extends WindowManagerInterface {
     _init() {
       super._init();
-      this.name = 'NIRI';
+      this.name = "NIRI";
     }
 
     isAvailable() {
       try {
         let [success, output] = GLib.spawn_sync(
           null, // Working directory
-          ['pgrep', '-x', 'niri'], // Command to check process
+          ["pgrep", "-x", "niri"], // Command to check process
           null, // Environment
           GLib.SpawnFlags.SEARCH_PATH,
           null, // Child setup
@@ -40,7 +40,7 @@ const NiriShell = GObject.registerClass(
     parseMessage(msg) {
       let res = [];
 
-      let lines = msg.trim().split('\n');
+      let lines = msg.trim().split("\n");
       lines.forEach((l) => {
         let obj = null;
         try {
@@ -51,42 +51,42 @@ const NiriShell = GObject.registerClass(
           return;
         }
 
-        if (obj['WindowsChanged']) {
-          this.windows = obj['WindowsChanged']['windows'];
+        if (obj["WindowsChanged"]) {
+          this.windows = obj["WindowsChanged"]["windows"];
           this.normalizeWindows();
           res.push({
-            event: 'windows-update',
+            event: "windows-update",
             windows: this.windows,
             raw: obj,
           });
           return;
         }
 
-        if (obj['WindowFocusChanged']) {
+        if (obj["WindowFocusChanged"]) {
           res.push({
-            event: 'window-focused',
+            event: "window-focused",
             window: {
-              id: obj['WindowFocusChanged']['id'],
+              id: obj["WindowFocusChanged"]["id"],
             },
             raw: obj,
           });
           return;
         }
 
-        if (obj['WindowOpenedOrChanged']) {
+        if (obj["WindowOpenedOrChanged"]) {
           res.push({
-            event: 'window-opened',
-            window: obj['WindowOpenedOrChanged']['window'],
+            event: "window-opened",
+            window: obj["WindowOpenedOrChanged"]["window"],
             raw: obj,
           });
           return;
         }
 
-        if (obj['WindowClosed']) {
+        if (obj["WindowClosed"]) {
           res.push({
-            event: 'window-closed',
+            event: "window-closed",
             window: {
-              id: obj['WindowClosed']['id'],
+              id: obj["WindowClosed"]["id"],
               raw: obj,
             },
           });
@@ -100,7 +100,7 @@ const NiriShell = GObject.registerClass(
 
         // return generic success event
         res.push({
-          event: 'success',
+          event: "success",
           window: {},
           raw: obj,
         });
@@ -140,11 +140,11 @@ const NiriShell = GObject.registerClass(
       this.disconnect(connection);
 
       let obj = JSON.parse(response);
-      if (obj['Ok']) {
-        this.windows = obj['Ok']['Windows'];
+      if (obj["Ok"]) {
+        this.windows = obj["Ok"]["Windows"];
         this.normalizeWindows();
         obj = {
-          event: 'windows-update',
+          event: "windows-update",
           windows: this.windows,
           raw: obj,
         };
@@ -154,7 +154,7 @@ const NiriShell = GObject.registerClass(
     }
 
     async focusWindow(window) {
-      if (!window || !window['id']) return;
+      if (!window || !window["id"]) return;
 
       // console.log(window);
 
@@ -164,8 +164,8 @@ const NiriShell = GObject.registerClass(
       }
 
       let message =
-        JSON.stringify({ Action: { FocusWindow: { id: window['id'] } } }) +
-        '\n';
+        JSON.stringify({ Action: { FocusWindow: { id: window["id"] } } }) +
+        "\n";
       await sendMessage(connection, message);
       let response = await receiveMessage(connection);
       this.disconnect(connection);
@@ -178,7 +178,7 @@ const NiriShell = GObject.registerClass(
     }
 
     async closeWindow(window) {
-      if (!window || !window['id']) return;
+      if (!window || !window["id"]) return;
 
       // console.log(window);
 
@@ -188,8 +188,8 @@ const NiriShell = GObject.registerClass(
       }
 
       let message =
-        JSON.stringify({ Action: { CloseWindow: { id: window['id'] } } }) +
-        '\n';
+        JSON.stringify({ Action: { CloseWindow: { id: window["id"] } } }) +
+        "\n";
       await sendMessage(connection, message);
       let response = await receiveMessage(connection);
       this.disconnect(connection);
@@ -201,17 +201,17 @@ const NiriShell = GObject.registerClass(
       return Promise.resolve(obj);
     }
 
-    async spawn(cmd, arg = '') {
-      cmd = cmd.replace('%U', arg);
-      cmd = cmd.replace('%u', arg);
+    async spawn(cmd, arg = "") {
+      cmd = cmd.replace("%U", arg);
+      cmd = cmd.replace("%u", arg);
 
       let connection = this.connect();
       if (!connection) {
         return;
       }
       let message =
-        JSON.stringify({ Action: { Spawn: { command: cmd.split(' ') } } }) +
-        '\n';
+        JSON.stringify({ Action: { Spawn: { command: cmd.split(" ") } } }) +
+        "\n";
       await sendMessage(connection, message);
       let response = await receiveMessage(connection);
       this.disconnect(connection);
@@ -230,7 +230,7 @@ const NiriShell = GObject.registerClass(
       }
       let message =
         JSON.stringify({ Action: { Quit: { skip_confirmation: false } } }) +
-        '\n';
+        "\n";
       await sendMessage(connection, message);
       return Promise.resolve(true);
     }

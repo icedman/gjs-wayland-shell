@@ -1,12 +1,12 @@
-import Gdk from 'gi://Gdk?version=4.0';
-import Gtk from 'gi://Gtk?version=4.0';
-import GLib from 'gi://GLib';
-import Gio from 'gi://Gio';
-import GObject from 'gi://GObject';
-import { Extension } from '../../lib/extensionInterface.js';
-import { PopupMenu } from '../../lib/popupMenu.js';
-import { IconGroups } from '../../lib/dock.js';
-import { getAppInfo, getAppInfoFromFile } from '../../lib/appInfo.js';
+import Gdk from "gi://Gdk?version=4.0";
+import Gtk from "gi://Gtk?version=4.0";
+import GLib from "gi://GLib";
+import Gio from "gi://Gio";
+import GObject from "gi://GObject";
+import { Extension } from "../../lib/extensionInterface.js";
+import { PopupMenu } from "../../lib/popupMenu.js";
+import { IconGroups } from "../../lib/dock.js";
+import { getAppInfo, getAppInfoFromFile } from "../../lib/appInfo.js";
 
 function add_dock_item(dockItem, target = null) {
   target = target ?? Main.dock.center;
@@ -26,27 +26,27 @@ const DockItemsExtension = GObject.registerClass(
   class DockItemsExtension extends Extension {
     enable() {
       super.enable();
-      Main.factory.registerProvider('apps', this.createAppsItem.bind(this));
-      Main.factory.registerProvider('trash', this.createTrashItem.bind(this));
+      Main.factory.registerProvider("apps", this.createAppsItem.bind(this));
+      Main.factory.registerProvider("trash", this.createTrashItem.bind(this));
       Main.factory.registerProvider(
-        'favorite_apps',
+        "favorite_apps",
         this.createFavoritesItem.bind(this),
       );
       Main.factory.registerProvider(
-        'running_apps',
+        "running_apps",
         this.createRunningApps.bind(this),
       );
       Main.factory.registerProvider(
-        'mounted_volumes',
+        "mounted_volumes",
         this.createMountedVolumes.bind(this),
       );
     }
 
     createAppsItem(config) {
       let appInfo = {
-        id: 'apps',
-        icon_name: 'view-app-grid-symbolic',
-        title: 'Apps',
+        id: "apps",
+        icon_name: "view-app-grid-symbolic",
+        title: "Apps",
         script: () => {
           Main.appsGrid.toggle();
         },
@@ -58,19 +58,19 @@ const DockItemsExtension = GObject.registerClass(
 
     createTrashItem(config) {
       let appInfo = {
-        id: 'trash',
-        icon_name: 'user-trash',
-        title: 'Trash',
+        id: "trash",
+        icon_name: "user-trash",
+        title: "Trash",
         exec: `nautilus --select trash:///`,
         menu: [
           {
-            action: 'open',
-            name: 'Open Window',
-            exec: 'nautilus --select trash:///',
+            action: "open",
+            name: "Open Window",
+            exec: "nautilus --select trash:///",
           },
           {
-            action: 'empty',
-            name: 'Empty Trash',
+            action: "empty",
+            name: "Empty Trash",
             exec: `gio trash --empty`,
           },
         ],
@@ -78,18 +78,18 @@ const DockItemsExtension = GObject.registerClass(
       let trash = Main.dock.create_dockitem_from_appinfo(appInfo);
       trash.group = IconGroups.TAIL + 1;
       Main.trash.connectObject(
-        'trash-update',
+        "trash-update",
         () => {
           let state = Main.trash.state;
           if (state.full) {
-            trash.set_icon('user-trash-full');
+            trash.set_icon("user-trash-full");
           } else {
-            trash.set_icon('user-trash');
+            trash.set_icon("user-trash");
           }
         },
         trash,
       );
-      trash.connect('destroy', () => {
+      trash.connect("destroy", () => {
         Main.trash.disconnectObject(trash);
       });
       Main.trash.sync();
@@ -97,23 +97,23 @@ const DockItemsExtension = GObject.registerClass(
     }
 
     createSeparator(config) {
-      let item = new Gtk.Separator({ name: 'separator' });
+      let item = new Gtk.Separator({ name: "separator" });
       item.group = IconGroups.SEPARATOR;
-      item.add_css_class('separator');
+      item.add_css_class("separator");
       return item;
     }
 
     createFavoritesItem(config) {
       let item = new Gtk.Box({ visible: false }); // placeholder
       item.set_size_request(1, 1);
-      item.favorite_apps = Main.userSettings['favorite-apps'];
+      item.favorite_apps = Main.userSettings["favorite-apps"];
 
       if (!item.favorite_apps) {
         const settingsShell = new Gio.Settings({
-          schema_id: 'org.gnome.shell',
+          schema_id: "org.gnome.shell",
         });
         item.favorite_apps = settingsShell
-          .get_value('favorite-apps')
+          .get_value("favorite-apps")
           .deepUnpack();
       }
 
@@ -148,11 +148,11 @@ const DockItemsExtension = GObject.registerClass(
         dock.sort_icons();
       }
 
-      item.connect('show', () => {
+      item.connect("show", () => {
         update_favorite_apps();
       });
 
-      item.connect('destroy', () => {
+      item.connect("destroy", () => {
         let container = item.parent;
         let dock = item.root;
         let currentIcons = dock.get_icons(IconGroups.FAVORITE_APPS, container);
@@ -185,7 +185,7 @@ const DockItemsExtension = GObject.registerClass(
         windows.forEach((w) => {
           if (!w.app_id) return;
 
-          let appId = w.app_id + '.desktop';
+          let appId = w.app_id + ".desktop";
           appIds.push(appId);
 
           if (
@@ -220,7 +220,7 @@ const DockItemsExtension = GObject.registerClass(
       }
 
       Main.shell.connectObject(
-        'windows-update',
+        "windows-update",
         () => {
           update_running_apps();
         },
@@ -229,11 +229,11 @@ const DockItemsExtension = GObject.registerClass(
         item,
       );
 
-      item.connect('show', () => {
+      item.connect("show", () => {
         update_running_apps();
       });
 
-      item.connect('destroy', () => {
+      item.connect("destroy", () => {
         let container = item.parent;
         let dock = item.root;
         let currentIcons = dock.get_icons(IconGroups.RUNNING_APPS, container);
@@ -295,7 +295,7 @@ const DockItemsExtension = GObject.registerClass(
       update_mounted_volumes();
 
       Main.mounts.connectObject(
-        'mounts-update',
+        "mounts-update",
         () => {
           update_mounted_volumes();
         },
@@ -303,11 +303,11 @@ const DockItemsExtension = GObject.registerClass(
       );
       Main.mounts.sync();
 
-      item.connect('show', () => {
+      item.connect("show", () => {
         update_mounted_volumes();
       });
 
-      item.connect('destroy', () => {
+      item.connect("destroy", () => {
         let container = item.parent;
         let dock = item.root;
         let currentIcons = dock.get_icons(IconGroups.VOLUMES, container);

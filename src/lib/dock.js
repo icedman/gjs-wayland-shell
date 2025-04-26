@@ -1,18 +1,18 @@
-import Gdk from 'gi://Gdk?version=4.0';
-import Gtk from 'gi://Gtk?version=4.0';
-import Gsk from 'gi://Gsk';
-import GLib from 'gi://GLib';
-import Gio from 'gi://Gio';
-import GObject from 'gi://GObject';
-import LayerShell from 'gi://Gtk4LayerShell';
-import { PopupMenu } from './popupMenu.js';
-import { Dot } from './dot.js';
-import { Extension } from './extensionInterface.js';
-import { getAppInfo, getAppInfoFromFile } from './appInfo.js';
-import { pointInRectangle, distanceToRectangle } from './collisions.js';
-import { pointerInWindow, getModifierStates } from './devices.js';
+import Gdk from "gi://Gdk?version=4.0";
+import Gtk from "gi://Gtk?version=4.0";
+import Gsk from "gi://Gsk";
+import GLib from "gi://GLib";
+import Gio from "gi://Gio";
+import GObject from "gi://GObject";
+import LayerShell from "gi://Gtk4LayerShell";
+import { PopupMenu } from "./popupMenu.js";
+import { Dot } from "./dot.js";
+import { Extension } from "./extensionInterface.js";
+import { getAppInfo, getAppInfoFromFile } from "./appInfo.js";
+import { pointInRectangle, distanceToRectangle } from "./collisions.js";
+import { pointerInWindow, getModifierStates } from "./devices.js";
 
-import { DockItem, DockAppItem } from './dockItem.js';
+import { DockItem, DockAppItem } from "./dockItem.js";
 
 const baseScale = 1.55;
 const scaleDownContainer = 0.75;
@@ -32,23 +32,23 @@ export const IconGroups = {
 };
 
 const appIndicatorStyles = [
-  '',
-  'dots',
-  'dot',
-  'dashes',
-  'dash',
-  'squares',
-  'square',
-  'segmented',
-  'solid',
-  'triangles',
-  'triangle',
-  'diamonds',
-  'diamond',
-  'binary',
+  "",
+  "dots",
+  "dot",
+  "dashes",
+  "dash",
+  "squares",
+  "square",
+  "segmented",
+  "solid",
+  "triangles",
+  "triangle",
+  "diamonds",
+  "diamond",
+  "binary",
 ];
 
-const dockLocation = ['bottom', 'left', 'right', 'top'];
+const dockLocation = ["bottom", "left", "right", "top"];
 const dockEdge = [
   LayerShell.Edge.BOTTOM,
   LayerShell.Edge.LEFT,
@@ -83,7 +83,7 @@ export const DockPanel = GObject.registerClass(
         default_height: 20,
         ...params,
       });
-      this.add_css_class('startup');
+      this.add_css_class("startup");
 
       this.style = Main.style;
       this.decorated = false;
@@ -95,19 +95,19 @@ export const DockPanel = GObject.registerClass(
       LayerShell.set_layer(this, LayerShell.Layer.TOP);
 
       this.container = new Gtk.Box({
-        name: 'container',
+        name: "container",
         hexpand: true,
         vexpand: true,
       });
       this.center = new Gtk.Box({
-        name: 'center',
+        name: "center",
         hexpand: false,
         vexpand: false,
       });
-      this.center.add_css_class('icons-container');
-      this.lead = new Gtk.Box({ name: 'lead', hexpand: false, vexpand: false });
+      this.center.add_css_class("icons-container");
+      this.lead = new Gtk.Box({ name: "lead", hexpand: false, vexpand: false });
       this.trail = new Gtk.Box({
-        name: 'trail',
+        name: "trail",
         hexpand: false,
         vexpand: false,
       });
@@ -119,12 +119,12 @@ export const DockPanel = GObject.registerClass(
       this.center.halign = Gtk.Align.CENTER;
       this.trail.halign = Gtk.Align.END;
       this.leadSpacer = new Gtk.Box({
-        name: 'spacer',
+        name: "spacer",
         hexpand: true,
         vexpand: true,
       });
       this.trailSpacer = new Gtk.Box({
-        name: 'spacer',
+        name: "spacer",
         hexpand: true,
         vexpand: true,
       });
@@ -177,7 +177,7 @@ export const DockPanel = GObject.registerClass(
         [`${prefix}-items-trail`]: this.update_items.bind(this),
       };
 
-      if (this.name == 'Dock') {
+      if (this.name == "Dock") {
         this.settingsMap = {
           ...this.settingsMap,
           [`${prefix}-show-separator`]: this.update_dock_items.bind(this),
@@ -193,28 +193,28 @@ export const DockPanel = GObject.registerClass(
 
       {
         const motionController = new Gtk.EventControllerMotion();
-        motionController.connect('motion', (controller, x, y) => {
+        motionController.connect("motion", (controller, x, y) => {
           this._beginAnimation();
         });
         this.center.add_controller(motionController);
       }
       {
         const motionController = new Gtk.EventControllerMotion();
-        motionController.connect('motion', (controller, x, y) => {
+        motionController.connect("motion", (controller, x, y) => {
           this._unhide();
         });
         this.add_controller(motionController);
       }
 
       Main.shell.connectObject(
-        'windows-update',
+        "windows-update",
         () => {
           this.update_indicators();
         },
         this,
       );
       Main.shell.connectObject(
-        'window-focused',
+        "window-focused",
         () => {
           this.update_indicators();
         },
@@ -222,7 +222,7 @@ export const DockPanel = GObject.registerClass(
       );
 
       Main.factory.connectObject(
-        'registry-update',
+        "registry-update",
         () => {
           this.update_items();
         },
@@ -230,7 +230,7 @@ export const DockPanel = GObject.registerClass(
       );
 
       Main.monitors.connectObject(
-        'monitors-update',
+        "monitors-update",
         () => {
           this.update_animation();
         },
@@ -263,9 +263,9 @@ export const DockPanel = GObject.registerClass(
       let trailSpacer = this.trailSpacer.get_allocation();
       let trail = this.trail.get_allocation();
 
-      let which = 'width';
+      let which = "width";
       if (this.orientation == Gtk.Orientation.VERTICAL) {
-        which = 'height';
+        which = "height";
         width = height;
       }
       let leadSpace = width / 2 - center[which] / 2 - lead[which];
@@ -396,9 +396,9 @@ export const DockPanel = GObject.registerClass(
       }
       LayerShell.set_margin(this, dockEdge[this.LOCATION], edge);
 
-      this.container.remove_css_class('autohide');
+      this.container.remove_css_class("autohide");
       if (this.ENABLE_AUTOHIDE) {
-        this.container.add_css_class('autohide');
+        this.container.add_css_class("autohide");
         LayerShell.set_exclusive_zone(this, this.get_icon_size() / 8);
       } else if (
         this.ENABLE_ANIMATION &&
@@ -419,7 +419,7 @@ export const DockPanel = GObject.registerClass(
       this.queue_resize();
       this.set_visible(this.SHOW);
 
-      this.remove_css_class('startup');
+      this.remove_css_class("startup");
     }
 
     async update_style() {
@@ -440,9 +440,9 @@ export const DockPanel = GObject.registerClass(
       {
         let ss = [];
         if (foregroundColor[3] > 0) {
-          ss.push(`color: rgba(${foregroundColor.join(',')});`);
+          ss.push(`color: rgba(${foregroundColor.join(",")});`);
         }
-        styles.push(`#${windowName} * { ${ss.join(' ')}}`);
+        styles.push(`#${windowName} * { ${ss.join(" ")}}`);
       }
 
       if (panelMode) {
@@ -450,30 +450,30 @@ export const DockPanel = GObject.registerClass(
           let ss = [];
           let pad = Math.floor(padding * 10);
           ss.push(`padding: ${pad}px;`);
-          ss.push(`border: ${border}px solid rgba(${borderColor.join(',')});`);
+          ss.push(`border: ${border}px solid rgba(${borderColor.join(",")});`);
           if (backgroundColor[3] > 0) {
-            ss.push(`background: rgba(${backgroundColor.join(',')});`);
+            ss.push(`background: rgba(${backgroundColor.join(",")});`);
           }
-          styles.push(`#${windowName} #container { ${ss.join(' ')}}`);
+          styles.push(`#${windowName} #container { ${ss.join(" ")}}`);
         }
       } else {
         {
           let ss = [];
           let pad = Math.floor(this.PADDING * 10);
           ss.push(`padding: ${pad}px;`);
-          ss.push(`border: ${border}px solid rgba(${borderColor.join(',')});`);
+          ss.push(`border: ${border}px solid rgba(${borderColor.join(",")});`);
           // ss.push(`border: 2px solid red;`);
           if (backgroundColor[3] > 0) {
-            ss.push(`background: rgba(${backgroundColor.join(',')});`);
+            ss.push(`background: rgba(${backgroundColor.join(",")});`);
           }
-          styles.push(`#${windowName} .icons-container { ${ss.join(' ')}}`);
+          styles.push(`#${windowName} .icons-container { ${ss.join(" ")}}`);
         }
 
         {
           let ss = [];
           ss.push(`border-radius: ${borderRadius}px;`);
-          styles.push(`#${windowName} .icons-container { ${ss.join(' ')}}`);
-          styles.push(`#${windowName} #container { ${ss.join(' ')}}`);
+          styles.push(`#${windowName} .icons-container { ${ss.join(" ")}}`);
+          styles.push(`#${windowName} #container { ${ss.join(" ")}}`);
           // if (this.lead.get_first_child()) {
           //   styles.push(`#${windowName} #lead { ${ss.join(' ')}}`);
           // }
@@ -487,7 +487,7 @@ export const DockPanel = GObject.registerClass(
       {
         let ss = [];
         ss.push(`border-radius: ${Math.floor(borderRadius * 0.6)}px;`);
-        styles.push(`#${windowName}Item .button { ${ss.join(' ')}}`);
+        styles.push(`#${windowName}Item .button { ${ss.join(" ")}}`);
       }
 
       // shadow
@@ -508,9 +508,9 @@ export const DockPanel = GObject.registerClass(
       if (this.ENABLE_ANIMATION && animatedLocations.includes(this.LOCATION)) {
         let transitionStyle = `0.15s ease-in-out`;
 
-        let translateFunc = 'translateY';
-        let marginLeft = 'margin-left';
-        let marginRight = 'margin-right';
+        let translateFunc = "translateY";
+        let marginLeft = "margin-left";
+        let marginRight = "margin-right";
         let baseY = iconSize * 0.12;
         const baseMargin = iconSize * 0.3;
 
@@ -520,13 +520,13 @@ export const DockPanel = GObject.registerClass(
         }
         // if vertical
         if (this.orientation == Gtk.Orientation.VERTICAL) {
-          translateFunc = 'translateX';
-          marginLeft = 'margin-top';
+          translateFunc = "translateX";
+          marginLeft = "margin-top";
           n;
-          marginRight = 'margin-bottom';
+          marginRight = "margin-bottom";
         }
 
-        this.center.add_css_class('animated-container');
+        this.center.add_css_class("animated-container");
         let transforms = [
           { scale: baseScale, y: -baseY, margin: baseMargin },
           { scale: baseScale * 0.9, y: -baseY * 0.9, margin: baseMargin * 0.9 },
@@ -564,7 +564,7 @@ export const DockPanel = GObject.registerClass(
           `#${windowName} #container .animated-container .button-adjacent-2 { ${marginLeft}: ${transforms[2].margin}px; ${marginRight}: ${transforms[2].margin}px; }`,
         );
       } else {
-        this.center.remove_css_class('animated-container');
+        this.center.remove_css_class("animated-container");
       }
 
       // autohide
@@ -573,12 +573,12 @@ export const DockPanel = GObject.registerClass(
           let transitionStyle = `0.25s ease-in-out`;
           let hideDistance = iconSize * 1.2;
           let offset = `translateY(${hideDistance}px)`;
-          if (dockLocation[this.LOCATION] == 'top') {
+          if (dockLocation[this.LOCATION] == "top") {
             offset = `translateY(-${hideDistance}px)`;
           }
           if (this.orientation == Gtk.Orientation.VERTICAL) {
             offset = `translateX(${hideDistance}px)`;
-            if (dockLocation[this.LOCATION] == 'left') {
+            if (dockLocation[this.LOCATION] == "left") {
               offset = `translateX(-${hideDistance}px)`;
             }
           }
@@ -586,7 +586,7 @@ export const DockPanel = GObject.registerClass(
           let ss = [];
           ss.push(`transition: transform ${transitionStyle};`);
           ss.push(`transform: ${offset};`);
-          styles.push(`#${windowName} #container.autohide { ${ss.join(' ')}}`);
+          styles.push(`#${windowName} #container.autohide { ${ss.join(" ")}}`);
           styles.push(
             `#${windowName}:hover #container.autohide { transform: none; }`,
           );
@@ -668,7 +668,7 @@ export const DockPanel = GObject.registerClass(
         (icon) => icon.visible,
       );
       for (let i = 0; i < icons.length; i++) {
-        if (icons[i] == item && icons[i].has_css_class('button-hover')) {
+        if (icons[i] == item && icons[i].has_css_class("button-hover")) {
           return; // no need to re-hover
         }
       }
@@ -680,24 +680,24 @@ export const DockPanel = GObject.registerClass(
         let alloc = icons[i].get_allocation();
         if (!alloc.width) continue;
         if (icons[i] == item) {
-          if (!icons[i].has_css_class('button-hover')) {
-            icons[i].add_css_class('button-hover');
+          if (!icons[i].has_css_class("button-hover")) {
+            icons[i].add_css_class("button-hover");
           }
         }
         if (icons[i - 1] == item) {
-          icons[i].add_css_class('button-adjacent-1');
+          icons[i].add_css_class("button-adjacent-1");
           rightMargin += 1;
         }
         if (icons[i - 2] == item) {
-          icons[i].add_css_class('button-adjacent-2');
+          icons[i].add_css_class("button-adjacent-2");
           rightMargin += 1;
         }
         if (icons[i + 1] == item) {
-          icons[i].add_css_class('button-adjacent-1');
+          icons[i].add_css_class("button-adjacent-1");
           leftMargin += 1;
         }
         if (icons[i + 2] == item) {
-          icons[i].add_css_class('button-adjacent-2');
+          icons[i].add_css_class("button-adjacent-2");
           leftMargin += 1;
         }
       }
@@ -706,9 +706,9 @@ export const DockPanel = GObject.registerClass(
     _leave() {
       let icons = this.get_icons(null, this.center);
       for (let i = 0; i < icons.length; i++) {
-        icons[i].remove_css_class('button-hover');
-        icons[i].remove_css_class('button-adjacent-1');
-        icons[i].remove_css_class('button-adjacent-2');
+        icons[i].remove_css_class("button-hover");
+        icons[i].remove_css_class("button-adjacent-1");
+        icons[i].remove_css_class("button-adjacent-2");
       }
     }
 
@@ -747,9 +747,9 @@ export const DockPanel = GObject.registerClass(
 
     update_indicators() {
       if (this.RUNNING_INDICATOR > 0) {
-        this.add_css_class('with-indicators');
+        this.add_css_class("with-indicators");
       } else {
-        this.remove_css_class('with-indicators');
+        this.remove_css_class("with-indicators");
       }
       let items = this.get_icons();
       items.forEach((item) => {
@@ -763,9 +763,9 @@ export const DockPanel = GObject.registerClass(
 
     update_items() {
       const areaMap = {
-        lead: 'ITEMS_LEAD',
-        center: 'ITEMS',
-        trail: 'ITEMS_TRAIL',
+        lead: "ITEMS_LEAD",
+        center: "ITEMS",
+        trail: "ITEMS_TRAIL",
       };
 
       try {
@@ -776,7 +776,7 @@ export const DockPanel = GObject.registerClass(
 
           let source = this[areaMap[k]] ?? [];
           source.forEach((item, idx) => {
-            if (typeof item == 'string') {
+            if (typeof item == "string") {
               item = {
                 id: item,
               };
@@ -805,7 +805,7 @@ export const DockPanel = GObject.registerClass(
                 (!icon.owner && !attachedIds.includes(icon.id)) ||
                 (icon.owner && !attachedIds.includes(icon.owner.id))
               ) {
-                icon.emit('destroy');
+                icon.emit("destroy");
                 icon.parent?.remove(icon);
               }
             });
@@ -822,28 +822,28 @@ export const DockPanel = GObject.registerClass(
     _removeDockIcons(appId) {
       let icon = this.get_icons().find((icon) => icon.id == appId);
       if (icon) {
-        icon.emit('destroy');
+        icon.emit("destroy");
         icon.parent?.remove(icon);
       }
     }
 
     update_dock_items() {
-      if (this.name != 'Dock') {
+      if (this.name != "Dock") {
         return;
       }
       let items = [];
-      if (this.SHOW_APPS) items.push('apps');
-      else this._removeDockIcons('apps');
-      if (this.SHOW_TRASH) items.push('trash');
-      else this._removeDockIcons('trash');
-      if (this.SHOW_SEPARATOR) items.push('separator');
-      else this._removeDockIcons('separator');
-      if (this.SHOW_FAVORITE_APPS) items.push('favorite_apps');
-      else this._removeDockIcons('favorite_apps');
-      if (this.SHOW_MOUNTED_VOLUMES) items.push('mounted_volumes');
-      else this._removeDockIcons('mounted_volumes');
-      if (this.SHOW_RUNNING_APPS) items.push('running_apps');
-      else this._removeDockIcons('running_apps');
+      if (this.SHOW_APPS) items.push("apps");
+      else this._removeDockIcons("apps");
+      if (this.SHOW_TRASH) items.push("trash");
+      else this._removeDockIcons("trash");
+      if (this.SHOW_SEPARATOR) items.push("separator");
+      else this._removeDockIcons("separator");
+      if (this.SHOW_FAVORITE_APPS) items.push("favorite_apps");
+      else this._removeDockIcons("favorite_apps");
+      if (this.SHOW_MOUNTED_VOLUMES) items.push("mounted_volumes");
+      else this._removeDockIcons("mounted_volumes");
+      if (this.SHOW_RUNNING_APPS) items.push("running_apps");
+      else this._removeDockIcons("running_apps");
       this.ITEMS = items;
       this.update_items();
     }

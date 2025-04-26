@@ -1,5 +1,5 @@
-import GLib from 'gi://GLib';
-import Gio from 'gi://Gio';
+import GLib from "gi://GLib";
+import Gio from "gi://Gio";
 
 // export {loadInterfaceXML} from './dbusUtils.js';
 
@@ -21,13 +21,13 @@ export function* collectFromDatadirs(subdir, includeUserDir) {
   if (includeUserDir) dataDirs.unshift(GLib.get_user_data_dir());
 
   for (let i = 0; i < dataDirs.length; i++) {
-    let path = GLib.build_filenamev([dataDirs[i], 'gnome-shell', subdir]);
+    let path = GLib.build_filenamev([dataDirs[i], "gnome-shell", subdir]);
     let dir = Gio.File.new_for_path(path);
 
     let fileEnum;
     try {
       fileEnum = dir.enumerate_children(
-        'standard::name,standard::type',
+        "standard::name,standard::type",
         Gio.FileQueryInfoFlags.NONE,
         null,
       );
@@ -60,7 +60,7 @@ export function* collectFromDatadirs2(subdir, includeUserDir) {
     let fileEnum;
     try {
       fileEnum = dir.enumerate_children(
-        'standard::name,standard::type',
+        "standard::name,standard::type",
         Gio.FileQueryInfoFlags.NONE,
         null,
       );
@@ -81,7 +81,7 @@ export function* collectFromDatadirs2(subdir, includeUserDir) {
  */
 export function recursivelyDeleteDir(dir, deleteParent) {
   let children = dir.enumerate_children(
-    'standard::name,standard::type',
+    "standard::name,standard::type",
     Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS,
     null,
   );
@@ -103,7 +103,7 @@ export function recursivelyDeleteDir(dir, deleteParent) {
  */
 export function recursivelyMoveDir(srcDir, destDir) {
   let children = srcDir.enumerate_children(
-    'standard::name,standard::type',
+    "standard::name,standard::type",
     Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS,
     null,
   );

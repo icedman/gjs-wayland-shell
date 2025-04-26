@@ -1,11 +1,11 @@
 /* -*- mode: js2; js2-basic-offset: 4; indent-tabs-mode: nil -*- */
 
-import * as indexUtils from './indexUtils.js';
-import * as scorer from './scorer.js';
-import * as tokenizer from './tokenizer.js';
-import metadata from './metadata.js';
+import * as indexUtils from "./indexUtils.js";
+import * as scorer from "./scorer.js";
+import * as tokenizer from "./tokenizer.js";
+import metadata from "./metadata.js";
 
-import Gio from 'gi://Gio';
+import Gio from "gi://Gio";
 
 // import * as Main from "resource:///org/gnome/shell/ui/main.js";
 // import * as AppDisplay from "resource:///org/gnome/shell/ui/appDisplay.js";
@@ -46,26 +46,26 @@ export class Search {
     );
 
     this.index = new indexUtils.Index(
-      'applications',
-      ['id', 'name', 'display_name', 'description', 'keywords', 'exec'],
+      "applications",
+      ["id", "name", "display_name", "description", "keywords", "exec"],
       scorer.getTokenizedScorer([
         {
-          keys: ['name', 'display_name'],
+          keys: ["name", "display_name"],
           weight: NAME_WEIGHT,
           tokenizer: stringAcronymTokenizer,
         },
         {
-          key: 'keywords',
+          key: "keywords",
           weight: KEYWORD_WEIGHT,
           tokenizer: keywordsTokenizer,
         },
         {
-          key: 'description',
+          key: "description",
           weight: DESCRIPTION_WEIGHT,
           tokenizer: stringTokenizer,
         },
         {
-          key: 'exec',
+          key: "exec",
           weight: EXEC_WEIGHT,
           tokenizer: stringTokenizer,
         },
@@ -263,7 +263,7 @@ export class Search {
   #isSystemAction(id) {
     // GNOME shell (currently) does this to check if a result is a system action, see:
     // https://gitlab.gnome.org/GNOME/gnome-shell/blob/81029c7d6cf473e30eacc1f0b6fac6daa25d328f/js/ui/appDisplay.js#L1826
-    if (id.endsWith('.desktop')) return false;
+    if (id.endsWith(".desktop")) return false;
 
     // return SYSTEM_ACTIONS._actions.has(id);
     return false;

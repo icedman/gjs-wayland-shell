@@ -2,26 +2,26 @@
 // adapted from https://github.com/micheleg/dash-to-dock
 // adapted from https://github.com/icedman/dash2dock-lite
 
-import Gdk from 'gi://Gdk?version=4.0';
-import Gtk from 'gi://Gtk?version=4.0';
-import GLib from 'gi://GLib';
-import Gio from 'gi://Gio';
-import GObject from 'gi://GObject';
-import Cairo from 'gi://cairo';
+import Gdk from "gi://Gdk?version=4.0";
+import Gtk from "gi://Gtk?version=4.0";
+import GLib from "gi://GLib";
+import Gio from "gi://Gio";
+import GObject from "gi://GObject";
+import Cairo from "gi://cairo";
 
-import { Drawing } from './drawing.js';
+import { Drawing } from "./drawing.js";
 
 export const Dot = GObject.registerClass(
   {},
   class Dot extends Gtk.DrawingArea {
     _init(x) {
       super._init({
-        name: 'dotCanvas',
+        name: "dotCanvas",
         hexpand: true,
         vexpand: true,
       });
 
-      this.add_css_class('dots');
+      this.add_css_class("dots");
 
       this.size = 200;
       this.set_draw_func(this.on_draw.bind(this));
@@ -91,7 +91,7 @@ export const Dot = GObject.registerClass(
 
       // _draw_dot...
       let func = this[`_draw_${this.state.style}`];
-      if (typeof func === 'function') {
+      if (typeof func === "function") {
         func.bind(this)(ctx, this.state);
       }
 
@@ -292,7 +292,7 @@ export const Dot = GObject.registerClass(
       let size = this.size;
       let count = 4;
       let n = Math.min(15, state.count);
-      let binaryValue = String('0000' + (n >>> 0).toString(2)).slice(-4);
+      let binaryValue = String("0000" + (n >>> 0).toString(2)).slice(-4);
 
       let height = this._barHeight + 2;
       let width = size - this._padding * 2;
@@ -308,7 +308,7 @@ export const Dot = GObject.registerClass(
 
       for (let i = 0; i < count; i++) {
         ctx.newSubPath();
-        if (binaryValue[i] == '1') {
+        if (binaryValue[i] == "1") {
           ctx.arc(
             i * dashLength + i * spacing + dashLength / 2,
             radius / 2,

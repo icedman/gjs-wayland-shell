@@ -1,12 +1,12 @@
-import GdkPixbuf from 'gi://GdkPixbuf';
-import Gio from 'gi://Gio';
-import GLib from 'gi://GLib';
+import GdkPixbuf from "gi://GdkPixbuf";
+import Gio from "gi://Gio";
+import GLib from "gi://GLib";
 // import Shell from 'gi://Shell';
 // import St from 'gi://St';
 
-import * as FileUtils from '../lib/fileUtils.js';
+import * as FileUtils from "../lib/fileUtils.js";
 
-const KEY_FILE_GROUP = 'Shell Search Provider';
+const KEY_FILE_GROUP = "Shell Search Provider";
 
 const SearchProviderIface = `
 <node>
@@ -88,14 +88,14 @@ export function loadRemoteSearchProviders(searchSettings) {
     let remoteProvider;
     try {
       let group = KEY_FILE_GROUP;
-      let busName = keyfile.get_string(group, 'BusName');
-      let objectPath = keyfile.get_string(group, 'ObjectPath');
+      let busName = keyfile.get_string(group, "BusName");
+      let objectPath = keyfile.get_string(group, "ObjectPath");
 
       if (objectPaths[objectPath]) return;
 
       let appInfo = null;
       try {
-        let desktopId = keyfile.get_string(group, 'DesktopId');
+        let desktopId = keyfile.get_string(group, "DesktopId");
         appInfo = Gio.DesktopAppInfo.new(desktopId);
         if (!appInfo.should_show()) return;
       } catch (e) {
@@ -105,14 +105,14 @@ export function loadRemoteSearchProviders(searchSettings) {
 
       let autoStart = true;
       try {
-        autoStart = keyfile.get_boolean(group, 'AutoStart');
+        autoStart = keyfile.get_boolean(group, "AutoStart");
       } catch (e) {
         // ignore error
       }
 
-      let version = '1';
+      let version = "1";
       try {
-        version = keyfile.get_string(group, 'Version');
+        version = keyfile.get_string(group, "Version");
       } catch (e) {
         // ignore error
       }
@@ -138,7 +138,7 @@ export function loadRemoteSearchProviders(searchSettings) {
       try {
         remoteProvider.defaultEnabled = !keyfile.get_boolean(
           group,
-          'DefaultDisabled',
+          "DefaultDisabled",
         );
       } catch (e) {
         // ignore error
@@ -151,15 +151,15 @@ export function loadRemoteSearchProviders(searchSettings) {
     }
   }
 
-  if (searchSettings.get_boolean('disable-external')) return [];
+  if (searchSettings.get_boolean("disable-external")) return [];
 
-  for (const { dir } of FileUtils.collectFromDatadirs('search-providers', true))
+  for (const { dir } of FileUtils.collectFromDatadirs("search-providers", true))
     loadRemoteSearchProvider(dir);
 
-  let sortOrder = searchSettings.get_strv('sort-order');
+  let sortOrder = searchSettings.get_strv("sort-order");
 
-  const disabled = searchSettings.get_strv('disabled');
-  const enabled = searchSettings.get_strv('enabled');
+  const disabled = searchSettings.get_strv("disabled");
+  const enabled = searchSettings.get_strv("enabled");
 
   loadedProviders = loadedProviders.filter((provider) => {
     let appId = provider.appInfo.get_id();
@@ -258,8 +258,8 @@ class RemoteSearchProvider {
   filterResults(results, maxNumber) {
     if (results.length <= maxNumber) return results;
 
-    let regularResults = results.filter((r) => !r.startsWith('special:'));
-    let specialResults = results.filter((r) => r.startsWith('special:'));
+    let regularResults = results.filter((r) => !r.startsWith("special:"));
+    let specialResults = results.filter((r) => r.startsWith("special:"));
 
     return regularResults
       .slice(0, maxNumber)
@@ -311,15 +311,15 @@ class RemoteSearchProvider {
     for (let i = 0; i < metas.length; i++) {
       for (let prop in metas[i]) {
         // we can use the serialized icon variant directly
-        if (prop !== 'icon') metas[i][prop] = metas[i][prop].deepUnpack();
+        if (prop !== "icon") metas[i][prop] = metas[i][prop].deepUnpack();
       }
 
       resultMetas.push({
-        id: metas[i]['id'],
-        name: metas[i]['name'],
-        description: metas[i]['description'],
+        id: metas[i]["id"],
+        name: metas[i]["name"],
+        description: metas[i]["description"],
         createIcon: (size) => this.createIcon(size, metas[i]),
-        clipboardText: metas[i]['clipboardText'],
+        clipboardText: metas[i]["clipboardText"],
       });
     }
     return resultMetas;

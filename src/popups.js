@@ -1,15 +1,15 @@
-import Gdk from 'gi://Gdk?version=4.0';
-import Gtk from 'gi://Gtk?version=4.0';
-import GLib from 'gi://GLib';
-import Gio from 'gi://Gio';
-import GObject from 'gi://GObject';
-import LayerShell from 'gi://Gtk4LayerShell';
-import { Extension } from './lib/extensionInterface.js';
+import Gdk from "gi://Gdk?version=4.0";
+import Gtk from "gi://Gtk?version=4.0";
+import GLib from "gi://GLib";
+import Gio from "gi://Gio";
+import GObject from "gi://GObject";
+import LayerShell from "gi://Gtk4LayerShell";
+import { Extension } from "./lib/extensionInterface.js";
 
 const Popups = GObject.registerClass(
   class Popups extends Extension {
     _init(params) {
-      this.name = params?.name ?? 'popups';
+      this.name = params?.name ?? "popups";
       delete params?.name;
 
       super._init({
@@ -21,7 +21,7 @@ const Popups = GObject.registerClass(
       this.style = Main.style;
       let _updateStyle = this.update_style.bind(this);
 
-      let prefix = 'popup';
+      let prefix = "popup";
       this.stylePrefix = prefix;
       this.settingsPrefix = prefix;
       this.settings = Main.settings;
@@ -51,39 +51,39 @@ const Popups = GObject.registerClass(
       let borderColor = this.style.rgba(this.BORDER_COLOR);
       let foregroundColor = this.style.rgba(this.FOREGROUND_COLOR);
       let backgroundColor = this.style.rgba(this.BACKGROUND_COLOR);
-      let windowName = 'Menu';
+      let windowName = "Menu";
 
       // color
       {
         let ss = [];
         if (foregroundColor[3] > 0) {
-          ss.push(`color: rgba(${foregroundColor.join(',')});`);
+          ss.push(`color: rgba(${foregroundColor.join(",")});`);
         }
-        styles.push(`#${windowName} * { ${ss.join(' ')} }`);
+        styles.push(`#${windowName} * { ${ss.join(" ")} }`);
       }
 
       {
         let ss = [];
         let pad = Math.floor(padding * 20);
         ss.push(`padding: ${pad}px;`);
-        ss.push(`border: ${border}px solid rgba(${borderColor.join(',')});`);
+        ss.push(`border: ${border}px solid rgba(${borderColor.join(",")});`);
         if (backgroundColor[3] > 0) {
-          ss.push(`background: rgba(${backgroundColor.join(',')});`);
+          ss.push(`background: rgba(${backgroundColor.join(",")});`);
         }
-        styles.push(`#${windowName} contents { ${ss.join(' ')} }`);
-        styles.push(`#${windowName} arrow { ${ss.join(' ')} }`);
+        styles.push(`#${windowName} contents { ${ss.join(" ")} }`);
+        styles.push(`#${windowName} arrow { ${ss.join(" ")} }`);
       }
 
       // border radius
       {
         let ss = [];
         ss.push(`border-radius: ${borderRadius}px;`);
-        styles.push(`#${windowName} contents { ${ss.join(' ')} }`);
+        styles.push(`#${windowName} contents { ${ss.join(" ")} }`);
       }
       {
         let ss = [];
         ss.push(`border-radius: ${Math.floor(borderRadius * 0.6)}px;`);
-        styles.push(`#${windowName} button { ${ss.join(' ')} }`);
+        styles.push(`#${windowName} button { ${ss.join(" ")} }`);
       }
 
       // shadow

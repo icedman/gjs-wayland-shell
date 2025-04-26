@@ -1,6 +1,6 @@
-'use strict';
+"use strict";
 
-import GLib from 'gi://GLib';
+import GLib from "gi://GLib";
 
 const Timer = class {
   constructor(name) {
@@ -214,11 +214,11 @@ const Timer = class {
 
   dumpSubscribers() {
     if (this._name) {
-      print('--------');
+      print("--------");
       print(this._name);
     }
     this._subscribers.forEach((s) => {
-      print('--------');
+      print("--------");
       Object.keys(s).forEach((k) => {
         print(`${k}: ${s[k]}`);
       });
@@ -226,13 +226,13 @@ const Timer = class {
   }
 
   runLoop(func, delay, name) {
-    if (typeof func === 'object') {
+    if (typeof func === "object") {
       func._time = 0;
       return this.subscribe(func);
     }
     let obj = {
       _name: name,
-      _type: 'loop',
+      _type: "loop",
       _time: 0,
       _delay: delay,
       _func: func,
@@ -248,13 +248,13 @@ const Timer = class {
   }
 
   runUntil(func, delay, name) {
-    if (typeof func === 'object') {
+    if (typeof func === "object") {
       func._time = 0;
       return this.subscribe(func);
     }
     let obj = {
       _name: name,
-      _type: 'until',
+      _type: "until",
       _time: 0,
       _delay: delay,
       _func: func,
@@ -272,13 +272,13 @@ const Timer = class {
   }
 
   runOnce(func, delay, name) {
-    if (typeof func === 'object') {
+    if (typeof func === "object") {
       func._time = 0;
       return this.subscribe(func);
     }
     let obj = {
       _name: name,
-      _type: 'once',
+      _type: "once",
       _time: 0,
       _delay: delay,
       _func: func,
@@ -294,13 +294,13 @@ const Timer = class {
   }
 
   runDebounced(func, delay, name) {
-    if (typeof func === 'object') {
+    if (typeof func === "object") {
       func._time = 0;
       return this.subscribe(func);
     }
     let obj = {
       _name: name,
-      _type: 'debounced',
+      _type: "debounced",
       _time: 0,
       _delay: delay,
       _func: func,
@@ -316,7 +316,7 @@ const Timer = class {
   }
 
   runSequence(array, settings) {
-    if (typeof array === 'object' && !array.length) {
+    if (typeof array === "object" && !array.length) {
       array._time = 0;
       array._currentIdx = 0;
       return this.subscribe(array);
@@ -347,7 +347,7 @@ const Timer = class {
   }
 
   runAnimation(array, settings) {
-    if (typeof func === 'object' && !array.length) {
+    if (typeof func === "object" && !array.length) {
       func._time = 0;
       return this.subscribe(func);
     }

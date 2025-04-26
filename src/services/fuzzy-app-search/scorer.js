@@ -44,7 +44,7 @@ export const getTokenizedScorer = (keyWeights) => {
     keyWeights.forEach((keyWeight) => {
       const keyTokenWeights = {};
 
-      if (keyWeight && 'key' in keyWeight) {
+      if (keyWeight && "key" in keyWeight) {
         for (const { token, weight } of keyWeight.tokenizer(
           indexEntry[keyWeight.key],
         )) {

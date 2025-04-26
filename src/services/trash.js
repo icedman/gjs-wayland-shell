@@ -1,17 +1,17 @@
-import Gdk from 'gi://Gdk?version=4.0';
-import Gtk from 'gi://Gtk?version=4.0';
-import GLib from 'gi://GLib';
-import Gio from 'gi://Gio';
-import GObject from 'gi://GObject';
-import { Extension } from '../lib/extensionInterface.js';
+import Gdk from "gi://Gdk?version=4.0";
+import Gtk from "gi://Gtk?version=4.0";
+import GLib from "gi://GLib";
+import Gio from "gi://Gio";
+import GObject from "gi://GObject";
+import { Extension } from "../lib/extensionInterface.js";
 
 const TRASH_UPDATE_INTERVAL = 1000 * 45; // every 45 seconds
-const TRASH_URI = 'trash:///';
+const TRASH_URI = "trash:///";
 
 const Trash = GObject.registerClass(
   {
     Signals: {
-      'trash-update': { param_types: [GObject.TYPE_OBJECT] },
+      "trash-update": { param_types: [GObject.TYPE_OBJECT] },
     },
   },
   class Trash extends Extension {
@@ -21,7 +21,7 @@ const Trash = GObject.registerClass(
     }
 
     async enable() {
-      if (!Main.settings.get_boolean('service-trash')) {
+      if (!Main.settings.get_boolean("service-trash")) {
         return;
       }
 
@@ -42,7 +42,7 @@ const Trash = GObject.registerClass(
         null,
       );
       this._trashMonitor.connect(
-        'changed',
+        "changed",
         (fileMonitor, file, otherFile, eventType) => {
           // console.log(eventType);
           this.sync();
@@ -65,7 +65,7 @@ const Trash = GObject.registerClass(
 
       let prevFull = this.state.full ?? false;
       let iter = this._trashDir.enumerate_children(
-        'standard::*',
+        "standard::*",
         Gio.FileQueryInfoFlags.NONE,
         null,
       );
@@ -77,7 +77,7 @@ const Trash = GObject.registerClass(
       this.state = {
         full: this.checkTrash(),
       };
-      this.emit('trash-update', this);
+      this.emit("trash-update", this);
     }
   },
 );

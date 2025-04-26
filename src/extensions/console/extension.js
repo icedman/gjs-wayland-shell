@@ -1,9 +1,9 @@
-import Gdk from 'gi://Gdk?version=4.0';
-import Gtk from 'gi://Gtk?version=4.0';
-import GLib from 'gi://GLib';
-import Gio from 'gi://Gio';
-import GObject from 'gi://GObject';
-import { Extension } from '../../lib/extensionInterface.js';
+import Gdk from "gi://Gdk?version=4.0";
+import Gtk from "gi://Gtk?version=4.0";
+import GLib from "gi://GLib";
+import Gio from "gi://Gio";
+import GObject from "gi://GObject";
+import { Extension } from "../../lib/extensionInterface.js";
 
 const commandHeader = ``;
 const AsyncFunction = async function () {}.constructor;
@@ -21,13 +21,13 @@ const ConsoleExtension = GObject.registerClass(
 
       // Create the main application window
       const window = new Gtk.Window({
-        name: 'Console',
-        title: 'Console',
+        name: "Console",
+        title: "Console",
         default_width: 400,
         default_height: 300,
       });
 
-      window.connect('close-request', () => {
+      window.connect("close-request", () => {
         window.hide();
         return false;
       });
@@ -40,7 +40,7 @@ const ConsoleExtension = GObject.registerClass(
       window.set_child(vbox);
 
       // Create a text view to display output
-      const outputView = new Gtk.TextView({ name: 'Output' });
+      const outputView = new Gtk.TextView({ name: "Output" });
       outputView.editable = false;
       // outputView.set_sensitive(false);
       outputView.wrap_mode = Gtk.WrapMode.WORD;
@@ -54,8 +54,8 @@ const ConsoleExtension = GObject.registerClass(
       vbox.append(scroller);
 
       // Create a text entry for user input
-      const entry = new Gtk.Entry({ name: 'Entry' });
-      entry.placeholder_text = 'Enter a command...';
+      const entry = new Gtk.Entry({ name: "Entry" });
+      entry.placeholder_text = "Enter a command...";
       vbox.append(entry);
 
       this.scroller = scroller;
@@ -68,13 +68,13 @@ const ConsoleExtension = GObject.registerClass(
       }
 
       // Add functionality to execute entered scripts
-      entry.connect('activate', async () => {
+      entry.connect("activate", async () => {
         let command = entry.text;
 
-        if (command.startsWith(':')) {
+        if (command.startsWith(":")) {
           command =
             this.commandHistory[
-              this.historyIndex + parseInt(command.replace(':', ''), 10)
+              this.historyIndex + parseInt(command.replace(":", ""), 10)
             ];
           if (command) {
             entry.text = command;
@@ -85,9 +85,9 @@ const ConsoleExtension = GObject.registerClass(
           this.historyIndex = this.commandHistory.length; // Reset index for new entries
         }
 
-        let lines = command.split(';');
+        let lines = command.split(";");
         lines.push(`return ${lines.pop()}`);
-        let fullCmd = commandHeader + lines.join(';');
+        let fullCmd = commandHeader + lines.join(";");
 
         let resultObj;
         try {
@@ -107,11 +107,11 @@ const ConsoleExtension = GObject.registerClass(
           console.log(`> ${command}\n${resultObj}\n`);
         }
 
-        entry.text = ''; // Clear the input after execution
+        entry.text = ""; // Clear the input after execution
       });
 
       let event = new Gtk.EventControllerKey();
-      event.connect('key-pressed', (w, key, keycode) => {
+      event.connect("key-pressed", (w, key, keycode) => {
         let historyIndex = this.historyIndex;
         let commandHistory = this.commandHistory;
         if (key === Gdk.KEY_Up) {
@@ -129,7 +129,7 @@ const ConsoleExtension = GObject.registerClass(
             entry.set_position(-1); // Move the cursor to the end
           } else {
             historyIndex = commandHistory.length;
-            entry.text = ''; // Clear the input field if beyond history
+            entry.text = ""; // Clear the input field if beyond history
           }
         }
 
@@ -143,13 +143,13 @@ const ConsoleExtension = GObject.registerClass(
 
       this.window = window;
 
-      if (GLib.getenv('DEBUG_CONSOLE')) {
+      if (GLib.getenv("DEBUG_CONSOLE")) {
         this.show();
       }
 
       if (Main?.dbus) {
         Main.dbus.connectObject(
-          'request-console',
+          "request-console",
           () => {
             this.show();
           },
@@ -168,7 +168,7 @@ const ConsoleExtension = GObject.registerClass(
 
     clear() {
       const outputBuffer = this.outputView.buffer;
-      outputBuffer.set_text('', 0);
+      outputBuffer.set_text("", 0);
     }
 
     disable() {

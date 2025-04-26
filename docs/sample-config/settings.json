@@ -17,26 +17,41 @@
         {
             "id": "logo",
             "widget": "logo",
-            "showOSName": true,
-            "showShortOSName": false,
+            "showOSName": false,
+            "showShortOSName": true,
             "hideIcon": false
         },
         "search"
     ],
     "panel-items": [
-
+        {
+            "id": "clock-date",
+            "icon": "",
+            "widget": "clock",
+            "format": "󰸗 %a, %b %d, %Y",
+            "-format": "󰸗 %a, %b %d, %Y %H%:%M %p ",
+            "interval": 60000
+        },
+        {
+            "id": "clock-time",
+            "icon": "",
+            "widget": "clock",
+            "format": " %H%:%M %p ",
+            "interval": 750
+        }
     ],
     "panel-items-trail": [
         {
             "id": "inhibitor",
-            "_icons": [
+            "icons": [
                 "caffeine-off",
                 "caffeine-on"
             ]
         },
         {
             "id": "brightness",
-            "format": "%P%"
+            "format": "%P%",
+            "icons": [ "display-brightness-symbolic" ]
         },
         {
             "id": "arrow-inhibitor-network",
@@ -79,14 +94,8 @@
             "width": 84
         },
         {
-            "id": "clock",
-            "icon": "",
-            "widget": "clock",
-            "format": "󰸗 %a, %b %d, %Y %H:%M %p ",
-            "-format": "󰸗 %a, %b %d, %Y %H%:%M %p ",
-            "-interval": 750,
-            "format": "󰸗 %a, %b %d, %Y %H%:%M %p ",
-            "-format": "%Y-%m-%d %H:%M %p"
+            "id": "shutdown",
+            "icon": "system-shutdown-symbolic"
         }
     ]
 }

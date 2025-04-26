@@ -1,10 +1,10 @@
-import Gdk from 'gi://Gdk?version=4.0';
-import Gtk from 'gi://Gtk?version=4.0';
-import GLib from 'gi://GLib';
-import Gio from 'gi://Gio';
-import GObject from 'gi://GObject';
+import Gdk from "gi://Gdk?version=4.0";
+import Gtk from "gi://Gtk?version=4.0";
+import GLib from "gi://GLib";
+import Gio from "gi://Gio";
+import GObject from "gi://GObject";
 
-import * as Util from '../lib/misc.js';
+import * as Util from "../lib/misc.js";
 
 export const _ = (t) => {
   return t;
@@ -14,14 +14,14 @@ export const PopupBaseMenuItem = GObject.registerClass(
   {
     Properties: {
       active: GObject.ParamSpec.boolean(
-        'active',
+        "active",
         null,
         null,
         GObject.ParamFlags.READWRITE,
         false,
       ),
       sensitive: GObject.ParamSpec.boolean(
-        'sensitive',
+        "sensitive",
         null,
         null,
         GObject.ParamFlags.READWRITE,
@@ -29,25 +29,25 @@ export const PopupBaseMenuItem = GObject.registerClass(
       ),
       // added
       activate: GObject.ParamSpec.boolean(
-        'activate',
+        "activate",
         null,
         null,
         GObject.ParamFlags.READWRITE,
         false,
       ),
       can_focus: GObject.ParamSpec.boolean(
-        'can_focus',
+        "can_focus",
         null,
         null,
         GObject.ParamFlags.READWRITE,
         false,
       ),
       style_class: GObject.ParamSpec.string(
-        'style_class',
+        "style_class",
         null,
         null,
         GObject.ParamFlags.READWRITE,
-        '',
+        "",
       ),
     },
     Signals: {
@@ -68,7 +68,7 @@ export const PopupMenuItem = GObject.registerClass(
   {
     Properties: {
       reactive: GObject.ParamSpec.boolean(
-        'reactive',
+        "reactive",
         null,
         null,
         GObject.ParamFlags.READWRITE,
@@ -126,7 +126,7 @@ export const PopupMenuSection = GObject.registerClass(
   {
     Properties: {
       actor: GObject.ParamSpec.boolean(
-        'actor',
+        "actor",
         null,
         null,
         GObject.ParamFlags.READWRITE,
@@ -134,14 +134,14 @@ export const PopupMenuSection = GObject.registerClass(
       ),
     },
     Signals: {
-      'open-state-changed': {},
+      "open-state-changed": {},
     },
   },
   class PopupMenuSection extends GObject.Object {
     _init() {
       super._init();
       this.icon = new Icon();
-      this.label = '';
+      this.label = "";
       this.children = [];
     }
 
@@ -155,7 +155,7 @@ export const PopupMenuSection = GObject.registerClass(
       else menuItem = new PopupMenuItem(title);
 
       this.addMenuItem(menuItem);
-      menuItem.connect('activate', (o, event) => {
+      menuItem.connect("activate", (o, event) => {
         callback(event);
       });
 
@@ -182,7 +182,7 @@ export const PopupMenuSection = GObject.registerClass(
 
     setHeader(icon, header) {
       // console.log({ icon, header });
-      this.icon['icon-name'] = icon;
+      this.icon["icon-name"] = icon;
       this.label = header;
     }
     addHeaderSuffix(spinner__) {
@@ -223,11 +223,11 @@ export const Label = GObject.registerClass(
   {
     Properties: {
       text: GObject.ParamSpec.string(
-        'text',
+        "text",
         null,
         null,
         GObject.ParamFlags.READWRITE,
-        '',
+        "",
       ),
     },
   },
@@ -241,19 +241,19 @@ export const Label = GObject.registerClass(
 export const Icon = GObject.registerClass(
   {
     Properties: {
-      'icon-name': GObject.ParamSpec.string(
-        'icon-name',
+      "icon-name": GObject.ParamSpec.string(
+        "icon-name",
         null,
         null,
         GObject.ParamFlags.READWRITE,
-        '',
+        "",
       ),
       title: GObject.ParamSpec.string(
-        'title',
+        "title",
         null,
         null,
         GObject.ParamFlags.READWRITE,
-        '',
+        "",
       ),
     },
   },
@@ -277,57 +277,57 @@ export const Spinner = GObject.registerClass(
 export const QuickMenuToggle = GObject.registerClass(
   {
     Properties: {
-      'icon-name': GObject.ParamSpec.string(
-        'icon-name',
+      "icon-name": GObject.ParamSpec.string(
+        "icon-name",
         null,
         null,
         GObject.ParamFlags.READWRITE,
-        '',
+        "",
       ),
       title: GObject.ParamSpec.string(
-        'title',
+        "title",
         null,
         null,
         GObject.ParamFlags.READWRITE,
-        '',
+        "",
       ),
       subtitle: GObject.ParamSpec.string(
-        'subtitle',
+        "subtitle",
         null,
         null,
         GObject.ParamFlags.READWRITE,
-        '',
+        "",
       ),
       gicon: GObject.ParamSpec.object(
-        'gicon',
+        "gicon",
         null,
         null,
         GObject.ParamFlags.READWRITE,
         Gio.Icon,
       ),
-      'menu-enabled': GObject.ParamSpec.boolean(
-        'menu-enabled',
+      "menu-enabled": GObject.ParamSpec.boolean(
+        "menu-enabled",
         null,
         null,
         GObject.ParamFlags.READWRITE,
         true,
       ),
       visible: GObject.ParamSpec.boolean(
-        'visible',
+        "visible",
         null,
         null,
         GObject.ParamFlags.READWRITE,
         false,
       ),
       reactive: GObject.ParamSpec.boolean(
-        'reactive',
+        "reactive",
         null,
         null,
         GObject.ParamFlags.READWRITE,
         false,
       ),
       checked: GObject.ParamSpec.boolean(
-        'checked',
+        "checked",
         null,
         null,
         GObject.ParamFlags.READWRITE,
@@ -351,14 +351,14 @@ export const SystemIndicator = GObject.registerClass(
   {
     Properties: {
       visible: GObject.ParamSpec.boolean(
-        'visible',
+        "visible",
         null,
         null,
         GObject.ParamFlags.READWRITE,
         false,
       ),
       reactive: GObject.ParamSpec.boolean(
-        'reactive',
+        "reactive",
         null,
         null,
         GObject.ParamFlags.READWRITE,
@@ -414,7 +414,7 @@ export class ItemSorter {
   }
 
   *itemsByMru() {
-    console.assert(this._trackMru, 'itemsByMru: MRU tracking is disabled');
+    console.assert(this._trackMru, "itemsByMru: MRU tracking is disabled");
     yield* this._itemsMruOrder;
   }
 

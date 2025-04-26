@@ -1,21 +1,21 @@
-import Gdk from 'gi://Gdk?version=4.0';
-import Gtk from 'gi://Gtk?version=4.0';
+import Gdk from "gi://Gdk?version=4.0";
+import Gtk from "gi://Gtk?version=4.0";
 
-function formatTimeToString(seconds, fmt = '%H:%M') {
+function formatTimeToString(seconds, fmt = "%H:%M") {
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
   const remainingSeconds = seconds % 60;
   const components = {
-    '%H': `${hours}`.padStart(2, '0'),
-    '%M': `${minutes}`.padStart(2, '0'),
-    '%S': `${remainingSeconds}`.padStart(2, '0'),
+    "%H": `${hours}`.padStart(2, "0"),
+    "%M": `${minutes}`.padStart(2, "0"),
+    "%S": `${remainingSeconds}`.padStart(2, "0"),
   };
   return fmt.replace(/%[HMS]/g, (match) => components[match] || match);
 }
 
-function formatPowerToString(state, fmt = '%H:%M', config) {
+function formatPowerToString(state, fmt = "%H:%M", config) {
   const components = {
-    '%P': state.fillLevel,
+    "%P": state.percentage,
   };
 
   // "formatAlt": "%level %remaining",
@@ -39,9 +39,9 @@ export function createPowerIndicator(config) {
   let builder = new Gtk.Builder();
   builder.add_from_file(`${this.path}/ui/power.ui`);
 
-  let widget = builder.get_object('power-widget');
-  let i = builder.get_object('power-icon');
-  let l = builder.get_object('power-label');
+  let widget = builder.get_object("power-widget");
+  let i = builder.get_object("power-icon");
+  let l = builder.get_object("power-label");
   l.set_size_request(40, -1);
   widget.parent.remove(widget);
   menu.child.append(widget);
@@ -52,12 +52,12 @@ export function createPowerIndicator(config) {
       profile: Main.powerProfiles.state ?? {},
     };
     if (state && state.profile && btn == 3) {
-      i.set_label(state.profile.name ?? '???');
+      i.set_label(state.profile.name ?? "???");
       menu.popup();
       return;
     }
-    if (state && state.fillLevel) {
-      let fmt = config.formatAlt ?? '';
+    if (state && state.percentage) {
+      let fmt = config.formatAlt ?? "";
       if (state.timeToFull && config.formatAltToFull) {
         fmt = config.formatAltToFull;
       }
@@ -65,7 +65,7 @@ export function createPowerIndicator(config) {
         fmt = config.formatAltToEmpty;
       }
       let text = formatPowerToString(state, fmt, config).trim();
-      if (text == '') return;
+      if (text == "") return;
       i.set_label(text);
       menu.popup();
     }
@@ -77,7 +77,7 @@ export function createPowerIndicator(config) {
       profile: Main.powerProfiles.state ?? {},
     };
 
-    let fmt = config.format ?? '';
+    let fmt = config.format ?? "";
     if (state.timeToFull && config.formatToFull) {
       fmt = config.formatAltToFull;
     }
@@ -86,7 +86,7 @@ export function createPowerIndicator(config) {
     }
 
     let text = formatPowerToString(state, fmt, config);
-    if (text == '') {
+    if (text == "") {
       power.set_label(``);
     } else {
       power.set_label(text);
@@ -102,20 +102,20 @@ export function createPowerIndicator(config) {
   }
 
   Main.power.connectObject(
-    'power-update',
+    "power-update",
     () => {
       update_power();
     },
     power,
   );
   Main.powerProfiles.connectObject(
-    'power-profiles-update',
+    "power-profiles-update",
     () => {
       update_power();
     },
     power,
   );
-  power.connect('destroy', () => {
+  power.connect("destroy", () => {
     Main.power.disconnectObject(power);
     Main.powerProfiles.disconnectObject(power);
   });
@@ -131,9 +131,9 @@ export function createBrightnessIndicator(config) {
   let builder = new Gtk.Builder();
   builder.add_from_file(`${this.path}/ui/brightness.ui`);
 
-  let widget = builder.get_object('brightness-widget');
-  let w = builder.get_object('brightness');
-  let l = builder.get_object('brightness-label');
+  let widget = builder.get_object("brightness-widget");
+  let w = builder.get_object("brightness");
+  let l = builder.get_object("brightness-label");
   // let t = builder.get_object('brightness-toggle');
   l.set_size_request(40, -1);
   widget.parent.remove(widget);
@@ -162,12 +162,12 @@ export function createBrightnessIndicator(config) {
     );
   };
 
-  w.connect('value-changed', (w) => {
+  w.connect("value-changed", (w) => {
     setBrightness();
   });
 
   Main.brightness.connectObject(
-    'brightness-update',
+    "brightness-update",
     () => {
       let state = Main.brightness.state;
       brightness.set_label(``);
@@ -179,7 +179,7 @@ export function createBrightnessIndicator(config) {
     },
     this,
   );
-  brightness.connect('destroy', () => {
+  brightness.connect("destroy", () => {
     if (brightness._debounceBrightness) {
       Main.loTimer.cancel(brightness._debounceBrightness);
       brightness._debounceBrightness = null;

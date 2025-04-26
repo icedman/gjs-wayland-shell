@@ -1,27 +1,28 @@
-import Gdk from 'gi://Gdk?version=4.0';
-import Gtk from 'gi://Gtk?version=4.0';
-import GLib from 'gi://GLib';
-import Gio from 'gi://Gio';
-import GObject from 'gi://GObject';
-import { Extension } from '../../lib/extensionInterface.js';
-import { PopupMenu } from '../../lib/popupMenu.js';
-import { IconGroups } from '../../lib/dock.js';
-import { createClock } from './clock.js';
-import { createVolumeIndicator, createMicIndicator } from './audio.js';
-import { createCpuStats, createMemoryStats, createDiskStats } from './stats.js';
-import { createPowerIndicator, createBrightnessIndicator } from './power.js';
-import { createNetworkIndicator } from './network.js';
+import Gdk from "gi://Gdk?version=4.0";
+import Gtk from "gi://Gtk?version=4.0";
+import GLib from "gi://GLib";
+import Gio from "gi://Gio";
+import GObject from "gi://GObject";
+import { Extension } from "../../lib/extensionInterface.js";
+import { PopupMenu } from "../../lib/popupMenu.js";
+import { IconGroups } from "../../lib/dock.js";
+import { createClock } from "./clock.js";
+import { createVolumeIndicator, createMicIndicator } from "./audio.js";
+import { createCpuStats, createMemoryStats, createDiskStats } from "./stats.js";
+import { createPowerIndicator, createBrightnessIndicator } from "./power.js";
+import { createShutdownIcon } from "./shutdown.js";
+import { createNetworkIndicator } from "./network.js";
 
 function getOSIcon(config = {}) {
   let icons = [
-    'archlinux',
-    'fedora',
-    'linuxmint',
-    'ubuntu',
-    'debian',
-    'kalilinux',
-    'manjaro',
-    'zorin',
+    "archlinux",
+    "fedora",
+    "linuxmint",
+    "ubuntu",
+    "debian",
+    "kalilinux",
+    "manjaro",
+    "zorin",
     ...(config.icons ?? []),
   ];
   let os = getShorterOSName().toLowerCase();
@@ -31,22 +32,22 @@ function getOSIcon(config = {}) {
       return icon;
     }
   }
-  return 'archlinux';
+  return "archlinux";
 }
 
 function getOSName() {
-  const prettyName = GLib.get_os_info('PRETTY_NAME');
+  const prettyName = GLib.get_os_info("PRETTY_NAME");
   if (prettyName) return prettyName;
 
-  const name = GLib.get_os_info('NAME');
-  const version = GLib.get_os_info('VERSION');
+  const name = GLib.get_os_info("NAME");
+  const version = GLib.get_os_info("VERSION");
   if (name) return version ? `${name} ${version}` : name;
 
-  return 'Linux';
+  return "Linux";
 }
 
 function getShorterOSName() {
-  return getOSName().split('(')[0].trim();
+  return getOSName().split("(")[0].trim();
 }
 
 const BarItemsExtension = GObject.registerClass(
@@ -59,52 +60,53 @@ const BarItemsExtension = GObject.registerClass(
 
     enable() {
       Main.factory.registerProvider(
-        'icon-label',
+        "icon-label",
         this.createIconLabel.bind(this),
       );
-      Main.factory.registerProvider('logo', this.createOSLogo.bind(this));
-      Main.factory.registerProvider('clock', createClock.bind(this));
+      Main.factory.registerProvider("logo", this.createOSLogo.bind(this));
+      Main.factory.registerProvider("clock", createClock.bind(this));
 
       Main.factory.registerProvider(
-        'inhibitor',
+        "inhibitor",
         this.createInhibitorIndicator.bind(this),
       );
 
       // network
       Main.factory.registerProvider(
-        'network',
+        "network",
         createNetworkIndicator.bind(this),
       );
       Main.factory.registerProvider(
-        'bluetooth',
+        "bluetooth",
         this.createBluetoothIndicator.bind(this),
       );
 
       // audio
-      Main.factory.registerProvider('volume', createVolumeIndicator.bind(this));
-      Main.factory.registerProvider('mic', createMicIndicator.bind(this));
+      Main.factory.registerProvider("volume", createVolumeIndicator.bind(this));
+      Main.factory.registerProvider("mic", createMicIndicator.bind(this));
 
       // power
-      Main.factory.registerProvider('power', createPowerIndicator.bind(this));
+      Main.factory.registerProvider("power", createPowerIndicator.bind(this));
       Main.factory.registerProvider(
-        'brightness',
+        "brightness",
         createBrightnessIndicator.bind(this),
       );
+      Main.factory.registerProvider("shutdown", createShutdownIcon.bind(this));
 
       // stats
-      Main.factory.registerProvider('cpu-stats', createCpuStats.bind(this));
+      Main.factory.registerProvider("cpu-stats", createCpuStats.bind(this));
       Main.factory.registerProvider(
-        'memory-stats',
+        "memory-stats",
         createMemoryStats.bind(this),
       );
-      Main.factory.registerProvider('disk-stats', createDiskStats.bind(this));
+      Main.factory.registerProvider("disk-stats", createDiskStats.bind(this));
       super.enable();
     }
 
     createIconLabel(config) {
       let item = Main.panel.create_panelitem(config);
-      if (config['class-name']) {
-        item.add_css_class(config['class-name']);
+      if (config["class-name"]) {
+        item.add_css_class(config["class-name"]);
       }
       item.set_icon(config.icon);
       item.set_label(config.label);
@@ -119,7 +121,10 @@ const BarItemsExtension = GObject.registerClass(
       if (config.showShortOSName) {
         logo.set_label(getShorterOSName());
       }
-      logo.set_icon(config.hideIcon ? '' : getOSIcon(config));
+      logo.set_icon(config.hideIcon ? "" : getOSIcon(config));
+      logo.on_click = () => {
+        Main.appsGrid.toggle();
+      };
       return logo;
     }
 
@@ -128,7 +133,7 @@ const BarItemsExtension = GObject.registerClass(
       let inhibitorSevice = Main.inhibitor;
 
       inhibitorSevice.connectObject(
-        'inhibitor-update',
+        "inhibitor-update",
         () => {
           let state = inhibitorSevice.state;
           inhibitor.set_label(``);
@@ -146,7 +151,7 @@ const BarItemsExtension = GObject.registerClass(
         inhibitorSevice.toggle();
       };
 
-      inhibitor.connect('destroy', () => {
+      inhibitor.connect("destroy", () => {
         inhibitorSevice.uninhibit();
         inhibitorSevice.disconnectObject(inhibitor);
       });
@@ -163,20 +168,20 @@ const BarItemsExtension = GObject.registerClass(
 
       function updateBluetooth() {
         // find any connected
-        let icon = bluetoothSevice.indicator._primaryIndicator['icon-name'];
+        let icon = bluetoothSevice.indicator._primaryIndicator["icon-name"];
         let devices =
           Main.bluetooth.indicator.quickSettingsItems[0]._getSortedDevices();
         bluetooth.set_icon(icon);
-        bluetooth.set_label('');
+        bluetooth.set_label("");
         devices.forEach((dev) => {
           if (dev.connected) {
-            bluetooth.set_label(dev.name ?? '');
+            bluetooth.set_label(dev.name ?? "");
           }
         });
       }
 
       bluetoothSevice.indicator._primaryIndicator.connectObject(
-        'notify::icon-name',
+        "notify::icon-name",
         () => {
           updateBluetooth();
         },
@@ -184,7 +189,7 @@ const BarItemsExtension = GObject.registerClass(
       );
 
       bluetoothSevice.indicator._primaryIndicator._client.connectObject(
-        'devices-changed',
+        "devices-changed",
         () => {
           updateBluetooth();
         },
@@ -195,7 +200,7 @@ const BarItemsExtension = GObject.registerClass(
         // show menu
       };
 
-      bluetooth.connect('destroy', () => {
+      bluetooth.connect("destroy", () => {
         Main.bluetooth.disconnectObject(bluetooth);
       });
 
